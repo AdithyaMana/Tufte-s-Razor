@@ -1,0 +1,5 @@
+{
+  "name": "Tufte's Razor",
+  "description": "A minimalist tool that analyzes data visualizations using Edward Tufte's Data-Ink Ratio principle. Upload a chart to receive an AI-powered critique and optimization suggestions.",
+  "requestFramePermissions": []
+}
