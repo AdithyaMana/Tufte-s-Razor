@@ -1,7 +1,7 @@
 import React, { useId, useRef } from 'react';
 
-// Controls are chrome, so each is the least that still reads as a control: a hairline
-// slider, words for choices, a plain checkbox.
+// Controls are chrome, so each is the least that still reads as a control, but never less
+// than a comfortable target for a finger: about 40 px tall.
 
 interface SliderProps {
   label: string;
@@ -66,21 +66,22 @@ export interface Option<T extends string> {
   hint?: string;
 }
 
-interface ChoiceProps<T extends string> {
+interface SegmentedProps<T extends string> {
   label: string;
   options: Option<T>[];
   /** May match no option, e.g. once the reader has changed something by hand. */
   value: T | null;
   onChange: (value: T) => void;
-  /** Show the label before the options (otherwise it is only announced). */
+  /** Show the label above the options (otherwise it is only announced). */
   showLabel?: boolean;
+  className?: string;
 }
 
 /**
- * Mutually exclusive choices, set as words: the chosen one is underlined. A radio group,
+ * Mutually exclusive choices as a row of buttons, big enough to tap. A radio group,
  * navigable with the arrow keys.
  */
-export function Choice<T extends string>({ label, options, value, onChange, showLabel = true }: ChoiceProps<T>) {
+export function Segmented<T extends string>({ label, options, value, onChange, showLabel = true, className = '' }: SegmentedProps<T>) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const selectedIndex = options.findIndex((o) => o.value === value);
 
@@ -95,9 +96,9 @@ export function Choice<T extends string>({ label, options, value, onChange, show
   };
 
   return (
-    <div className="font-sans text-[0.8125rem] flex flex-wrap items-baseline gap-x-4 gap-y-1.5">
-      {showLabel && <span className="font-medium text-chrome">{label}</span>}
-      <div role="radiogroup" aria-label={label} className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5">
+    <div className={`font-sans ${className}`}>
+      {showLabel && <p className="mb-1.5 text-[0.8125rem] font-medium text-chrome">{label}</p>}
+      <div role="radiogroup" aria-label={label} className="inline-flex max-w-full flex-wrap gap-1 rounded-md border border-line-2 p-1">
         {options.map((option, index) => {
           const selected = option.value === value;
           return (
@@ -113,8 +114,8 @@ export function Choice<T extends string>({ label, options, value, onChange, show
               onClick={() => onChange(option.value)}
               onKeyDown={(e) => onKeyDown(e, index)}
               title={option.hint}
-              className={`whitespace-nowrap rounded-sm underline-offset-[5px] transition-colors ${
-                selected ? 'text-control underline decoration-2' : 'text-chrome hover:text-content hover:underline decoration-1'
+              className={`min-h-9 px-3 rounded-[4px] text-[0.8125rem] whitespace-nowrap transition-colors ${
+                selected ? 'bg-control text-paper font-medium' : 'text-chrome hover:text-content hover:bg-content/[0.05]'
               }`}
             >
               {option.label}
@@ -126,6 +127,31 @@ export function Choice<T extends string>({ label, options, value, onChange, show
   );
 }
 
+/** Something on the chart that can be switched on or off, as a chip with a checkbox in it. */
+export const Toggle: React.FC<{ label: string; on: boolean; onChange: (on: boolean) => void }> = ({ label, on, onChange }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={on}
+    onClick={() => onChange(!on)}
+    className={`inline-flex items-center gap-2 min-h-9 pl-2.5 pr-3 rounded-md border font-sans text-[0.8125rem] transition-colors ${
+      on ? 'border-line-2 text-content hover:border-chrome' : 'border-dashed border-line-2 text-chrome hover:text-content hover:border-chrome'
+    }`}
+  >
+    <span
+      className={`grid place-items-center w-3.5 h-3.5 rounded-[3px] border transition-colors ${on ? 'bg-control border-control text-paper' : 'border-chrome/60'}`}
+      aria-hidden="true"
+    >
+      {on && (
+        <svg viewBox="0 0 12 12" className="w-2.5 h-2.5">
+          <path d="M2.5 6.2 5 8.5 9.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+    </span>
+    {label}
+  </button>
+);
+
 interface CheckProps {
   label: string;
   checked: boolean;
@@ -133,7 +159,7 @@ interface CheckProps {
 }
 
 export const Check: React.FC<CheckProps> = ({ label, checked, onChange }) => (
-  <label className="flex items-center gap-2.5 py-1 font-sans text-[0.8125rem] text-chrome hover:text-content cursor-pointer w-fit">
+  <label className="flex items-center gap-2.5 min-h-10 font-sans text-[0.8125rem] text-chrome hover:text-content cursor-pointer w-fit">
     <input type="checkbox" className="check" checked={checked} onChange={(e) => onChange(e.target.checked)} />
     {label}
   </label>
@@ -144,7 +170,7 @@ export const TextButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>
   <button
     type="button"
     {...props}
-    className={`inline-flex items-center gap-1.5 font-sans text-[0.8125rem] text-chrome hover:text-content underline-offset-4 hover:underline rounded-sm disabled:opacity-40 disabled:pointer-events-none ${className}`}
+    className={`inline-flex items-center gap-1.5 min-h-10 font-sans text-[0.8125rem] text-chrome hover:text-content underline-offset-4 hover:underline rounded-sm disabled:opacity-40 disabled:pointer-events-none ${className}`}
   />
 );
 

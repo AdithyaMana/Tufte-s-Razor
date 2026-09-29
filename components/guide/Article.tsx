@@ -2,19 +2,21 @@ import React from 'react';
 
 // Layout for the long-form guide. No boxes or rules: space, type and position do the work.
 
-/** A section: the idea as a headline, then in one sentence, then whatever shows it. */
-export const Section: React.FC<{ id: string; title: React.ReactNode; lead?: React.ReactNode; children: React.ReactNode }> = ({
-  id,
-  title,
-  lead,
-  children,
-}) => (
+/** A section: which part of the guide it is, the idea as a headline, then in one sentence, then whatever shows it. */
+export const Section: React.FC<{
+  id: string;
+  part?: string;
+  title: React.ReactNode;
+  lead?: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ id, part, title, lead, children }) => (
   <section id={id} aria-labelledby={`${id}-title`} className="max-w-6xl mx-auto px-4 md:px-8 pt-20 md:pt-32">
+    {part && <p className="kicker mb-3">{part}</p>}
     <h2 id={`${id}-title`} className="font-serif text-[2.1rem] md:text-5xl leading-[1.08] tracking-tight text-content max-w-3xl text-balance">
       {title}
     </h2>
     {lead && <p className="mt-4 max-w-2xl font-serif italic text-xl md:text-2xl leading-snug text-content-2 text-pretty">{lead}</p>}
-    <div className="mt-8">{children}</div>
+    <div className="mt-8 md:mt-10">{children}</div>
   </section>
 );
 

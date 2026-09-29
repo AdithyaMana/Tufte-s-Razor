@@ -35,7 +35,7 @@ const ColourGrid: React.FC = () => {
             <ChartCanvas spec={specs[v.id]} label={`Variation ${v.id}: ${v.caption}`} />
             <p className="mt-2 flex items-baseline justify-between gap-2 font-sans">
               <span className="text-xs font-semibold text-content">{v.id}</span>
-              <span className="text-[0.8125rem] font-semibold tabular-nums text-content">{pct(ratios[v.id])}</span>
+              <span className="text-[0.8125rem] font-semibold tabular-nums text-echo">{pct(ratios[v.id])}</span>
             </p>
             <p className="mt-0.5 font-sans text-xs leading-snug text-content-2">{v.caption}</p>
           </div>

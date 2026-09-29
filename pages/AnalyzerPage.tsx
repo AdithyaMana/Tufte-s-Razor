@@ -120,9 +120,13 @@ const AnalyzerPage: React.FC = () => {
           <p className="mt-4 max-w-2xl font-serif italic text-xl md:text-2xl leading-snug text-content-2">
             Upload a chart image for an estimate of its data-ink ratio and a list of the chartjunk worth erasing.
           </p>
-          <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
+          <p className="mt-3 flex flex-wrap items-center gap-x-5">
             <TextButton onClick={() => setShowMethodology(true)}>How it measures</TextButton>
-            <a href="/" onClick={linkHandler('/')} className="font-sans text-[0.8125rem] text-chrome hover:text-content hover:underline underline-offset-4 rounded-sm">
+            <a
+              href="/"
+              onClick={linkHandler('/')}
+              className="inline-flex items-center min-h-10 font-sans text-[0.8125rem] text-chrome hover:text-content hover:underline underline-offset-4 rounded-sm"
+            >
               New to data-ink? Read the guide
             </a>
           </p>

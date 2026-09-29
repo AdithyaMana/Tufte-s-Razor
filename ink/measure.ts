@@ -1,5 +1,5 @@
 import { computeLayout, type TextMeasurer } from './layout.ts';
-import { chartFont, COUNT_PAINT, drawLayer, LAYERS } from './render.ts';
+import { chartFont, countPaint, drawChart, drawVisible, GROUPS, INK_CHANNEL, type InkGroup } from './render.ts';
 import { CHART_HEIGHT, CHART_WIDTH, ChartSpec } from './spec.ts';
 
 export interface InkStats {
@@ -79,17 +79,29 @@ function countKey(spec: ChartSpec): string {
   return JSON.stringify({ ...shape, outline: !!barOutline, fill: !!plotFill });
 }
 
-const cache = new Map<string, InkStats>();
 const CACHE_LIMIT = 600;
+const cache = new Map<string, InkStats>();
+const groupCache = new Map<string, Record<InkGroup, number>>();
+
+function remember<T>(map: Map<string, T>, key: string, value: T): T {
+  if (map.size >= CACHE_LIMIT) map.delete(map.keys().next().value as string);
+  map.set(key, value);
+  return value;
+}
 
 /** Forget cached counts, e.g. once web fonts finish loading and text widths change. */
 export function clearInkCache() {
   cache.clear();
+  groupCache.clear();
+}
+
+function readSums(ctx: CanvasRenderingContext2D) {
+  return sumChannels(ctx.getImageData(0, 0, CHART_WIDTH, CHART_HEIGHT).data);
 }
 
 /**
- * Draws the chart offscreen at its fixed 640 × 400 size, each kind of ink in its own colour
- * channel, and counts every pixel of ink by kind.
+ * Draws the chart offscreen at its fixed size, each kind of ink in its own colour channel,
+ * and counts every pixel of ink by kind.
  */
 export function measureChart(spec: ChartSpec): InkStats {
   const key = countKey(spec);
@@ -99,10 +111,37 @@ export function measureChart(spec: ChartSpec): InkStats {
   const ctx = counterContext();
   const layout = computeLayout(spec, measureText);
   ctx.clearRect(0, 0, CHART_WIDTH, CHART_HEIGHT);
-  for (const { id } of LAYERS) drawLayer(ctx, id, layout, spec, COUNT_PAINT);
-  const stats = toStats(sumChannels(ctx.getImageData(0, 0, CHART_WIDTH, CHART_HEIGHT).data));
+  drawChart(ctx, layout, spec, countPaint);
+  return remember(cache, key, toStats(readSums(ctx)));
+}
 
-  if (cache.size >= CACHE_LIMIT) cache.delete(cache.keys().next().value as string);
-  cache.set(key, stats);
-  return stats;
+const CHANNELS = [INK_CHANNEL.data, INK_CHANNEL.redundant, INK_CHANNEL.nonData];
+
+/**
+ * The visible ink of every group, in px: what pointing at one part of a chart reports.
+ * Three groups are counted per pass, one per colour channel, while the rest only hide what
+ * they cover; the groups of each kind add up to that kind's total in measureChart.
+ */
+export function measureGroups(spec: ChartSpec): Record<InkGroup, number> {
+  const key = countKey(spec);
+  const hit = groupCache.get(key);
+  if (hit) return hit;
+
+  const ctx = counterContext();
+  const layout = computeLayout(spec, measureText);
+  const result = {} as Record<InkGroup, number>;
+  for (let first = 0; first < GROUPS.length; first += CHANNELS.length) {
+    const targets = GROUPS.slice(first, first + CHANNELS.length).map((g) => g.id);
+    ctx.clearRect(0, 0, CHART_WIDTH, CHART_HEIGHT);
+    drawVisible(ctx, layout, spec, (group) => {
+      const channel = targets.indexOf(group);
+      return channel === -1 ? null : CHANNELS[channel];
+    });
+    const sums = readSums(ctx);
+    const counts = [sums.data, sums.redundant, sums.nonData];
+    targets.forEach((group, channel) => {
+      result[group] = counts[channel];
+    });
+  }
+  return remember(groupCache, key, result);
 }

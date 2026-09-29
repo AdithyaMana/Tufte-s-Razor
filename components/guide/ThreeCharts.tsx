@@ -19,11 +19,11 @@ const Specimen: React.FC<{ id: string; verdict: string; text: string }> = ({ id,
   const issues = readabilityChecks(spec).length;
   return (
     <figure className="min-w-0">
-      <ChartCanvas spec={spec} />
+      <ChartCanvas spec={spec} inspectable />
       <figcaption className="mt-3 font-sans">
         <p className="flex items-baseline justify-between gap-3">
           <span className="text-[0.9375rem] font-semibold text-content">{verdict}</span>
-          <span className="text-[0.9375rem] font-semibold tabular-nums text-content">{pct(stats.ratio)}</span>
+          <span className="text-[0.9375rem] font-semibold tabular-nums text-echo">{pct(stats.ratio)}</span>
         </p>
         <p className="mt-1 text-[0.8125rem] leading-snug text-content-2">{text}</p>
         {issues > 0 && (

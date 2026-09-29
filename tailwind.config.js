@@ -27,7 +27,7 @@ export default {
         control: 'rgb(var(--control) / <alpha-value>)',
         line: 'rgb(var(--line) / <alpha-value>)',
         'line-2': 'rgb(var(--line-2) / <alpha-value>)',
-        repeat: 'rgb(var(--repeat) / <alpha-value>)',
+        echo: 'rgb(var(--echo) / <alpha-value>)',
         'ink-data': 'rgb(var(--ink-data) / <alpha-value>)',
         'ink-redundant': 'rgb(var(--ink-redundant) / <alpha-value>)',
         'ink-nondata': 'rgb(var(--ink-nondata) / <alpha-value>)',

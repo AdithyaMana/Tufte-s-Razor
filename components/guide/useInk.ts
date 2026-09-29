@@ -40,6 +40,13 @@ export function useInkStats(spec: ChartSpec): InkStats {
   return useMemo(() => measureChart(spec), [key, fontsReady]);
 }
 
+/** Ink counts for several charts at once, e.g. every step of a story. */
+export function useInkStatsList(specs: ChartSpec[]): InkStats[] {
+  const fontsReady = useChartFontsReady();
+  const key = JSON.stringify(specs);
+  return useMemo(() => specs.map(measureChart), [key, fontsReady]);
+}
+
 export interface SweepPoint {
   x: number;
   stats: InkStats;

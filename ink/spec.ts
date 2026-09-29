@@ -38,14 +38,22 @@ export interface ChartSpec {
   /** Numbers printed above each bar. */
   dataLabels: boolean;
   title: string | null;
-  /** Font sizes in px, relative to the chart's 640px reference width. */
+  /** Font sizes in px, on the chart's 480 px width. */
   titleSize: number;
   labelSize: number;
 }
 
-/** Charts are drawn and counted at this fixed logical size, then scaled to fit the screen. */
-export const CHART_WIDTH = 640;
-export const CHART_HEIGHT = 400;
+/**
+ * Charts are drawn and counted at this fixed logical size, then scaled to fit the screen:
+ * about the size of a spreadsheet's default chart (5 × 3 inches), so default type sizes
+ * look the way they do in a spreadsheet, and stay readable on a phone.
+ */
+export const CHART_WIDTH = 480;
+export const CHART_HEIGHT = 300;
+
+/** A spreadsheet's default type: a 14 pt title and 9 pt labels, in px. */
+export const DEFAULT_TITLE_SIZE = 18;
+export const DEFAULT_LABEL_SIZE = 12;
 
 /**
  * The thinnest bar that still shows its value: a 2px hairline. Only this much of each bar
@@ -107,8 +115,8 @@ export function defaultSpec(isDark = false): ChartSpec {
     categoryLabels: true,
     dataLabels: false,
     title: 'Chart Title',
-    titleSize: 18,
-    labelSize: 11,
+    titleSize: DEFAULT_TITLE_SIZE,
+    labelSize: DEFAULT_LABEL_SIZE,
     ...themeColours(isDark),
   };
 }

@@ -5,7 +5,7 @@ import { measureText } from '../../ink/measure.ts';
 import { defaultSpec, type ChartSpec } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
 import ChartCanvas from './ChartCanvas.tsx';
-import { Choice, More, Slider } from './controls.tsx';
+import { More, Segmented, Slider } from './controls.tsx';
 import { pct } from './format.ts';
 import InkReadout from './InkReadout.tsx';
 import { AllClear, Lab, Warnings } from './Lab.tsx';
@@ -54,7 +54,7 @@ const BarWidthLab: React.FC = () => {
   return (
     <Lab
       label="Bar width and the data-ink ratio"
-      chart={<ChartCanvas spec={spec} />}
+      chart={<ChartCanvas spec={spec} inspectable />}
       readout={<InkReadout stats={stats} scale={widest.total} />}
       controls={
         <>
@@ -70,7 +70,7 @@ const BarWidthLab: React.FC = () => {
             format={(v) => (v === 0 ? 'hairline, 2 px' : `${barPx} px`)}
             valueText={`${barPx} pixels wide. Data-ink ratio ${pct(stats.ratio)}.`}
           />
-          <Choice
+          <Segmented
             label="The article’s examples"
             options={PRESETS}
             value={preset}

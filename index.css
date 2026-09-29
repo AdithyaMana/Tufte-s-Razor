@@ -40,7 +40,8 @@
     --control: 17 17 17;
     --line: 227 224 211;
     --line-2: 207 203 187;
-    --repeat: 107 106 99;
+    /* Numbers that repeat what a chart already shows: set like content, mapped as repeated ink. */
+    --echo: var(--content);
     /* Ink-map colours, validated for colour-vision deficiency on both papers. */
     --ink-data: 24 79 149;
     --ink-redundant: 109 167 236;
@@ -57,7 +58,6 @@
     --control: 236 235 228;
     --line: 46 45 42;
     --line-2: 69 68 63;
-    --repeat: 149 147 138;
     --ink-data: 77 147 232;
     --ink-redundant: 34 99 181;
     --ink-nondata: 217 89 38;
@@ -70,7 +70,7 @@
   .inkmap {
     --content: var(--ink-data);
     --content-2: var(--ink-data);
-    --repeat: var(--ink-redundant);
+    --echo: var(--ink-redundant);
     --chrome: var(--ink-nondata);
     --control: var(--ink-nondata);
     --line: var(--ink-nondata);
@@ -162,6 +162,57 @@
       grid-template-areas: 'chart readout' 'controls readout';
       align-items: start;
     }
+  }
+
+  /*
+   * A figure that stays in view while the text beside it scrolls: on wide screens the text
+   * runs on the left and the figure sticks on the right; on narrow ones the figure sticks
+   * under the header and the text scrolls up beneath it. See ScrollStory.tsx.
+   */
+  .sticky-layout {
+    display: block;
+  }
+  .sticky-figure {
+    position: sticky;
+    top: 3.5rem;
+    z-index: 10;
+    background-color: rgb(var(--paper));
+    padding: 0.5rem 0 0.75rem;
+    border-bottom: 1px solid rgb(var(--line));
+  }
+  @media (max-width: 1023px) and (max-height: 560px) {
+    /* A landscape phone has no room for a figure that stays put. */
+    .sticky-figure {
+      position: relative;
+      top: 0;
+    }
+  }
+  @media (min-width: 1024px) {
+    .sticky-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+      grid-template-areas: 'body figure';
+      column-gap: 4.5rem;
+    }
+    .sticky-figure {
+      grid-area: figure;
+      align-self: start;
+      top: 5rem;
+      padding: 0;
+      border-bottom: 0;
+      background: none;
+    }
+    .sticky-body {
+      grid-area: body;
+    }
+  }
+
+  /* One step of a scroll story: the text in view is full strength, the rest recedes. */
+  .story-step {
+    transition: opacity 0.35s ease;
+  }
+  .story-step[data-active='false'] {
+    opacity: 0.28;
   }
 
   /* Under the ink map the logo is chrome too, so it is drawn as a shape in the chrome colour. */

@@ -4,7 +4,7 @@
 
 **Tufte's Razor** is an interactive guide to Edward Tufte's **data-ink ratio**: how much of a chart's ink actually shows data, why that number moves the way it does, and why it is a range to aim for rather than a score to max out.
 
-Every chart on the site is drawn on a canvas and **counted pixel by pixel** as you change it. Drag the razor through a cluttered chart, slide a bar from hairline to touching, strip out labels or resize the type, and watch the ink get sorted into data-ink, repeated data-ink and non-data ink in real time.
+The guide is a set of short **scroll-driven stories**: a chart stays in view while the text beside it scrolls, and each step changes the chart. Every chart is drawn on a canvas and **counted pixel by pixel** as it changes, so the ink is sorted into data-ink, repeated data-ink and non-data ink in real time. Readers guess before each surprise, point at any part of a chart to see what kind of ink it is, and finish by fixing a cluttered chart themselves.
 
 The guide is adapted from *Balancing clarity and clutter: the highs and lows of data-ink ratio in practice* by Michael Lai and Mike Morrison, and recreates that article's examples.
 
@@ -14,25 +14,32 @@ The guide is adapted from *Balancing clarity and clutter: the highs and lows of 
 
 ### The guide (`/`)
 
-One long page, one idea per section, each stated in a sentence before it is shown:
+Ten parts, each a headline, one sentence, then a story or figure that shows it:
 
-| Section | Interactive |
+| Part | What the reader does |
 |---|---|
-| How much of a chart is data? | **The razor**: erase a cluttered chart one cut at a time, with all of its ink drawn to scale beside it, until one cut goes too far |
-| Three kinds of ink | One bar taken apart into data-ink, repeated data-ink, non-data ink and paper; Tufte's definition |
-| A bar's width isn't data | **Bar-width visualizer**: hairline to touching bars, the article's wide/balanced/thin examples, and the ratio at every width |
-| The background is paper | The article's eight colour variations (A1–D2) as small multiples, each measured |
-| Say it once | The article's label and gridline revisions, plus one step too far |
-| Type costs attention, not ink | Text size |
-| Aim for the middle | Three charts from too low to too high, and the design flaws that push the ratio each way |
-| Most good advice leaves the ratio alone | The 23 Data Visualization Checklist items, grouped by their effect on the ratio |
-| Playground | Every control, the article's charts as presets, and a pinned reference for comparing versions |
+| 1. How much of a chart is data? | Guesses how much of a cluttered chart's ink shows data, sees it as an ink map, then scrolls to erase it one cut at a time, until one cut goes too far |
+| 2. Three kinds of ink | Each kind picked out on one chart in turn, then the equation, then free inspection |
+| 3. A bar's width isn't data | Guesses which way the ratio moves as bars widen; wide, thin, hairline and balanced bars; then a slider and the ratio at every width |
+| 4. The background is paper | Guesses whether a background colour counts; the article's colour variations one by one, then all eight side by side |
+| 5. Say it once | The article's label and gridline revisions, plus one step too far |
+| 6. Type costs attention, not ink | Guesses how much bigger type costs; bigger, smaller, and back |
+| 7. Aim for the middle | Three charts from too low to too high, and the design flaws that push the ratio each way |
+| 8. Most good advice leaves the ratio alone | The 23 Data Visualization Checklist items, grouped by their effect on the ratio |
+| 9. Your turn: fix this chart | Cleans up the cluttered chart against six goals (triple the ratio without losing values, names, comparability, legible text or contrast), then free play with the article's charts as presets and a pinned reference |
+| 10. Now look at this page | Reveals the page's own ink, as an analogy |
 
-Plain-language warnings flag what a change costs the reader that the ratio can't see (lost values, illegible text, low contrast). Pixel counts and the second measure are one click away rather than on screen by default.
+### How it reads
+
+- **Scroll stories.** On wide screens the text runs on the left and the chart sticks on the right; on phones the chart sticks under the header and the text scrolls up beneath it. Every step stays on the page, so nothing is hidden from people who skim, search or use a screen reader, and dots under the chart jump back to any step.
+- **Guess first.** Before each counter-intuitive result the reader predicts it. Nothing waits on the guess: scrolling on shows the answer anyway.
+- **Point to inspect.** Hover, tap or arrow-key through any chart's parts. The part is picked out in its ink colour while the rest fades, with its name, kind of ink, pixel count and share of the chart's ink.
+- **Where am I.** The header shows the part being read (3/10), a reading-progress line, and a contents menu that jumps to any part and ticks off the ones already read.
+- **Detail on demand.** Plain language first; pixel counts, Tufte's full definition and the naive measure sit behind disclosures.
 
 ### The ink map
 
-One switch in the header turns on the **ink map** for the whole site. Every chart is recoloured by kind of ink, and so is the page itself: its words are data-ink, the contents list (which repeats the headings) is repeated ink, and its menus, controls and rules are non-data ink.
+The **Ink map** switch in the header recolours every chart by kind of ink. At the end of the guide, the reader can also reveal the page's own ink: its words are data-ink, the numbers that repeat a chart are repeated ink, and menus, controls and rules are non-data ink. It is labelled as an analogy, not a measurement.
 
 ### Measure a chart (`/analyze`, beta)
 
@@ -44,11 +51,11 @@ The site is built the way the guide says charts should be:
 
 - **The paper isn't ink.** Charts are drawn on the page's own paper colour, in light and dark mode.
 - **Content is the data.** No cards, frames, shadows or decorative icons. Whitespace, alignment and type (ET Book) do the structuring.
-- **Chrome is kept to what still works.** Choices are words with the chosen one underlined, options are plain checkboxes, sliders are hairlines, and detail sits behind "Show the count" and similar disclosures.
+- **Chrome is kept to what still works.** Controls are quiet (hairline borders, no fills until chosen) but never smaller than a finger: segmented buttons and on/off chips are about 40 px tall, and detail sits behind "Show the count" and similar disclosures.
 - **Colour is for data.** The only colours are the charts' and the three ink-map colours (validated for colour-vision deficiency in both themes). Everything else is ink on paper.
 - **Within reason.** Controls still look like controls, and every chart keeps the labels it needs.
 
-Design tokens in [`index.css`](index.css) are named by role (`content`, `chrome`, `repeat`, `line`, `paper`), which is exactly the split the page-wide ink map recolours.
+Design tokens in [`index.css`](index.css) are named by role (`content`, `echo`, `chrome`, `line`, `paper`), which is exactly the split the page's ink map recolours.
 
 ## 🧮 How the counting works
 
@@ -57,8 +64,9 @@ The engine lives in [`ink/`](ink):
 - **The chart's background is the paper.** Whatever its colour (white, dark mode, pale blue), it is never ink. Any fill painted on top of it, such as a shaded plot area, is.
 - **Data-ink is the least ink that shows each value**: a 2 px hairline the length of each bar. A bar's value lives in its length, so every pixel of width beyond the hairline repeats the same number and counts as **repeated (redundant) data-ink**, as do bar outlines and values printed on the bars.
 - **Non-data ink** is everything else that is drawn: axes, ticks, gridlines, borders, fills, titles and labels.
-- **Hidden ink doesn't count.** Each chart is drawn once, offscreen at 640 × 400, with each kind of ink in its own colour channel (data red, redundant green, non-data blue). Ordinary paint compositing then gives each pixel to whatever is visible on top, anti-aliased edges count fractionally, and one pass over the image data adds it all up (`sumChannels` in [`ink/measure.ts`](ink/measure.ts)).
+- **Hidden ink doesn't count.** Each chart is drawn once, offscreen at 480 × 300 (a spreadsheet's default chart size, so default type looks as it does in a spreadsheet and stays readable on a phone), with each kind of ink in its own colour channel (data red, redundant green, non-data blue). Ordinary paint compositing then gives each pixel to whatever is visible on top, anti-aliased edges count fractionally, and one pass over the image data adds it all up (`sumChannels` in [`ink/measure.ts`](ink/measure.ts)).
 - **Bars keep their pixel width when labels change**, so a label change never also changes how much redundant bar ink there is.
+- **Every mark belongs to one of eleven ink groups** (plot fill, gridlines, borders, axes, bar width, outlines, hairlines, title, axis labels, category labels, values on bars). Pointing at a chart hit-tests those groups geometrically ([`ink/inspect.ts`](ink/inspect.ts)); each group's visible pixels are counted three at a time, one per colour channel, while the other groups only erase what they cover (`measureGroups`). The same trick draws a highlighted part exactly where it is visible.
 
 The **data-ink ratio** shown everywhere is Tufte's strict version: essential data-ink ÷ total ink. The naive share (all data-coloured ink ÷ total ink) is available beside it, because the two move in opposite directions as bars widen.
 
@@ -117,18 +125,20 @@ NODE_ENV=production npm start   # serve dist/ and the analyzer API
 │   ├── spec.ts                 # ChartSpec: every design choice the guide varies
 │   ├── razor.ts                # The razor: a cluttered chart, cleaned up one cut at a time
 │   ├── layout.ts               # Chart geometry (plot, bars, hairlines, labels)
-│   ├── render.ts               # Draws each layer, for display, ink map or counting
-│   ├── measure.ts              # Counts ink by kind; cached per chart
+│   ├── render.ts               # Draws each ink group, for display, ink map, highlight or counting
+│   ├── measure.ts              # Counts ink by kind and by group; cached per chart
+│   ├── inspect.ts              # What a reader is pointing at: hit testing and parts
 │   ├── checks.ts               # Readability warnings the ratio can't see
 │   ├── presets.ts              # The article's figures, and colours by role
 │   └── ink.test.ts             # Unit tests
-├── content/                    # Checklist and design-flaw data from the article
+├── content/                    # The guide's parts, chart-part descriptions, checklist and design flaws
 ├── pages/
 │   ├── GuidePage.tsx           # The guide
 │   └── AnalyzerPage.tsx        # The AI-assisted analyzer
 ├── components/
-│   ├── guide/                  # Labs, readouts, controls, figures for the guide
-│   ├── site/                   # Header, footer, router, theme, the site-wide ink map
+│   ├── guide/                  # Scroll stories, guesses, the challenge, charts, readouts and controls
+│   │   └── stories/            # One scroll story per part of the guide
+│   ├── site/                   # Header (progress, contents), footer, router, theme, ink maps
 │   └── *.tsx                   # Analyzer components
 ├── services/ utils/            # Analyzer: API client and pixel classifier
 └── public/                     # Fonts (ET Book + licence), logo, favicon

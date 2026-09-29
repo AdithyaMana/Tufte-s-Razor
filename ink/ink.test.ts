@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { computeLayout, niceMax, tickStep, type TextMeasurer } from './layout.ts';
+import { hitTest, presentParts, textBox } from './inspect.ts';
+import { computeLayout, niceMax, PAD, tickStep, type TextMeasurer } from './layout.ts';
 import { sumChannels, toStats } from './measure.ts';
 import { RAZOR_STEPS, razorSpec } from './razor.ts';
 import { defaultSpec, ESSENTIAL_WIDTH } from './spec.ts';
@@ -146,7 +147,7 @@ describe('computeLayout', () => {
     const spec = { ...defaultSpec(), dataLabels: true, labelSize: 30 };
     const layout = computeLayout(spec, measure);
     const tallest = Math.min(...layout.bars.map((b) => b.y));
-    const titleBottom = 14 + spec.titleSize * 1.2 + 12;
+    const titleBottom = PAD + spec.titleSize * 1.2 + 12;
     expect(tallest - 6 - spec.labelSize).toBeGreaterThanOrEqual(titleBottom - 1);
   });
 
@@ -180,5 +181,52 @@ describe('razor', () => {
     expect(last.barWidth).toBe(0);
     expect(last.title).toBeNull();
     expect(last.categoryLabels || last.dataLabels || last.valueLabels !== 'none').toBe(false);
+  });
+});
+
+describe('hitTest', () => {
+  const spec = { ...defaultSpec(), dataLabels: true };
+  const layout = computeLayout(spec, measure);
+  const at = (x: number, y: number, tolerance = 4) => hitTest(layout, spec, x, y, tolerance, measure);
+  const plotBottom = layout.plot.y + layout.plot.h;
+
+  it('finds a bar anywhere on it, and a hairline bar from nearby', () => {
+    const bar = layout.bars[2];
+    expect(at(bar.x + 1, bar.y + bar.h / 2)).toBe('bars');
+    const thin = { ...spec, barWidth: 0 };
+    const thinLayout = computeLayout(thin, measure);
+    const hairline = thinLayout.bars[2];
+    expect(hitTest(thinLayout, thin, hairline.cx + 6, hairline.y + 20, 10, measure)).toBe('bars');
+  });
+
+  it('finds text by the space it covers', () => {
+    const title = textBox(layout.title!, measure);
+    expect(at(title.x + title.w / 2, title.y + title.h / 2)).toBe('title');
+    const label = layout.dataLabels[0];
+    expect(at(label.x, label.y - 3)).toBe('dataLabels');
+    const category = layout.categoryLabels[1];
+    expect(at(category.x, category.y + 4)).toBe('categoryLabels');
+  });
+
+  it('finds thin lines from a few px away', () => {
+    const gap = (layout.bars[0].x + layout.bars[0].w + layout.bars[1].x) / 2;
+    const gridY = layout.yOf(layout.gridValues[0]);
+    expect(at(gap, gridY + 3)).toBe('gridlines');
+    expect(at(gap, plotBottom + 2)).toBe('axes');
+    expect(at(2, layout.height / 2)).toBe('borders');
+  });
+
+  it('calls the space between marks paper, or the plot fill when there is one', () => {
+    const gap = (layout.bars[0].x + layout.bars[0].w + layout.bars[1].x) / 2;
+    const between = (layout.yOf(layout.gridValues[0]) + layout.yOf(layout.gridValues[1])) / 2;
+    expect(at(gap, between)).toBe('paper');
+    const filled = { ...spec, plotFill: '#dae3f3' };
+    expect(hitTest(computeLayout(filled, measure), filled, gap, between, 4, measure)).toBe('plotFill');
+  });
+
+  it('lists only the parts a chart has', () => {
+    expect(presentParts(layout, spec)).toEqual(['title', 'bars', 'dataLabels', 'valueLabels', 'categoryLabels', 'gridlines', 'axes', 'borders', 'paper']);
+    const bare = { ...spec, title: null, gridlines: false, chartBorder: false, baseline: false, valueLabels: 'none' as const, dataLabels: false, categoryLabels: false };
+    expect(presentParts(computeLayout(bare, measure), bare)).toEqual(['bars', 'paper']);
   });
 });

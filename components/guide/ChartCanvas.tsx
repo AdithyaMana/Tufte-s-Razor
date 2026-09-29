@@ -1,10 +1,13 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { hitTest, PART_GROUPS, partAnchor, presentParts, type InkPart } from '../../ink/inspect.ts';
 import { computeLayout, formatValue } from '../../ink/layout.ts';
 import { measureText } from '../../ink/measure.ts';
-import { chartPaint, drawLayer, inkMapPaint, LAYERS, type InkMapColours } from '../../ink/render.ts';
+import { chartPaint, drawChart, drawVisible, inkMapPaint, type InkGroup, type InkMapColours } from '../../ink/render.ts';
 import { CHART_HEIGHT, CHART_WIDTH, orderedData, PAPER, type ChartSpec } from '../../ink/spec.ts';
-import { useInkLens } from '../site/inkLens.ts';
+import { PARTS } from '../../content/parts.ts';
+import { useChartsAsInkMaps } from '../site/inkMap.ts';
 import { useIsDark } from '../site/theme.ts';
+import InkTooltip from './InkTooltip.tsx';
 import { useChartFontsReady } from './useInk.ts';
 
 /** Ink-map colours; mirror the --ink-* tokens in index.css. The map is drawn on the page's paper. */
@@ -21,10 +24,29 @@ export function describeChart(spec: ChartSpec): string {
   return `Bar chart: ${values}.`;
 }
 
+/** How much of the rest of the chart shows through while one part is picked out. */
+const FADED = 0.16;
+
+// Finger-sized and mouse-sized reach for thin marks, in screen px.
+const TOUCH_REACH = 12;
+const MOUSE_REACH = 5;
+
+interface Inspecting {
+  part: InkPart;
+  /** Where the reader pointed, in px from the chart's top left. */
+  x: number;
+  y: number;
+  via: 'mouse' | 'touch' | 'keyboard';
+}
+
 interface ChartCanvasProps {
   spec: ChartSpec;
-  /** Force the ink map on or off; by default the chart follows the site-wide ink map. */
+  /** Force the ink map on or off; by default the chart follows the ink-map switch. */
   inkMap?: boolean;
+  /** Ink groups to pick out while the rest of the chart fades. An empty list picks out the paper. */
+  highlight?: readonly InkGroup[] | null;
+  /** Let readers point at, tap or arrow through the chart's parts to see what kind of ink each is. */
+  inspectable?: boolean;
   className?: string;
   label?: string;
 }
@@ -33,14 +55,24 @@ interface ChartCanvasProps {
  * Draws a chart specimen with exactly the geometry that is counted, scaled to its
  * container and sharp on high-density screens.
  */
-const ChartCanvas: React.FC<ChartCanvasProps> = ({ spec, inkMap, className = '', label }) => {
+const ChartCanvas: React.FC<ChartCanvasProps> = ({ spec, inkMap, highlight = null, inspectable = false, className = '', label }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const layerRef = useRef<HTMLCanvasElement | null>(null);
+  const lastPointer = useRef<string>('mouse');
   const [cssWidth, setCssWidth] = useState(0);
+  const [inspecting, setInspecting] = useState<Inspecting | null>(null);
+  const tooltipId = useId();
   const fontsReady = useChartFontsReady();
   const isDark = useIsDark();
-  const lens = useInkLens().on;
-  const showMap = inkMap ?? lens;
+  const mapsOn = useChartsAsInkMaps();
+  const showMap = inkMap ?? mapsOn;
+  const specKey = JSON.stringify(spec);
+  const layout = useMemo(() => computeLayout(spec, measureText), [specKey, fontsReady]);
+
+  // What to pick out: the part being inspected, or else whatever the page asks for.
+  const picked = inspecting ? PART_GROUPS[inspecting.part] : highlight;
+  const pickedKey = picked ? picked.join(',') || 'paper' : '';
 
   useLayoutEffect(() => {
     const wrap = wrapRef.current;
@@ -62,26 +94,137 @@ const ChartCanvas: React.FC<ChartCanvasProps> = ({ spec, inkMap, className = '',
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const toChart = (c: CanvasRenderingContext2D) => c.setTransform(width / CHART_WIDTH, 0, 0, height / CHART_HEIGHT, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, width, height);
-    ctx.setTransform(width / CHART_WIDTH, 0, 0, height / CHART_HEIGHT, 0, 0);
+    toChart(ctx);
 
-    const layout = computeLayout(spec, measureText);
     const map = inkMapColours(isDark);
-    ctx.fillStyle = showMap ? map.background : spec.background;
+    const background = showMap ? map.background : spec.background;
+    ctx.fillStyle = background;
     ctx.fillRect(0, 0, CHART_WIDTH, CHART_HEIGHT);
-    const paint = showMap ? inkMapPaint(map) : chartPaint(spec);
-    for (const { id } of LAYERS) drawLayer(ctx, id, layout, spec, paint);
-  }, [spec, showMap, cssWidth, fontsReady, isDark]);
+    drawChart(ctx, layout, spec, showMap ? inkMapPaint(map) : chartPaint(spec));
+    if (!picked) return;
+
+    // Fade the whole chart towards its paper, then draw the picked groups on top in their
+    // ink-map colours, only where they are visible on the finished chart.
+    ctx.globalAlpha = 1 - FADED;
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, CHART_WIDTH, CHART_HEIGHT);
+    ctx.globalAlpha = 1;
+    if (!picked.length) return;
+
+    const layer = (layerRef.current ??= document.createElement('canvas'));
+    if (layer.width !== width) layer.width = width;
+    if (layer.height !== height) layer.height = height;
+    const layerCtx = layer.getContext('2d');
+    if (!layerCtx) return;
+    layerCtx.setTransform(1, 0, 0, 1, 0, 0);
+    layerCtx.clearRect(0, 0, width, height);
+    toChart(layerCtx);
+    drawVisible(layerCtx, layout, spec, (group, kind) => (picked.includes(group) ? map[kind] : null));
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(layer, 0, 0);
+  }, [layout, specKey, showMap, cssWidth, isDark, pickedKey]);
+
+  // A touch inspection stays until the reader taps elsewhere; a mouse one ends on scroll.
+  useEffect(() => {
+    if (!inspecting || inspecting.via === 'keyboard') return;
+    if (inspecting.via === 'touch') {
+      const onDown = (event: PointerEvent) => {
+        if (!wrapRef.current?.contains(event.target as Node)) setInspecting(null);
+      };
+      document.addEventListener('pointerdown', onDown);
+      return () => document.removeEventListener('pointerdown', onDown);
+    }
+    const onScroll = () => setInspecting(null);
+    window.addEventListener('scroll', onScroll, { passive: true, once: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [inspecting?.via, inspecting === null]);
+
+  // Parts come and go as the chart changes; drop an inspection whose part is gone.
+  useEffect(() => {
+    if (inspecting && !presentParts(layout, spec).includes(inspecting.part)) setInspecting(null);
+  }, [layout]);
+
+  const pointAt = (clientX: number, clientY: number, reach: number, via: Inspecting['via']): Inspecting | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const scale = CHART_WIDTH / rect.width;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const part = hitTest(layout, spec, x * scale, y * scale, reach * scale, measureText);
+    return { part, x, y, via };
+  };
+
+  const handlers: React.HTMLAttributes<HTMLDivElement> = inspectable
+    ? {
+        tabIndex: 0,
+        role: 'group',
+        'aria-label': 'Chart. Press the left and right arrow keys to go through its parts.',
+        'aria-describedby': inspecting ? tooltipId : undefined,
+        onPointerDown: (e) => {
+          lastPointer.current = e.pointerType;
+        },
+        onPointerMove: (e) => {
+          if (e.pointerType !== 'mouse') return;
+          const next = pointAt(e.clientX, e.clientY, MOUSE_REACH, 'mouse');
+          setInspecting((current) =>
+            next && current && current.part === next.part && Math.abs(current.x - next.x) + Math.abs(current.y - next.y) < 1 ? current : next,
+          );
+        },
+        onPointerLeave: (e) => {
+          if (e.pointerType === 'mouse') setInspecting((current) => (current?.via === 'mouse' ? null : current));
+        },
+        onClick: (e) => {
+          if (lastPointer.current === 'mouse') return;
+          const next = pointAt(e.clientX, e.clientY, TOUCH_REACH, 'touch');
+          setInspecting((current) => (current && next && current.part === next.part ? null : next));
+        },
+        onKeyDown: (e) => {
+          if (e.key === 'Escape') {
+            setInspecting(null);
+            return;
+          }
+          const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!step) return;
+          e.preventDefault();
+          const parts = presentParts(layout, spec);
+          const index = inspecting ? parts.indexOf(inspecting.part) : step > 0 ? -1 : 0;
+          const part = parts[(index + step + parts.length) % parts.length];
+          const anchor = partAnchor(part, layout, spec, measureText);
+          const scale = cssWidth / CHART_WIDTH;
+          setInspecting({ part, x: anchor.x * scale, y: anchor.y * scale, via: 'keyboard' });
+        },
+        onBlur: () => setInspecting((current) => (current?.via === 'keyboard' ? null : current)),
+      }
+    : {};
+
+  const cssHeight = (cssWidth * CHART_HEIGHT) / CHART_WIDTH;
+  const description = `${label ?? describeChart(spec)}${showMap ? ' Shown as an ink map.' : ''}${
+    inspecting ? ` Showing: ${PARTS[inspecting.part].name}.` : ''
+  }`;
 
   return (
-    <div ref={wrapRef} className={`relative w-full ${className}`} style={{ aspectRatio: `${CHART_WIDTH} / ${CHART_HEIGHT}` }}>
-      <canvas
-        ref={canvasRef}
-        role="img"
-        aria-label={`${label ?? describeChart(spec)}${showMap ? ' Shown as an ink map.' : ''}`}
-        className="block w-full h-full"
-      />
+    <div
+      ref={wrapRef}
+      className={`relative w-full rounded-[1px] ${inspectable ? 'touch-manipulation select-none' : ''} ${className}`}
+      style={{ aspectRatio: `${CHART_WIDTH} / ${CHART_HEIGHT}` }}
+      {...handlers}
+    >
+      <canvas ref={canvasRef} role="img" aria-label={description} className="block w-full h-full" />
+      {inspecting && (
+        <InkTooltip
+          id={tooltipId}
+          part={inspecting.part}
+          spec={spec}
+          x={inspecting.x}
+          y={inspecting.y}
+          width={cssWidth}
+          height={cssHeight}
+        />
+      )}
     </div>
   );
 };

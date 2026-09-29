@@ -30,6 +30,14 @@ export const InkBar: React.FC<{ stats: InkStats; scale?: number; className?: str
   );
 };
 
+/** A kind of ink's colour, inline with text: the key, where the words are. */
+export const Swatch: React.FC<{ kind: 'data' | 'redundant' | 'nonData' }> = ({ kind }) => (
+  <span
+    className={`inline-block w-[0.62em] h-[0.62em] mr-[0.3em] align-[0.02em] ${INK_KINDS.find((k) => k.key === kind)!.swatch}`}
+    aria-hidden="true"
+  />
+);
+
 /** The key to the ink colours, used under every ink bar and in the ink-map legend. */
 export const InkKey: React.FC<{ className?: string }> = ({ className = '' }) => (
   <ul className={`flex flex-wrap gap-x-4 gap-y-1 font-sans text-xs text-chrome ${className}`}>
@@ -47,6 +55,40 @@ export interface ReferenceStats {
   stats: InkStats;
 }
 
+/** "4.4× the start", "same as the start", or nothing when there is nothing to compare. */
+export function comparedWith(stats: InkStats, reference?: ReferenceStats | null): string | null {
+  if (!reference) return null;
+  const factor = times(stats.ratio, reference.stats.ratio);
+  return factor === 'same' ? `same as ${reference.label}` : `${factor} ${reference.label}`;
+}
+
+/**
+ * The count in a line, for figures that stay in view while the text scrolls: the ratio,
+ * the ink bar and its key. `hidden` keeps the number back, e.g. until the reader has guessed.
+ */
+export const InkMeter: React.FC<{
+  stats: InkStats;
+  scale?: number;
+  reference?: ReferenceStats | null;
+  hidden?: boolean;
+  className?: string;
+}> = ({ stats, scale, reference, hidden = false, className = '' }) => {
+  const compared = hidden ? null : comparedWith(stats, reference);
+  return (
+    <div className={`font-sans ${className}`}>
+      <p className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <span className="kicker">Data-ink ratio</span>
+        <span className="text-2xl lg:text-[1.75rem] leading-none font-semibold tracking-tight tabular-nums text-echo" aria-live="polite">
+          {hidden ? '?' : pct(stats.ratio)}
+        </span>
+        {compared && <span className="text-[0.8125rem] text-content-2">{compared}</span>}
+      </p>
+      <InkBar stats={hidden ? { ...stats, total: 0, data: 0, redundant: 0, nonData: 0 } : stats} scale={scale} className="mt-2.5" />
+      <InkKey className="mt-2" />
+    </div>
+  );
+};
+
 interface InkReadoutProps {
   stats: InkStats;
   /** Pixels of ink the ink bar's full width stands for. */
@@ -61,16 +103,10 @@ const InkReadout: React.FC<InkReadoutProps> = ({ stats, scale, reference, classN
   <div className={`font-sans ${className}`}>
     <p className="kicker">Data-ink ratio</p>
     <p className="mt-1.5 flex items-baseline gap-3">
-      <span className="text-[2.75rem] leading-none font-semibold tracking-tight text-content" aria-live="polite">
+      <span className="text-[2.75rem] leading-none font-semibold tracking-tight tabular-nums text-echo" aria-live="polite">
         {pct(stats.ratio)}
       </span>
-      {reference && (
-        <span className="text-[0.8125rem] text-content-2">
-          {times(stats.ratio, reference.stats.ratio) === 'same'
-            ? `same as ${reference.label}`
-            : `${times(stats.ratio, reference.stats.ratio)} ${reference.label}`}
-        </span>
-      )}
+      {reference && <span className="text-[0.8125rem] text-content-2">{comparedWith(stats, reference)}</span>}
     </p>
 
     <InkBar stats={stats} scale={scale} className="mt-5" />

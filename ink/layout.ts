@@ -47,10 +47,11 @@ export interface ChartLayout {
 /** Measures text width in px for a given font size. */
 export type TextMeasurer = (text: string, size: number) => number;
 
-const PAD = 14;
+/** Space between the chart's edge and anything drawn on it. */
+export const PAD = 12;
 const TICK = 5;
 /** Plot width of the default chart; bar widths are shares of a slot at this width. */
-export const REFERENCE_PLOT_WIDTH = 578;
+export const REFERENCE_PLOT_WIDTH = 420;
 
 /** Rounds a maximum up to a tidy axis end: 9 → 10, 42 → 50, 180 → 200. */
 export function niceMax(max: number): number {

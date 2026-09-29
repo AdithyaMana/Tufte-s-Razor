@@ -1,48 +1,34 @@
 import React, { useEffect } from 'react';
-import { MarginNote, Prose, Quote, Section } from '../components/guide/Article.tsx';
-import BarAnatomy from '../components/guide/BarAnatomy.tsx';
+import { SECTIONS } from '../content/sections.ts';
+import { MarginNote, Prose, Section } from '../components/guide/Article.tsx';
 import BarWidthLab from '../components/guide/BarWidthLab.tsx';
 import ChecklistColumns from '../components/guide/ChecklistColumns.tsx';
 import ColourGrid from '../components/guide/ColourGrid.tsx';
 import { More } from '../components/guide/controls.tsx';
+import FixChart from '../components/guide/FixChart.tsx';
 import FlawSpectrum from '../components/guide/FlawSpectrum.tsx';
-import Playground from '../components/guide/Playground.tsx';
-import RazorHero from '../components/guide/RazorHero.tsx';
-import RedundancyLab from '../components/guide/RedundancyLab.tsx';
+import PageReveal from '../components/guide/PageReveal.tsx';
+import BackgroundStory from '../components/guide/stories/BackgroundStory.tsx';
+import BarWidthStory from '../components/guide/stories/BarWidthStory.tsx';
+import InkKindsStory from '../components/guide/stories/InkKindsStory.tsx';
+import RazorStory from '../components/guide/stories/RazorStory.tsx';
+import RedundancyStory from '../components/guide/stories/RedundancyStory.tsx';
+import TypeStory from '../components/guide/stories/TypeStory.tsx';
 import ThreeCharts from '../components/guide/ThreeCharts.tsx';
-import TypeLab from '../components/guide/TypeLab.tsx';
 import { linkHandler, scrollToHash } from '../components/site/router.ts';
 
 const GOLDILOCKS_URL = 'https://scienceux.org/articles/data-ink-ideal-vs-minimal';
 
-const CONTENTS = [
-  { id: 'ink', title: 'Three kinds of ink' },
-  { id: 'bar-width', title: 'A bar’s width isn’t data' },
-  { id: 'background', title: 'The background is paper' },
-  { id: 'redundancy', title: 'Say it once' },
-  { id: 'type', title: 'Type costs attention' },
-  { id: 'balance', title: 'Aim for the middle' },
-  { id: 'checklist', title: 'Most advice leaves it alone' },
-  { id: 'playground', title: 'Playground' },
-];
+/** "Part 3 of 10", for the section with this id. */
+function partOf(id: string): string {
+  return `Part ${SECTIONS.findIndex((s) => s.id === id) + 1} of ${SECTIONS.length}`;
+}
 
-/** The ratio in words, with Tufte's own three-part definition one click away. */
-const Equation: React.FC = () => (
-  <div className="my-10 md:my-14">
-    <p className="font-serif text-[1.65rem] md:text-4xl leading-snug text-content">
-      Data-ink ratio <span className="text-content-2">=</span> data-ink <span className="text-content-2">÷</span> all the ink
-    </p>
-    <More label="Tufte’s full definition" className="mt-3">
-      <div className="max-w-2xl space-y-1.5 font-serif text-lg leading-snug text-content-2">
-        <p>= data-ink ÷ total ink used to print the graphic</p>
-        <p>= proportion of a graphic’s ink devoted to the non-redundant display of data-information</p>
-        <p>= 1.0 − proportion of a graphic that can be erased without loss of data-information</p>
-        <p className="pt-1 font-sans text-xs text-content-2">
-          Edward R. Tufte, <cite>The Visual Display of Quantitative Information</cite> (1983)
-        </p>
-      </div>
-    </More>
-  </div>
+const title = (id: string) => SECTIONS.find((s) => s.id === id)!.title;
+
+/** A small heading inside a section, e.g. over a hands-on figure that follows a story. */
+const SubHeading: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <h3 className="mt-4 font-serif text-2xl md:text-[1.75rem] leading-tight text-content">{children}</h3>
 );
 
 const GuidePage: React.FC = () => {
@@ -52,30 +38,16 @@ const GuidePage: React.FC = () => {
   }, []);
 
   return (
-    <article>
-      <RazorHero />
+    <article id="guide">
+      <RazorStory />
 
-      <nav aria-label="In this guide" className="max-w-6xl mx-auto px-4 md:px-8 font-sans">
-        <p className="kicker mb-2">In this guide</p>
-        <ol className="flex flex-wrap gap-x-5 gap-y-1.5 text-[0.8125rem]">
-          {CONTENTS.map((c) => (
-            <li key={c.id}>
-              <a href={`#${c.id}`} className="rounded-sm text-repeat hover:text-content hover:underline underline-offset-4">
-                {c.title}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-
-      <Section id="ink" title="Every pixel is one of three kinds of ink" lead="Plus the paper, which isn’t ink at all.">
-        <BarAnatomy />
-        <Equation />
+      <Section id="ink" part={partOf('ink')} title="Every mark is one of three kinds of ink" lead="Plus the paper, which isn’t ink at all.">
+        <InkKindsStory />
         <Prose
           notes={
-            <MarginNote title="See it everywhere">
-              Switch on the ink map at the top of the page. Every chart turns into these colours, and so does this page: its words
-              are the data, and its menus, controls and rules are non-data ink.
+            <MarginNote title="Why a thin line?">
+              Each bar is credited with the least ink that could show its value: a line 2 px wide. Change that allowance and every
+              percentage shifts, but every comparison in this guide stays the same.
             </MarginNote>
           }
         >
@@ -84,82 +56,69 @@ const GuidePage: React.FC = () => {
             numbers represented.” The test is simple: if you could erase a mark and the reader would still learn exactly the same
             numbers, it wasn’t data-ink.
           </p>
-          <p>
-            On a screen, the paper is whatever colour the chart sits on: white, black in dark mode, pale blue. Its colour never
-            counts. Anything painted on top of it does.
-          </p>
+          <More label="Tufte’s full definition" className="mt-5">
+            <div className="space-y-1.5 font-serif text-lg leading-snug text-content-2">
+              <p>Data-ink ratio = data-ink ÷ total ink used to print the graphic</p>
+              <p>= proportion of a graphic’s ink devoted to the non-redundant display of data-information</p>
+              <p>= 1.0 − proportion of a graphic that can be erased without loss of data-information</p>
+              <p className="pt-1 font-sans text-xs text-content-2">
+                Edward R. Tufte, <cite>The Visual Display of Quantitative Information</cite> (1983)
+              </p>
+            </div>
+          </More>
         </Prose>
       </Section>
 
       <Section
         id="bar-width"
-        title="A bar’s width isn’t data"
-        lead="A bar shows its value by its length. A wider bar adds ink, not information, so the ratio falls."
+        part={partOf('bar-width')}
+        title={title('bar-width')}
+        lead="A bar shows its value by its length. Extra width adds ink, not information."
       >
+        <BarWidthStory />
+        <SubHeading>Try any width</SubHeading>
         <BarWidthLab />
-        <Prose
-          notes={
-            <MarginNote title="Why a hairline?">
-              Each bar is credited with the least ink that could show its value: a 2 px line. Change that allowance and the
-              percentages shift, but every direction on this page stays the same.
-            </MarginNote>
-          }
-        >
-          <p>
-            The ratio alone would send you all the way to a hairline, but look at the chart when you get there. The article’s
-            examples show the trade-off:
-          </p>
-          <Quote>Wide bars add “unnecessary visual clutter.” Very thin bars make “visual comparison more difficult.”</Quote>
-          <p>The widths in between are the easiest to read.</p>
-        </Prose>
       </Section>
 
-      <Section id="background" title="The background is paper" lead="Its colour doesn’t count. A second colour painted on top of it does.">
+      <Section
+        id="background"
+        part={partOf('background')}
+        title={title('background')}
+        lead="Its colour doesn’t count. A colour painted on top of it does."
+      >
+        <BackgroundStory />
+        <SubHeading>All eight of the article’s versions</SubHeading>
         <ColourGrid />
         <Prose>
           <p>
-            A1, B1 and B2 score the same: only the paper changed. C1, C2 and D1 also match, because each one paints a whole plot
-            area, which costs far more ink than a thin box (A2) or an outline (D2).
+            A1, B1 and B2 score the same: only the paper changed. C1, C2 and D1 also match each other, because each paints a whole
+            plot area, which costs far more ink than a thin box (A2) or outlines (D2).
           </p>
         </Prose>
       </Section>
 
       <Section
         id="redundancy"
-        title="Say it once"
-        lead="Five bars, three distinct values: 9, 7 and 5. A default chart describes them with ten gridlines and eleven axis labels."
+        part={partOf('redundancy')}
+        title={title('redundancy')}
+        lead="A default chart often says each value three ways: a gridline, an axis label and the bar itself."
       >
-        <RedundancyLab />
-        <Prose>
-          <p>
-            The ratio moves only a little here, because the bars hold most of this chart’s ink. Open “Show the count” and the
-            non-data ink falls by more than half from A to B.
-          </p>
-          <p>
-            D is a warning. Take away every value label and the ratio still rises, but the chart stops saying anything: that ink was
-            doing a job.
-          </p>
-        </Prose>
+        <RedundancyStory />
       </Section>
 
       <Section
         id="type"
-        title="Type costs attention, not ink"
+        part={partOf('type')}
+        title={title('type')}
         lead="Letters are mostly empty space, so resizing them barely moves the ratio. What changes is how hard the text pulls at the eye."
       >
-        <TypeLab />
-        <Prose>
-          <p>
-            In the article’s examples, bigger type adds weight that “takes focus off the data in the chart,” and smaller type forces
-            “the reader to work harder to see the details.” Keep titles larger than labels, and no text smaller than about 9 points at
-            arm’s length.
-          </p>
-        </Prose>
+        <TypeStory />
       </Section>
 
       <Section
         id="balance"
-        title="Aim for the middle"
+        part={partOf('balance')}
+        title={title('balance')}
         lead="A higher ratio isn’t always better. Too much ink buries the data; too little leaves the reader guessing."
       >
         <ThreeCharts />
@@ -173,15 +132,16 @@ const GuidePage: React.FC = () => {
         <FlawSpectrum />
         <Prose>
           <p>
-            So compare versions of a chart rather than grading one on its own; the article calls this the relative value. Pin a
-            reference in the playground to try it.
+            So compare versions of a chart rather than grading one on its own; the article calls this the <em>relative value</em>. You
+            can try it in free play, at the end of this guide.
           </p>
         </Prose>
       </Section>
 
       <Section
         id="checklist"
-        title="Most good advice leaves the ratio alone"
+        part={partOf('checklist')}
+        title={title('checklist')}
         lead="Of the 23 items on Stephanie Evergreen’s Data Visualization Checklist, 7 raise the ratio, 3 lower it and 13 barely touch it."
       >
         <ChecklistColumns />
@@ -194,11 +154,16 @@ const GuidePage: React.FC = () => {
       </Section>
 
       <Section
-        id="playground"
-        title="Playground"
-        lead="Every control from this guide in one place. Start from any of the article’s charts, pin it, and compare."
+        id="your-turn"
+        part={partOf('your-turn')}
+        title={title('your-turn')}
+        lead="Everything in this guide, on one cluttered chart. Clean it up without losing anything a reader needs."
       >
-        <Playground />
+        <FixChart />
+      </Section>
+
+      <Section id="this-page" part={partOf('this-page')} title={title('this-page')} lead="One last chart, of a kind.">
+        <PageReveal />
       </Section>
 
       <section id="measure" className="max-w-6xl mx-auto px-4 md:px-8 pt-20 md:pt-28">
