@@ -14,6 +14,8 @@ import TextSizeLab from '../components/guide/TextSizeLab.tsx';
 import ThreeCharts from '../components/guide/ThreeCharts.tsx';
 import { linkHandler, scrollToHash } from '../components/site/router.ts';
 
+const GOLDILOCKS_URL = 'https://scienceux.org/articles/data-ink-ideal-vs-minimal';
+
 const CONTENTS = [
   { id: 'ratio', title: 'Data-ink, and the ratio' },
   { id: 'screen', title: 'What counts as ink on a screen?' },
@@ -215,6 +217,11 @@ const GuidePage: React.FC = () => {
             Every lever that raised the ratio above — thinner bars, fewer labels, smaller type — eventually made the chart harder to read.
             Push far enough and you reach a chart made of nothing but data-ink, which says nothing at all.
           </p>
+          <p>
+            An earlier ScienceUX article, <a href={GOLDILOCKS_URL}>The Story of Goldilocks and the Three Charts</a>, explores this idea: a
+            high or low ratio isn’t good or bad in itself. What matters is finding the optimal range for your context, audience and
+            objective.
+          </p>
         </Prose>
         <ThreeCharts />
         <Prose>
@@ -289,6 +296,13 @@ const GuidePage: React.FC = () => {
           <li>
             Michael Lai and Mike Morrison, <cite>Balancing clarity and clutter: the highs and lows of data-ink ratio in practice</cite>.
             ScienceUX Labs. The basis of this guide.
+          </li>
+          <li>
+            ScienceUX Labs,{' '}
+            <a className="underline underline-offset-2 hover:text-ink" href={GOLDILOCKS_URL}>
+              <cite>The Story of Goldilocks and the Three Charts</cite>
+            </a>
+            . The earlier article on finding the right range.
           </li>
           <li>
             Edward R. Tufte, <cite>The Visual Display of Quantitative Information</cite>. Graphics Press, 1983; second edition 2001.

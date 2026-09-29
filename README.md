@@ -126,6 +126,7 @@ NODE_ENV=production npm start   # serve dist/ and the analyzer API
 ## 📚 Sources
 
 - Michael Lai and Mike Morrison, *Balancing clarity and clutter: the highs and lows of data-ink ratio in practice*. ScienceUX Labs.
+- ScienceUX Labs, [*The Story of Goldilocks and the Three Charts*](https://scienceux.org/articles/data-ink-ideal-vs-minimal).
 - Edward R. Tufte, *The Visual Display of Quantitative Information*. Graphics Press, 1983; 2nd ed. 2001.
 - X. Lan and Y. Liu, "'I Came Across a Junk': Understanding Design Flaws of Data Visualization from the Public's Perspective," *IEEE TVCG* 31(1), 2025, 393–403. [doi:10.1109/TVCG.2024.3456341](https://doi.org/10.1109/TVCG.2024.3456341)
 - Stephanie Evergreen, *Data Visualization Checklist*.
