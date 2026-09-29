@@ -1,4 +1,6 @@
-import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Maximize2, X } from 'lucide-react';
 import { hitTest, PART_GROUPS, partAnchor, presentParts, type InkPart } from '../../ink/inspect.ts';
 import { computeLayout, formatValue } from '../../ink/layout.ts';
 import { measureText } from '../../ink/measure.ts';
@@ -55,7 +57,7 @@ interface ChartCanvasProps {
  * Draws a chart specimen with exactly the geometry that is counted, scaled to its
  * container and sharp on high-density screens.
  */
-const ChartCanvas: React.FC<ChartCanvasProps> = ({ spec, inkMap, highlight = null, inspectable = false, className = '', label }) => {
+const ChartCanvasInner: React.FC<ChartCanvasProps> = ({ spec, inkMap, highlight = null, inspectable = false, className = '', label }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const layerRef = useRef<HTMLCanvasElement | null>(null);
@@ -225,6 +227,64 @@ const ChartCanvas: React.FC<ChartCanvasProps> = ({ spec, inkMap, highlight = nul
           height={cssHeight}
         />
       )}
+    </div>
+  );
+};
+
+/** A chart, blown up to fill the screen. Escape, the close button or a click outside closes it. */
+const EnlargedChart: React.FC<ChartCanvasProps & { onClose: () => void }> = ({ onClose, ...props }) => {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+      opener?.focus();
+    };
+  }, [onClose]);
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-8" role="dialog" aria-modal="true" aria-label="Enlarged chart">
+      <div className="absolute inset-0 bg-paper/90 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="relative w-full max-w-[min(72rem,calc((100vh-6rem)*1.6))]">
+        <div className="mb-2 flex items-center justify-between font-sans text-[0.8125rem] text-content-2">
+          <span>{props.inspectable ? 'Point at or tap any part to see what kind of ink it is.' : ''}</span>
+          <button ref={closeRef} type="button" onClick={onClose} className="inline-flex items-center gap-1.5 min-h-10 px-2 -mr-2 rounded-sm text-chrome hover:text-content">
+            <X size={16} aria-hidden="true" /> Close
+          </button>
+        </div>
+        <ChartCanvasInner {...props} />
+      </div>
+    </div>,
+    document.body,
+  );
+};
+
+/** A chart with a button to see it bigger. */
+const ChartCanvas: React.FC<ChartCanvasProps & { enlargeable?: boolean }> = ({ enlargeable = true, ...props }) => {
+  const [big, setBig] = useState(false);
+  const close = useCallback(() => setBig(false), []);
+  if (!enlargeable) return <ChartCanvasInner {...props} />;
+  return (
+    <div className="relative group/chart">
+      <ChartCanvasInner {...props} />
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setBig(true);
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute right-1.5 top-1.5 z-10 grid place-items-center w-8 h-8 rounded-sm bg-paper/85 text-chrome ring-1 ring-line opacity-70 sm:opacity-0 sm:group-hover/chart:opacity-100 focus-visible:opacity-100 hover:text-content transition-opacity"
+        aria-label="Enlarge this chart"
+        title="Enlarge"
+      >
+        <Maximize2 size={14} aria-hidden="true" />
+      </button>
+      {big && <EnlargedChart {...props} onClose={close} />}
     </div>
   );
 };

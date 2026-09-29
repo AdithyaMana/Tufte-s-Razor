@@ -230,3 +230,14 @@ describe('hitTest', () => {
     expect(presentParts(computeLayout(bare, measure), bare)).toEqual(['bars', 'paper']);
   });
 });
+
+describe('bar spacing', () => {
+  it('leaves exactly the same gap between every pair of bars, at any width', () => {
+    for (let barWidth = 0; barWidth <= 1; barWidth += 0.05) {
+      const layout = computeLayout({ ...defaultSpec(), barWidth }, measure);
+      const gaps = layout.bars.slice(1).map((b, i) => b.x - (layout.bars[i].x + layout.bars[i].w));
+      expect(new Set(gaps).size).toBe(1);
+      expect(gaps[0]).toBeGreaterThanOrEqual(0);
+    }
+  });
+});

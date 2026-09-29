@@ -15,7 +15,6 @@ export const SECTIONS: GuideSection[] = [
   { id: 'redundancy', title: 'Say it once', short: 'Say it once' },
   { id: 'type', title: 'Type costs attention, not ink', short: 'Type size' },
   { id: 'balance', title: 'Aim for the middle', short: 'Aim for the middle' },
-  { id: 'checklist', title: 'Most good advice leaves the ratio alone', short: 'Good advice' },
   { id: 'your-turn', title: 'Your turn: fix this chart', short: 'Your turn' },
   { id: 'this-page', title: 'Now look at this page', short: 'This page' },
 ];

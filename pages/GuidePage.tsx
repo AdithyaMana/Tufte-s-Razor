@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { SECTIONS } from '../content/sections.ts';
 import { MarginNote, Prose, Section } from '../components/guide/Article.tsx';
 import BarWidthLab from '../components/guide/BarWidthLab.tsx';
-import ChecklistColumns from '../components/guide/ChecklistColumns.tsx';
 import ColourGrid from '../components/guide/ColourGrid.tsx';
 import { More } from '../components/guide/controls.tsx';
 import FixChart from '../components/guide/FixChart.tsx';
@@ -20,7 +19,7 @@ import { useIsArticle } from '../components/site/view.ts';
 
 const GOLDILOCKS_URL = 'https://scienceux.org/articles/data-ink-ideal-vs-minimal';
 
-/** "Part 3 of 10", for the section with this id. */
+/** "Part 3 of 9", for the section with this id. */
 function partOf(id: string): string {
   return `Part ${SECTIONS.findIndex((s) => s.id === id) + 1} of ${SECTIONS.length}`;
 }
@@ -147,20 +146,6 @@ const GuidePage: React.FC = () => {
         </Prose>
       </Section>
 
-      <Section
-        id="checklist"
-        part={partOf('checklist')}
-        title={title('checklist')}
-        lead="Of the 23 items on Stephanie Evergreen’s Data Visualization Checklist, 7 raise the ratio, 3 lower it and 13 barely touch it."
-      >
-        <ChecklistColumns />
-        <Prose>
-          <p>
-            There are many ways to improve a chart without changing its density or clutter at all. Of the 25 rules in Wajdi Ben
-            Saad’s GoldenViz, just one concerns chartjunk: that non-data ink should not distract from the main information.
-          </p>
-        </Prose>
-      </Section>
 
       <Section
         id="your-turn"
@@ -209,9 +194,6 @@ const GuidePage: React.FC = () => {
               flawviz.github.io
             </a>
             .
-          </li>
-          <li>
-            Stephanie Evergreen, <cite>Data Visualization Checklist</cite>. Wajdi Ben Saad, <cite>GoldenViz</cite>.
           </li>
           <li>Set in ET Book, by Dmitry Krasny, Bonnie Scranton and Edward Tufte (MIT licence), and Inter.</li>
         </ol>

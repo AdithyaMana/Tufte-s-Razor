@@ -101,7 +101,7 @@ export function drawGroup(ctx: CanvasRenderingContext2D, id: InkGroup, layout: C
           ctx.lineTo(plot.x - 1, y);
         }
         for (let i = 0; i <= layout.bars.length; i++) {
-          const x = Math.round(plot.x + layout.slot * i) + 0.5;
+          const x = Math.round(layout.slotStart + layout.slot * i) + 0.5;
           ctx.moveTo(x, plotBottom + 1);
           ctx.lineTo(x, plotBottom + 1 + TICK);
         }

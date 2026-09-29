@@ -1,13 +1,18 @@
 import React from 'react';
 import { TOO_HIGH, TOO_LOW, type Flaw } from '../../content/flaws.ts';
+import { FlawExample } from './FlawExamples.tsx';
 
 const FlawList: React.FC<{ title: string; flaws: Flaw[] }> = ({ title, flaws }) => (
   <div>
     <p className="pb-2 border-b border-content/70 font-sans text-[0.9375rem] font-semibold text-content">{title}</p>
-    <ul className="mt-3 space-y-2.5">
+    <ul className="mt-5 grid grid-cols-2 gap-x-5 gap-y-6">
       {flaws.map((flaw) => (
-        <li key={flaw.name} className="font-sans text-[0.8125rem] leading-snug">
-          <span className="font-medium text-content">{flaw.name}.</span> <span className="text-content-2">{flaw.description}</span>
+        <li key={flaw.name} className="min-w-0 font-sans text-[0.8125rem] leading-snug">
+          <div className="rounded-sm border border-line p-1.5">
+            <FlawExample name={flaw.name} />
+          </div>
+          <p className="mt-2 font-medium text-content">{flaw.name}</p>
+          <p className="mt-0.5 text-content-2">{flaw.description}</p>
         </li>
       ))}
     </ul>

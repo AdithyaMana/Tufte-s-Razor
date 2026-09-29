@@ -163,7 +163,7 @@ const RazorStory: React.FC = () => {
             <ArrowDown size={14} aria-hidden="true" /> Scroll to begin
           </span>
         )}
-        <span className="flex items-center min-h-10">{article ? '10 short parts, about 12 minutes to read' : '10 short parts, about 15 minutes'}</span>
+        <span className="flex items-center min-h-10">{article ? '9 short parts, about 11 minutes to read' : '9 short parts, about 14 minutes'}</span>
         {switchView}
       </div>
 

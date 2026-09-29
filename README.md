@@ -14,7 +14,7 @@ The guide is adapted from *Balancing clarity and clutter: the highs and lows of 
 
 ### The guide (`/`)
 
-Ten parts, each a headline, one sentence, then a story or figure that shows it:
+Nine parts, each a headline, one sentence, then a story or figure that shows it:
 
 | Part | What the reader does |
 |---|---|
@@ -24,23 +24,22 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 | 4. The background is paper | Guesses whether a background colour counts; the article's colour variations one by one, then all eight side by side |
 | 5. Say it once | The article's label and gridline revisions, plus one step too far |
 | 6. Type costs attention, not ink | Guesses how much bigger type costs; bigger, smaller, and back |
-| 7. Aim for the middle | Three charts from too low to too high, and the design flaws that push the ratio each way |
-| 8. Most good advice leaves the ratio alone | The 23 Data Visualization Checklist items, grouped by their effect on the ratio |
-| 9. Your turn: fix this chart | Cleans up the cluttered chart against six goals (triple the ratio without losing values, names, comparability, legible text or contrast), with a hint on request that follows what's still missing; then free play with the article's charts as presets and a pinned reference |
-| 10. Now look at this page | Reveals the page's own ink, as an analogy |
+| 7. Aim for the middle | Three charts from too low to too high, and a drawn example of each design flaw that pushes the ratio one way or the other |
+| 8. Your turn: fix this chart | Cleans up the cluttered chart against six goals (triple the ratio without losing values, names, comparability, legible text or contrast), with a hint on request that follows what's still missing; then free play with the article's charts as presets and a pinned reference |
+| 9. Now look at this page | Reveals the page's own ink, as an analogy |
 
 ### How it reads
 
 - **Scroll stories.** On wide screens the text runs on the left and the chart sticks on the right; on phones the chart sticks under the header and the text scrolls up beneath it. Every step stays on the page, so nothing is hidden from people who skim, search or use a screen reader, and dots under the chart jump back to any step.
 - **Guess first.** Before each counter-intuitive result the reader predicts it. Nothing waits on the guess: scrolling on shows the answer anyway.
 - **Point to inspect.** Hover, tap or arrow-key through any chart's parts. The part is picked out in its ink colour while the rest fades, with its name, kind of ink, pixel count and share of the chart's ink.
-- **Where am I.** The opening says what's ahead (10 short parts, about 15 minutes). The header shows the part being read (3/10), a reading-progress line, and a contents menu that jumps to any part and ticks off the ones already read.
+- **Where am I.** The opening says what's ahead (9 short parts, about 15 minutes). A reading-progress line runs under the header, and a contents button at the foot of the screen (tucked away while scrolling down) shows the part being read (3/9), jumps to any part and ticks off the ones already read. Any chart can be enlarged to fill the screen.
 - **Detail on demand.** Plain language first; pixel counts, Tufte's full definition and the naive measure sit behind disclosures.
-- **Or just read.** A switch in the header (and in the opening) turns the whole guide into a plain article: every story's text in order, its charts as side-by-side small multiples, guesses as questions with their answers, disclosures open, and no scrolling tricks. The choice is remembered, links can open it directly with `?view=article`, and switching keeps the reader in the same part.
+- **Or just read.** The header's Interactive switch (and a link in the opening and the footer) turns the whole guide into a plain article: every story's text in order, its charts as side-by-side small multiples, guesses as questions with their answers, disclosures open, and no scrolling tricks. The choice is remembered, links can open it directly with `?view=article`, and switching keeps the reader in the same part.
 
-### The ink map
+### The page's own ink
 
-The **Ink map** switch in the header recolours every chart by kind of ink. At the end of the guide, the reader can also reveal the page's own ink: its words are data-ink, the numbers that repeat a chart are repeated ink, and menus, controls and rules are non-data ink. It is labelled as an analogy, not a measurement.
+At the end of the guide the reader can reveal the page's own ink: its words are data-ink, the numbers that repeat a chart are repeated ink, and menus, controls and rules are non-data ink. It is labelled as an analogy, not a measurement.
 
 ## 🎨 Design: the site follows its own rule
 
@@ -122,7 +121,7 @@ NODE_ENV=production npm start   # serve dist/ (any static host works too)
 │   ├── checks.ts               # Readability warnings the ratio can't see
 │   ├── presets.ts              # The article's figures, and colours by role
 │   └── ink.test.ts             # Unit tests
-├── content/                    # The guide's parts, chart-part descriptions, checklist and design flaws
+├── content/                    # The guide's parts, chart-part descriptions, and design flaws
 ├── pages/
 │   └── GuidePage.tsx           # The guide
 ├── components/
@@ -138,8 +137,6 @@ NODE_ENV=production npm start   # serve dist/ (any static host works too)
 - ScienceUX Labs, [*The Story of Goldilocks and the Three Charts*](https://scienceux.org/articles/data-ink-ideal-vs-minimal).
 - Edward R. Tufte, *The Visual Display of Quantitative Information*. Graphics Press, 1983; 2nd ed. 2001.
 - X. Lan and Y. Liu, "'I Came Across a Junk': Understanding Design Flaws of Data Visualization from the Public's Perspective," *IEEE TVCG* 31(1), 2025, 393–403. [doi:10.1109/TVCG.2024.3456341](https://doi.org/10.1109/TVCG.2024.3456341)
-- Stephanie Evergreen, *Data Visualization Checklist*.
-- Wajdi Ben Saad, *GoldenViz*.
 
 ## 👥 Team
 

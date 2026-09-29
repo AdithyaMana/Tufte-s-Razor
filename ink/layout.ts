@@ -35,6 +35,8 @@ export interface ChartLayout {
   /** Values that get a gridline. */
   gridValues: number[];
   slot: number;
+  /** Left edge of the first category's slot. */
+  slotStart: number;
   bars: BarGeometry[];
   title: TextItem | null;
   valueLabels: TextItem[];
@@ -141,16 +143,18 @@ export function computeLayout(spec: ChartSpec, measure: TextMeasurer): ChartLayo
   const plotBottom = plot.y + plot.h;
   const yOf = (value: number) => plotBottom - (value / yMax) * plot.h;
 
-  const slot = plot.w / data.length;
+  // Whole-pixel slots, centred in the plot, so every gap between bars is exactly the same.
+  const slot = Math.floor(plot.w / data.length);
+  const slotsLeft = plot.x + Math.floor((plot.w - slot * data.length) / 2);
   // Bars are sized against a standard plot width, so they keep their pixel width when
   // labels are added, removed or resized around them. Otherwise a label change would also
   // change how much redundant bar ink there is, and muddle every comparison.
   const referenceSlot = REFERENCE_PLOT_WIDTH / data.length;
-  const barPx = Math.min(Math.round(spec.barWidth * referenceSlot), Math.floor(slot));
+  const barPx = Math.min(Math.round(spec.barWidth * referenceSlot), slot);
   const bars: BarGeometry[] = data.map((d, i) => {
-    const cx = plot.x + slot * (i + 0.5);
     const w = Math.max(ESSENTIAL_WIDTH, barPx);
-    const x = Math.round(cx - w / 2);
+    const x = slotsLeft + i * slot + Math.floor((slot - w) / 2);
+    const cx = x + w / 2;
     const top = Math.round(yOf(d.value));
     const h = plotBottom - top;
     const ew = Math.min(w, ESSENTIAL_WIDTH);
@@ -181,5 +185,5 @@ export function computeLayout(spec: ChartSpec, measure: TextMeasurer): ChartLayo
 
   const gridValues = spec.gridlines ? allTicks.filter((v) => v > 0 || !spec.baseline) : [];
 
-  return { width, height, plot, yMax, labelValues, gridValues, slot, bars, title, valueLabels, categoryLabels, dataLabels, yOf };
+  return { width, height, plot, yMax, labelValues, gridValues, slot, slotStart: slotsLeft, bars, title, valueLabels, categoryLabels, dataLabels, yOf };
 }

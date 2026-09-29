@@ -91,7 +91,7 @@ export function hitTest(layout: ChartLayout, spec: ChartSpec, x: number, y: numb
     const nearTick =
       layout.labelValues.some((v) => nearSegment(x, y, plot.x - 6, layout.yOf(v), plot.x, layout.yOf(v), axisTolerance)) ||
       layout.bars.some((_, i) => {
-        const tx = plot.x + layout.slot * i;
+        const tx = layout.slotStart + layout.slot * i;
         return nearSegment(x, y, tx, plotBottom, tx, plotBottom + 6, axisTolerance);
       }) ||
       nearSegment(x, y, plot.x + plot.w, plotBottom, plot.x + plot.w, plotBottom + 6, axisTolerance);
