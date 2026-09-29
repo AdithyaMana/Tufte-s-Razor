@@ -1,5 +1,5 @@
 {
   "name": "Tufte's Razor",
-  "description": "A minimalist tool that analyzes data visualizations using Edward Tufte's Data-Ink Ratio principle. Upload a chart to receive an AI-powered critique and optimization suggestions.",
+  "description": "An interactive guide to Edward Tufte's data-ink ratio. Change a chart's bar width, colours, gridlines, labels and type, and watch every pixel get counted as data-ink, redundant data-ink or non-data ink. Includes an AI-assisted analyzer for your own charts.",
   "requestFramePermissions": []
 }

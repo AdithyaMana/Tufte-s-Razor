@@ -1,0 +1,207 @@
+/* ET Book — the typeface of Edward Tufte's books (MIT, see public/fonts/et-book/LICENSE). */
+@font-face {
+  font-family: 'ET Book';
+  src: url('/fonts/et-book/et-book-roman-line-figures.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'ET Book';
+  src: url('/fonts/et-book/et-book-display-italic-old-style-figures.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'ET Book';
+  src: url('/fonts/et-book/et-book-bold-line-figures.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Channels (r g b) so Tailwind can apply alpha: bg-ink/10 etc. */
+  :root {
+    --paper: 255 255 248;
+    --card: 255 255 255;
+    --ink: 17 17 17;
+    --ink-2: 73 72 66;
+    --muted: 118 116 105;
+    --rule: 229 226 213;
+    --rule-2: 207 203 187;
+    /* Ink-map categories — validated for colour-vision deficiency on both surfaces. */
+    --ink-data: 24 79 149;
+    --ink-redundant: 109 167 236;
+    --ink-nondata: 235 104 52;
+    --warn: 180 83 9;
+    color-scheme: light;
+  }
+
+  .dark {
+    --paper: 21 21 20;
+    --card: 30 30 28;
+    --ink: 236 235 228;
+    --ink-2: 190 188 178;
+    --muted: 143 141 132;
+    --rule: 46 45 42;
+    --rule-2: 69 68 63;
+    --ink-data: 77 147 232;
+    --ink-redundant: 34 99 181;
+    --ink-nondata: 217 89 38;
+    --warn: 250 178 25;
+    color-scheme: dark;
+  }
+
+  html {
+    background-color: rgb(var(--paper));
+    color: rgb(var(--ink));
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: rgb(var(--paper));
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  ::selection {
+    background-color: rgb(var(--ink) / 0.14);
+  }
+
+  [id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--ink));
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Long-form reading text, set in ET Book. */
+  .article {
+    font-family: theme('fontFamily.serif');
+    font-size: 1.1875rem;
+    line-height: 1.6;
+    color: rgb(var(--ink));
+    font-kerning: normal;
+    font-variant-ligatures: common-ligatures;
+  }
+  @media (min-width: 768px) {
+    .article {
+      font-size: 1.3125rem;
+    }
+  }
+  .article p + p {
+    margin-top: 1.1em;
+  }
+  .article a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    text-decoration-color: rgb(var(--ink) / 0.35);
+    transition: text-decoration-color 0.15s ease;
+  }
+  .article a:hover {
+    text-decoration-color: rgb(var(--ink));
+  }
+  .article em {
+    font-style: italic;
+  }
+  .article strong {
+    font-weight: 700;
+  }
+
+  /* Small uppercase label used above sections and inside the labs. */
+  .kicker {
+    font-family: theme('fontFamily.sans');
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--muted));
+  }
+
+  /* Range slider: hairline track, filled up to --fill, solid ink thumb. */
+  .range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 28px;
+    background: transparent;
+    cursor: pointer;
+    touch-action: pan-y;
+  }
+  .range::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(
+      to right,
+      rgb(var(--ink)) 0,
+      rgb(var(--ink)) var(--fill, 0%),
+      rgb(var(--rule-2)) var(--fill, 0%),
+      rgb(var(--rule-2)) 100%
+    );
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -8px;
+    border-radius: 9999px;
+    background: rgb(var(--ink));
+    border: 3px solid rgb(var(--card));
+    box-shadow: 0 0 0 1px rgb(var(--ink));
+    transition: transform 0.12s ease;
+  }
+  .range:active::-webkit-slider-thumb {
+    transform: scale(1.12);
+  }
+  .range::-moz-range-track {
+    height: 2px;
+    border-radius: 1px;
+    background: rgb(var(--rule-2));
+  }
+  .range::-moz-range-progress {
+    height: 2px;
+    border-radius: 1px;
+    background: rgb(var(--ink));
+  }
+  .range::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    background: rgb(var(--ink));
+    border: 3px solid rgb(var(--card));
+    box-shadow: 0 0 0 1px rgb(var(--ink));
+  }
+  .range:focus-visible {
+    outline: none;
+  }
+  .range:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px rgb(var(--ink)), 0 0 0 6px rgb(var(--ink) / 0.18);
+  }
+  .range:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 1px rgb(var(--ink)), 0 0 0 6px rgb(var(--ink) / 0.18);
+  }
+}
