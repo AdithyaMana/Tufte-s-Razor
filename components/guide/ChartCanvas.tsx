@@ -15,8 +15,8 @@ import { useChartFontsReady } from './useInk.ts';
 /** Ink-map colours; mirror the --ink-* tokens in index.css. The map is drawn on the page's paper. */
 export function inkMapColours(isDark: boolean): InkMapColours & { background: string } {
   return isDark
-    ? { data: '#4d93e8', redundant: '#2263b5', nonData: '#d95926', background: PAPER.dark }
-    : { data: '#184f95', redundant: '#6da7ec', nonData: '#eb6834', background: PAPER.light };
+    ? { data: '#4d93e8', redundant: '#b58ae8', nonData: '#d95926', background: PAPER.dark }
+    : { data: '#184f95', redundant: '#8a4fc7', nonData: '#eb6834', background: PAPER.light };
 }
 
 export function describeChart(spec: ChartSpec): string {

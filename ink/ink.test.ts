@@ -135,7 +135,7 @@ describe('computeLayout', () => {
 
   it('sorts categories from largest to smallest when asked', () => {
     const layout = computeLayout({ ...defaultSpec(), sorted: true }, measure);
-    expect(layout.bars.map((b) => b.label).join('')).toBe('ABDEC');
+    expect(layout.bars.map((b) => b.label).join(' ')).toBe('North East West Central South');
   });
 
   it('labels only the values present in the data, plus the axis ends', () => {
@@ -172,7 +172,7 @@ describe('razor', () => {
       expect(spec.plotFill).toBeNull();
       if (step >= 2) expect(spec.gridlines || spec.plotBorder || spec.tickMarks || spec.chartBorder).toBe(false);
       if (step >= 3) expect(spec.barOutline).toBeNull();
-      if (step >= 4) expect(spec.barWidth).toBeLessThanOrEqual(0.31);
+      if (step >= 4) expect(spec.barWidth).toBeLessThanOrEqual(0.5);
     }
   });
 

@@ -64,14 +64,24 @@ export const ESSENTIAL_WIDTH = 2;
 
 export const CHART_FONT_FAMILY = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
 
-/** The dataset from the article: three distinct values, one repeated three times. */
+/**
+ * The article's values (three distinct values, one repeated three times), given names and a
+ * unit so the charts can say something: weekly bike-share trips, in thousands, at five
+ * stations of an illustrative city. Stations have no natural order, so sorting them is fair.
+ */
 export const ARTICLE_DATA: Datum[] = [
-  { label: 'A', value: 9 },
-  { label: 'B', value: 7 },
-  { label: 'C', value: 5 },
-  { label: 'D', value: 7 },
-  { label: 'E', value: 7 },
+  { label: 'North', value: 9 },
+  { label: 'East', value: 7 },
+  { label: 'South', value: 5 },
+  { label: 'West', value: 7 },
+  { label: 'Central', value: 7 },
 ];
+
+/** What a spreadsheet puts on a new chart. */
+export const GENERIC_TITLE = 'Chart Title';
+
+/** A title that states the finding, with the unit: what a good chart leads with. */
+export const FINDING_TITLE = 'North is busiest: 9k trips a week';
 
 /** Default spreadsheet colours, as in the article's figures. */
 export const SPREADSHEET = {
@@ -114,7 +124,7 @@ export function defaultSpec(isDark = false): ChartSpec {
     valueLabels: 'all',
     categoryLabels: true,
     dataLabels: false,
-    title: 'Chart Title',
+    title: GENERIC_TITLE,
     titleSize: DEFAULT_TITLE_SIZE,
     labelSize: DEFAULT_LABEL_SIZE,
     ...themeColours(isDark),

@@ -16,10 +16,10 @@ import { useInkStats, useInkSweep } from './useInk.ts';
 
 type Preset = 'wide' | 'balanced' | 'thin';
 
-// The article's three examples: A, B and C.
+// The article's wide and thin examples (A and C), and balanced bars at half of each slot.
 const PRESETS: { value: Preset; label: string; width: number; hint: string }[] = [
   { value: 'wide', label: 'Wide', width: 0.9, hint: 'The article’s example A: wide bars, minimal gaps' },
-  { value: 'balanced', label: 'Balanced', width: 0.31, hint: 'Example B: sufficient whitespace around the bars' },
+  { value: 'balanced', label: 'Balanced', width: 0.5, hint: 'Bars fill half of each slot' },
   { value: 'thin', label: 'Thin', width: 0.16, hint: 'Example C: very thin bars, far apart' },
 ];
 
@@ -37,7 +37,7 @@ const widthTick = (x: number) => (x === 0 ? 'hairline' : x === 1 ? 'touching' : 
 const BarWidthLab: React.FC = () => {
   const isDark = useIsDark();
   const article = useIsArticle();
-  const [width, setWidth] = useState(0.31);
+  const [width, setWidth] = useState(0.5);
   const { animate, stop } = useAnimator(setWidth);
 
   const base = useMemo(() => barWidthSpec(isDark), [isDark]);

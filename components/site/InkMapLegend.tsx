@@ -5,9 +5,9 @@ import { useInkMap } from './inkMap.ts';
 
 /** While an ink map is on: what its colours mean, and a way to turn it off. */
 const InkMapLegend: React.FC = () => {
-  const { charts, page, toggleCharts, setPage } = useInkMap();
-  if (!charts && !page) return null;
-  const turnOff = () => (page ? setPage(false) : toggleCharts());
+  const { page, setPage } = useInkMap();
+  if (!page) return null;
+  const turnOff = () => setPage(false);
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 pointer-events-none px-3 pb-3 sm:pb-4">
       <div

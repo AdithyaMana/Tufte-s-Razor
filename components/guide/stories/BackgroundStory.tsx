@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { presetSpec } from '../../../ink/presets.ts';
 import { useIsArticle } from '../../site/view.ts';
-import ColourGrid from '../ColourGrid.tsx';
+import ColourSlides from '../ColourSlides.tsx';
 import { pct } from '../format.ts';
 import Guess from '../Guess.tsx';
 import ScrollStory from '../ScrollStory.tsx';
@@ -56,7 +56,7 @@ const BackgroundStory: React.FC = () => {
 
   return (
     <ScrollStory
-      articleFigures={[{ after: 0, figure: <ColourGrid /> }]}
+      articleFigures={[{ after: 0, figure: <ColourSlides className="my-8" /> }]}
       label="The same chart with different background colours"
       steps={steps}
       figure={(step) => (

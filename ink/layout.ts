@@ -163,7 +163,7 @@ export function computeLayout(spec: ChartSpec, measure: TextMeasurer): ChartLayo
   });
 
   const title: TextItem | null = spec.title
-    ? { text: spec.title, x: width / 2, y: PAD + spec.titleSize * 0.95, size: spec.titleSize, align: 'center', baseline: 'alphabetic' }
+    ? { text: spec.title, x: PAD, y: PAD + spec.titleSize * 0.95, size: spec.titleSize, align: 'left', baseline: 'alphabetic' }
     : null;
 
   const valueLabels: TextItem[] = labelValues.map((v) => ({

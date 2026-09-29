@@ -44,7 +44,7 @@
     --echo: var(--content);
     /* Ink-map colours, validated for colour-vision deficiency on both papers. */
     --ink-data: 24 79 149;
-    --ink-redundant: 109 167 236;
+    --ink-redundant: 138 79 199;
     --ink-nondata: 235 104 52;
     --warn: 180 83 9;
     color-scheme: light;
@@ -59,7 +59,7 @@
     --line: 46 45 42;
     --line-2: 69 68 63;
     --ink-data: 77 147 232;
-    --ink-redundant: 34 99 181;
+    --ink-redundant: 181 138 232;
     --ink-nondata: 217 89 38;
     --warn: 250 178 25;
     color-scheme: dark;
@@ -211,8 +211,9 @@
   .story-step {
     transition: opacity 0.35s ease;
   }
+  /* Still easy to read when skimming, just quieter than the step in view. */
   .story-step[data-active='false'] {
-    opacity: 0.28;
+    opacity: 0.55;
   }
 
   /* Under the ink map the logo is chrome too, so it is drawn as a shape in the chrome colour. */

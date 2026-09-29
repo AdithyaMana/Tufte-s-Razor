@@ -14,19 +14,20 @@ The guide is adapted from *Balancing clarity and clutter: the highs and lows of 
 
 ### The guide (`/`)
 
-Nine parts, each a headline, one sentence, then a story or figure that shows it:
+Ten parts, each a headline, one sentence, then a story or figure that shows it:
 
 | Part | What the reader does |
 |---|---|
-| 1. How much of a chart is data? | Guesses how much of a cluttered chart's ink shows data, sees it as an ink map, then scrolls to erase it one cut at a time, until one cut goes too far |
+| 1. How much of a chart is data? | Guesses which way the ratio moves when the background goes, sees it as an ink map, then scrolls to erase it one cut at a time, until one cut goes too far |
 | 2. Three kinds of ink | Each kind picked out on one chart in turn, then the equation, then free inspection |
 | 3. A bar's width isn't data | Guesses which way the ratio moves as bars widen; wide, thin, hairline and balanced bars; then a slider and the ratio at every width |
 | 4. The background is paper | Guesses whether a background colour counts; the article's colour variations one by one, then all eight side by side |
 | 5. Say it once | The article's label and gridline revisions, plus one step too far |
 | 6. Type costs attention, not ink | Guesses how much bigger type costs; bigger, smaller, and back |
-| 7. Aim for the middle | Three charts from too low to too high, and a drawn example of each design flaw that pushes the ratio one way or the other |
-| 8. Your turn: fix this chart | Cleans up the cluttered chart against six goals (triple the ratio without losing values, names, comparability, legible text or contrast), with a hint on request that follows what's still missing; then free play with the article's charts as presets and a pinned reference |
-| 9. Now look at this page | Reveals the page's own ink, as an analogy |
+| 7. Aim for the middle | Three charts from too low to too high, then a slideshow of each design flaw that pushes the ratio one way or the other, with what to do instead |
+| 8. Your turn: fix this chart | Cleans up the cluttered chart against seven goals (halve the non-data ink and give it a title that states the finding, without losing values, names, comparability, legible text or contrast), with a hint on request that follows what's still missing; then free play with the article's charts as presets and a pinned reference |
+| 9. Before you publish | The guide as a checklist, including what the ratio can't measure |
+| 10. Now look at this page | Reveals the page's own ink, as an analogy |
 
 ### How it reads
 

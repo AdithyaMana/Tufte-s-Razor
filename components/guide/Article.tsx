@@ -20,11 +20,14 @@ export const Section: React.FC<{
   </section>
 );
 
-/** Reading text, with optional notes in the margin on wide screens (after it on narrow ones). */
+/**
+ * Reading text, with optional notes in the margin on wide screens (after it on narrow ones).
+ * The notes sit against the right edge, so they line up with the figures in the stories above.
+ */
 export const Prose: React.FC<{ children: React.ReactNode; notes?: React.ReactNode; className?: string }> = ({ children, notes, className = '' }) => (
-  <div className={`grid lg:grid-cols-[minmax(0,38rem)_minmax(0,15rem)] lg:gap-x-16 xl:gap-x-24 ${className}`}>
+  <div className={`grid lg:grid-cols-[minmax(0,38rem)_minmax(0,1fr)_minmax(0,15rem)] lg:gap-x-12 ${className}`}>
     <div className="article">{children}</div>
-    {notes && <aside className="mt-6 lg:mt-1.5 space-y-6">{notes}</aside>}
+    {notes && <aside className="mt-6 lg:mt-1.5 lg:col-start-3 space-y-6">{notes}</aside>}
   </div>
 );
 

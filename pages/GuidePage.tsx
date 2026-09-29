@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
+import { PUBLISH_CHECKS } from '../content/publish.ts';
 import { SECTIONS } from '../content/sections.ts';
 import { MarginNote, Prose, Section } from '../components/guide/Article.tsx';
 import BarWidthLab from '../components/guide/BarWidthLab.tsx';
-import ColourGrid from '../components/guide/ColourGrid.tsx';
+import ColourSlides from '../components/guide/ColourSlides.tsx';
 import { More } from '../components/guide/controls.tsx';
 import FixChart from '../components/guide/FixChart.tsx';
 import FlawSpectrum from '../components/guide/FlawSpectrum.tsx';
@@ -45,6 +46,7 @@ const GuidePage: React.FC = () => {
       <Section id="ink" part={partOf('ink')} title="Every mark is one of three kinds of ink" lead="Plus the paper, which isn’t ink at all.">
         <InkKindsStory />
         <Prose
+          className="mt-16 md:mt-28"
           notes={
             <MarginNote title="Why a thin line?">
               Each bar is credited with the least ink that could show its value: a line 2 px wide. Change that allowance and every
@@ -54,8 +56,12 @@ const GuidePage: React.FC = () => {
         >
           <p>
             Tufte called data-ink “the non-erasable core of a graphic, the non-redundant ink arranged in response to variation in the
-            numbers represented.” The test is simple: if you could erase a mark and the reader would still learn exactly the same
-            numbers, it wasn’t data-ink.
+            numbers represented.” That has two parts. Data-ink can’t be erased without losing information, <em>and</em> it changes
+            when the numbers change.
+          </p>
+          <p>
+            Labels pass the first test but not the second: a bar’s name stays the same whatever its value. So this guide counts text
+            as non-data ink, even though erasing it can leave a chart unreadable. That’s why the ratio alone can’t say when to stop.
           </p>
           <More label="Tufte’s full definition" className="mt-5">
             <div className="space-y-1.5 font-serif text-lg leading-snug text-content-2">
@@ -92,13 +98,19 @@ const GuidePage: React.FC = () => {
         {!article && (
           <>
             <SubHeading>All eight of the article’s versions</SubHeading>
-            <ColourGrid className="mt-6 md:mt-8" />
+            <ColourSlides className="mt-6 md:mt-8" />
           </>
         )}
         <Prose>
           <p>
             A1, B1 and B2 score the same: only the paper changed. C1, C2 and D1 also match each other, because each paints a whole
             plot area, which costs far more ink than a thin box (A2) or outlines (D2).
+          </p>
+          <p>
+            Two conventions decide these scores, so it’s worth saying them plainly. First, the count sees whether a pixel is inked, not
+            how dark it is: a barely-there tint costs as much as solid blue, so muting a gridline doesn’t change the ratio, though it
+            helps the reader. Second, the paper is whatever sits at the back. That suits a screen, where every colour costs the same;
+            in print, B2’s dark background would be the heaviest ink of all.
           </p>
         </Prose>
       </Section>
@@ -158,6 +170,25 @@ const GuidePage: React.FC = () => {
         }
       >
         <FixChart />
+      </Section>
+
+      <Section
+        id="checklist"
+        part={partOf('checklist')}
+        title={title('checklist')}
+        lead="The whole guide as a list to check any bar chart against, including what the ratio can’t measure."
+      >
+        <ol className="article max-w-[38rem] space-y-5 list-none pl-0">
+          {PUBLISH_CHECKS.map((check, i) => (
+            <li key={check.text} className="grid grid-cols-[2rem_minmax(0,1fr)]">
+              <span className="font-sans text-sm tabular-nums text-content-2 pt-1">{i + 1}</span>
+              <div>
+                <p className="text-content">{check.text}</p>
+                <p className="mt-0.5 font-sans text-[0.875rem] leading-relaxed text-content-2">{check.why}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </Section>
 
       <Section id="this-page" part={partOf('this-page')} title={title('this-page')} lead="One last chart, of a kind.">

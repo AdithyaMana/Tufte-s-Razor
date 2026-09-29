@@ -46,7 +46,8 @@ const RedundancyStory: React.FC = () => {
       {article
         ? 'C sorts the bars from tallest to shortest, and marks on the axis only the values that occur'
         : 'Sort the bars from tallest to shortest, and mark on the axis only the values that occur'}
-      : {r(2)}.
+      : {r(2)}. Tufte calls an axis like this a <em>range-frame</em>. Sort only when the categories have no natural order: stations
+      can be sorted, months and age bands can’t.
     </p>,
     <p>
       {article ? 'D takes away every value label, and the ratio rises again' : 'Take away every value label and the ratio rises again'},

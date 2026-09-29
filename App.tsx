@@ -5,6 +5,7 @@ import SiteFooter from './components/site/SiteFooter.tsx';
 import SiteHeader, { ContentsDock, useGuideProgress } from './components/site/SiteHeader.tsx';
 import { ThemeContext, useThemeState } from './components/site/theme.ts';
 import { useViewState, ViewContext } from './components/site/view.ts';
+import ContactPage from './pages/ContactPage.tsx';
 import GuidePage from './pages/GuidePage.tsx';
 
 const App: React.FC = () => {
@@ -12,10 +13,10 @@ const App: React.FC = () => {
   const inkMap = useInkMapState();
   const view = useViewState();
 
-  // The site is one page; old links to other paths (e.g. the retired /analyze) land on it.
+  // The guide plus a contact page; old links to other paths (e.g. the retired /analyze) land on the guide.
   useEffect(() => {
     const { pathname, search, hash } = window.location;
-    if (pathname !== '/') window.history.replaceState(null, '', `/${search}${hash}`);
+    if (pathname !== '/' && !isContactPage()) window.history.replaceState(null, '', `/${search}${hash}`);
   }, []);
 
   return (
@@ -30,17 +31,20 @@ const App: React.FC = () => {
 };
 
 /** The page: it reads the view from context, so it sits inside the providers. */
+const isContactPage = () => window.location.pathname.replace(/\/$/, '') === '/contact';
+
 const Shell: React.FC<{ isDark: boolean; onToggleTheme: () => void }> = ({ isDark, onToggleTheme }) => {
   const progress = useGuideProgress();
+  const contact = isContactPage();
   return (
           <div className="min-h-screen flex flex-col">
             <SiteHeader isDark={isDark} onToggleTheme={onToggleTheme} progress={progress} />
             <main className="flex-1">
-              <GuidePage />
+              {contact ? <ContactPage /> : <GuidePage />}
             </main>
-            <SiteFooter />
+            <SiteFooter isDark={isDark} onToggleTheme={onToggleTheme} />
             <InkMapLegend />
-            <ContentsDock progress={progress} />
+            {!contact && <ContentsDock progress={progress} />}
           </div>
   );
 };

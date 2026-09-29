@@ -10,8 +10,8 @@ import StoryFigure from '../StoryFigure.tsx';
 import { useTween } from '../useAnimator.ts';
 import { useInkStats, useInkStatsList } from '../useInk.ts';
 
-// Bar width for each step: balanced, then the article's wide and thin examples, a hairline, and back.
-const WIDTHS = [0.31, 0.9, 0.16, 0, 0.31];
+// Bar width for each step: balanced (half of each slot), then the article's wide and thin examples, a hairline, and back.
+const WIDTHS = [0.5, 0.9, 0.16, 0, 0.5];
 
 const Figure: React.FC<{ target: number; widest: number }> = ({ target, widest }) => {
   const isDark = useIsDark();
@@ -52,7 +52,8 @@ const BarWidthStory: React.FC = () => {
     </p>,
     <p>
       So aim between the two: bars wide enough to see, with gaps wide enough to tell them apart.{' '}
-      {article ? 'Like the balanced bars above' : 'Like these'}, at {r(4)}.
+      {article ? 'Like the balanced bars above' : 'Like these'}, at {r(4)}. They fill half of each slot; many designers suggest
+      a half to two-thirds. That’s wider than a spreadsheet’s default, which leaves gaps twice as wide as the bars.
     </p>,
   ];
 

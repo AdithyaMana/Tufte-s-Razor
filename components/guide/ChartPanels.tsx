@@ -19,12 +19,12 @@ export interface Panel {
   description?: string;
 }
 
-// Two small charts fit side by side on a phone; three would be too small to read.
+// One chart per row on a phone: side by side, their labels shrink to a few pixels.
 const COLUMNS = {
-  2: 'grid-cols-2',
+  2: 'grid-cols-1 sm:grid-cols-2',
   3: 'grid-cols-1 sm:grid-cols-3',
-  4: 'grid-cols-2 md:grid-cols-4',
-  6: 'grid-cols-2 sm:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4',
+  6: 'grid-cols-1 sm:grid-cols-3',
 } as const;
 
 interface ChartPanelsProps {

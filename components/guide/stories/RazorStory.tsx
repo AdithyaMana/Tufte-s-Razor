@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ArrowDown, BookOpen, MousePointer2 } from 'lucide-react';
+import { SECTIONS } from '../../../content/sections.ts';
 import { RAZOR_STEPS, razorSpec } from '../../../ink/razor.ts';
 import { useIsDark } from '../../site/theme.ts';
 import { useView } from '../../site/view.ts';
@@ -46,16 +47,21 @@ const RazorStory: React.FC = () => {
       </p>
       <Guess
         className="mt-7"
-        question="Every mark on it is ink. How much of that ink do you think shows the five numbers?"
+        question="Every mark on it is ink. Erase the shaded background: does the share of ink that shows the five numbers go up, down, or stay the same?"
         options={[
-          { value: 'half', label: 'About half' },
-          { value: 'fifth', label: 'About a fifth' },
-          { value: 'sliver', label: 'Less than a twentieth' },
+          { value: 'up', label: 'Up' },
+          { value: 'same', label: 'Stays the same' },
+          { value: 'down', label: 'Down' },
         ]}
-        answer="sliver"
-        right="Right: a sliver."
-        wrong="Less than that."
-        reveal={<>Just {r(0)}. The rest is decoration, scaffolding, and ink that repeats what the bars already show.</>}
+        answer="up"
+        right="Right: it goes up."
+        wrong="It goes up."
+        reveal={
+          <>
+            The background shows no numbers, so erasing it leaves the same data in less ink. Right now that share is only {r(0)}. The rest
+            is decoration, scaffolding, and ink that repeats what the bars already show.
+          </>
+        }
         onGuess={() => setGuessed(true)}
       />
     </>,
@@ -82,10 +88,12 @@ const RazorStory: React.FC = () => {
       {r(4)}, {times(stats[4].ratio, start.ratio)} where it started.
     </p>,
     <p>
-      The axis labels repeat the numbers printed on the bars, so they go too. Each value is now said once: {r(5)}.
+      The axis labels repeat the numbers printed on the bars, so they go too. Each value is now said once. Sort the bars, and swap
+      “Chart Title” for a title that says what the chart shows, with its unit: {r(5)}.
     </p>,
     <p>
       Keep erasing and you reach {r(6)}: nothing but data. But what are these bars? What do they measure? Nothing says any more.
+      By Tufte’s own test, that erasure lost information, so the “perfect” score is misleading.
     </p>,
     <>
       <p>
@@ -163,7 +171,7 @@ const RazorStory: React.FC = () => {
             <ArrowDown size={14} aria-hidden="true" /> Scroll to begin
           </span>
         )}
-        <span className="flex items-center min-h-10">{article ? '9 short parts, about 11 minutes to read' : '9 short parts, about 14 minutes'}</span>
+        <span className="flex items-center min-h-10">{SECTIONS.length} short parts, {article ? 'about 12 minutes to read' : 'about 15 minutes'}</span>
         {switchView}
       </div>
 

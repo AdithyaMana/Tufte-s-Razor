@@ -71,6 +71,20 @@ export function comparedWith(stats: InkStats, reference?: ReferenceStats | null)
 }
 
 /**
+ * "non-data ink −55%": how much of the reference's non-data ink is gone. Bar width dominates
+ * the ratio, so a clean-up of gridlines and labels can barely move it; this figure shows it.
+ */
+export function nonDataChange(stats: InkStats, reference?: ReferenceStats | null): string | null {
+  if (!reference || reference.stats.nonData <= 0) return null;
+  const factor = stats.nonData / reference.stats.nonData;
+  // Next to a nearly bare chart, a percentage runs into thousands; a multiple reads better.
+  if (factor >= 2) return `non-data ink ${times(stats.nonData, reference.stats.nonData)}`;
+  const change = Math.round((factor - 1) * 100);
+  if (change === 0) return null;
+  return `non-data ink ${change > 0 ? '+' : '−'}${Math.abs(change)}%`;
+}
+
+/**
  * The count in a line, for figures that stay in view while the text scrolls: the ratio,
  * the ink bar and its key. `hidden` keeps the number back, e.g. until the reader has guessed.
  */
@@ -82,6 +96,7 @@ export const InkMeter: React.FC<{
   className?: string;
 }> = ({ stats, scale, reference, hidden = false, className = '' }) => {
   const compared = hidden ? null : comparedWith(stats, reference);
+  const nonData = hidden ? null : nonDataChange(stats, reference);
   return (
     <div className={`font-sans ${className}`}>
       <p className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
@@ -90,6 +105,7 @@ export const InkMeter: React.FC<{
           {hidden ? '?' : pct(stats.ratio)}
         </span>
         {compared && <span className="text-[0.8125rem] text-content-2">{compared}</span>}
+        {nonData && <span className="text-[0.8125rem] text-content-2 tabular-nums">· {nonData}</span>}
       </p>
       <InkBar stats={hidden ? { ...stats, total: 0, data: 0, redundant: 0, nonData: 0 } : stats} scale={scale} className="mt-2.5" />
       <InkKey className="mt-2" />
@@ -116,6 +132,7 @@ const InkReadout: React.FC<InkReadoutProps> = ({ stats, scale, reference, classN
       </span>
       {reference && <span className="text-[0.8125rem] text-content-2">{comparedWith(stats, reference)}</span>}
     </p>
+    {nonDataChange(stats, reference) && <p className="mt-1 text-[0.8125rem] text-content-2 tabular-nums">{nonDataChange(stats, reference)}</p>}
 
     <InkBar stats={stats} scale={scale} className="mt-5" />
     <InkKey className="mt-2.5" />

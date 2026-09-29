@@ -1,5 +1,5 @@
 import { applyPreset, PRESETS, resolveSpec, type Look, type Shape } from './presets.ts';
-import { DEFAULT_LABEL_SIZE, DEFAULT_TITLE_SIZE, type ChartSpec } from './spec.ts';
+import { DEFAULT_LABEL_SIZE, DEFAULT_TITLE_SIZE, FINDING_TITLE, type ChartSpec } from './spec.ts';
 
 // The razor: one cluttered chart, cleaned up a step at a time — first non-data ink, then
 // repeated data-ink, then one step too far. Each step keeps everything the previous step
@@ -29,11 +29,12 @@ export const RAZOR_STEPS: RazorStep[] = [
   },
   {
     label: 'extra bar width',
-    shape: { barWidth: 0.31 },
+    // Half of each slot: wide enough to compare easily, within the 50–67% many designers recommend.
+    shape: { barWidth: 0.5 },
   },
   {
-    label: 'repeated labels',
-    shape: { valueLabels: 'none', valueAxisLine: false },
+    label: 'repeated labels, and a vague title',
+    shape: { valueLabels: 'none', valueAxisLine: false, sorted: true, title: FINDING_TITLE },
   },
   {
     label: 'the labels and axis, too',
@@ -41,8 +42,11 @@ export const RAZOR_STEPS: RazorStep[] = [
   },
 ];
 
-/** The chart after the first `step` cuts of the razor. */
-export function razorSpec(step: number, isDark: boolean): ChartSpec {
+/** The step the guide recommends stopping at: every value said once, and a title that says what it shows. */
+export const STOP_STEP = 5;
+
+/** The shape and look after the first `step` cuts: each keeps everything earlier cuts erased. */
+export function razorShapeAndLook(step: number): { shape: Shape; look: Look } {
   const start = applyPreset(PRESETS.find((p) => p.id === 'everything')!);
   let shape = start.shape;
   // Drawn on the page's own paper, in either theme.
@@ -51,5 +55,11 @@ export function razorSpec(step: number, isDark: boolean): ChartSpec {
     shape = { ...shape, ...s.shape };
     look = { ...look, ...s.look };
   }
+  return { shape, look };
+}
+
+/** The chart after the first `step` cuts of the razor. */
+export function razorSpec(step: number, isDark: boolean): ChartSpec {
+  const { shape, look } = razorShapeAndLook(step);
   return resolveSpec(shape, look, isDark);
 }

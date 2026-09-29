@@ -35,3 +35,5 @@ dist-ssr
 # Test/debug artifacts
 response.json
 test_body.json
+# Firebase deploy cache
+.firebase/

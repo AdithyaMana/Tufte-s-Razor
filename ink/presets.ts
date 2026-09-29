@@ -83,7 +83,7 @@ export const PRESETS: Preset[] = [
   { id: 'redundancy-c', label: 'Sort, label only the values present', group: 'Redundancy', shape: { gridlines: false, valueLabels: 'data', valueAxisLine: true, sorted: true } },
 
   { id: 'width-a', label: 'Wide bars', group: 'Bar width', shape: { ...FIGURE, barWidth: 0.9 } },
-  { id: 'width-b', label: 'Balanced bars', group: 'Bar width', shape: { ...FIGURE, barWidth: 0.31 } },
+  { id: 'width-b', label: 'Balanced bars', group: 'Bar width', shape: { ...FIGURE, barWidth: 0.5 } },
   { id: 'width-c', label: 'Thin bars', group: 'Bar width', shape: { ...FIGURE, barWidth: 0.16 } },
 
   { id: 'text-b1', label: 'Bigger title', group: 'Text size', shape: { ...TEXT_FIGURE, titleSize: 30 } },

@@ -12,6 +12,11 @@ export function scrollToHash(hash: string) {
 
 /** Goes to a part of the page (e.g. "#bar-width", or "" for the top), keeping the address in step. */
 export function navigate(hash: string) {
+  // From another page (e.g. /contact), the guide's parts are a page load away.
+  if (window.location.pathname !== '/') {
+    window.location.assign(`/${window.location.search}${hash}`);
+    return;
+  }
   const url = window.location.pathname + window.location.search + hash;
   window.history.pushState({}, '', hash ? url : window.location.pathname + window.location.search);
   scrollToHash(hash);

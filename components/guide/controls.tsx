@@ -1,4 +1,5 @@
 import React, { useId, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsArticle } from '../site/view.ts';
 
 // Controls are chrome, so each is the least that still reads as a control, but never less
@@ -201,3 +202,54 @@ export const More: React.FC<{ label: string; heading?: string; children: React.R
     </details>
   );
 };
+
+const slideButton =
+  'inline-flex items-center justify-center w-11 h-11 rounded-md border border-line text-content hover:border-line-2 disabled:opacity-30 disabled:hover:border-line';
+
+/** Previous and next for a slideshow, with where the reader is: "3 of 11". */
+export const SlideNav: React.FC<{ index: number; count: number; onGo: (index: number) => void; noun: string; className?: string }> = ({
+  index,
+  count,
+  onGo,
+  noun,
+  className = '',
+}) => (
+  <div className={`flex items-center gap-3 font-sans ${className}`}>
+    <button type="button" className={slideButton} onClick={() => onGo(index - 1)} disabled={index === 0} aria-label={`Previous ${noun}`}>
+      <ChevronLeft size={18} />
+    </button>
+    <button type="button" className={slideButton} onClick={() => onGo(index + 1)} disabled={index === count - 1} aria-label={`Next ${noun}`}>
+      <ChevronRight size={18} />
+    </button>
+    <span className="ml-1 text-[0.8125rem] tabular-nums text-content-2">
+      {index + 1} of {count}
+    </span>
+  </div>
+);
+
+/**
+ * Slideshow behaviour for a figure: arrow keys and swipes move between slides. Spread the
+ * returned props onto the element that holds the slides.
+ */
+export function useSlideGestures(index: number, count: number, setIndex: (index: number) => void) {
+  const touchX = useRef<number | null>(null);
+  const go = (i: number) => setIndex(Math.max(0, Math.min(count - 1, i)));
+  const props = {
+    onKeyDown: (event: React.KeyboardEvent) => {
+      if (event.key === 'ArrowRight') go(index + 1);
+      else if (event.key === 'ArrowLeft') go(index - 1);
+      else return;
+      event.preventDefault();
+    },
+    onTouchStart: (event: React.TouchEvent) => {
+      touchX.current = event.touches[0].clientX;
+    },
+    onTouchEnd: (event: React.TouchEvent) => {
+      if (touchX.current === null) return;
+      const dx = event.changedTouches[0].clientX - touchX.current;
+      if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
+      touchX.current = null;
+    },
+  };
+  return { go, props };
+}

@@ -13,7 +13,8 @@ import {
   type Look,
   type Shape,
 } from '../../ink/presets.ts';
-import type { ChartSpec, ValueLabelMode } from '../../ink/spec.ts';
+import { razorShapeAndLook, STOP_STEP } from '../../ink/razor.ts';
+import { FINDING_TITLE, GENERIC_TITLE, type ChartSpec, type ValueLabelMode } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
 import { useView } from '../site/view.ts';
 import ChartCanvas from './ChartCanvas.tsx';
@@ -26,33 +27,26 @@ import { StickyLayout } from './ScrollStory.tsx';
 import { useInkStats } from './useInk.ts';
 
 /**
- * How much the ratio must rise, as a multiple of where it starts. Reachable only by cutting
- * both the shaded plot area and most of the bars' width, but without making bars too thin.
+ * How much of the start's non-data ink must go. A target on non-data ink rather than on the
+ * ratio, so it rewards erasing clutter without pushing bars thinner than readers like.
  */
-export const TARGET = 3;
+export const NON_DATA_CUT = 0.5;
 
 // The cluttered chart from the start of the guide, on the page's own paper in either theme.
 const EVERYTHING = applyPreset(PRESETS.find((p) => p.id === 'everything')!);
 const START = { shape: EVERYTHING.shape, look: { ...EVERYTHING.look, background: 'theme', bars: 'theme' } satisfies Look };
 
-// One answer among many: everything a reader needs, each value said once.
-const SOLUTION = {
-  shape: {
-    ...START.shape,
-    sorted: true,
-    barWidth: 0.35,
-    gridlines: false,
-    chartBorder: false,
-    plotBorder: false,
-    tickMarks: false,
-    valueAxisLine: false,
-    valueLabels: 'none',
-    dataLabels: true,
-    titleSize: 18,
-    labelSize: 12,
-  } satisfies Shape,
-  look: { ...START.look, plotFill: 'none', outline: false } satisfies Look,
-};
+// One answer among many, and the same chart Part 1 stops at: everything a reader needs, each
+// value said once, under a title that says what the chart shows.
+const SOLUTION = razorShapeAndLook(STOP_STEP);
+
+const TITLES = [
+  { value: 'none', label: 'None' },
+  { value: 'generic', label: GENERIC_TITLE },
+  { value: 'finding', label: 'States the finding' },
+] as const;
+type TitleChoice = (typeof TITLES)[number]['value'];
+const TITLE_TEXT: Record<TitleChoice, string | null> = { none: null, generic: GENERIC_TITLE, finding: FINDING_TITLE };
 
 const TEXT_SIZES = [
   { value: 'small', label: 'Small', title: 11, labels: 7 },
@@ -120,9 +114,9 @@ function hintFor(goals: Goal[], spec: ChartSpec, has: (id: string) => boolean): 
       ? 'Bars this wide crowd together, and their extra width only repeats their values. Narrow them.'
       : 'Bars this thin are hard to compare. Widen them a little.';
   }
-  if (unmet('ratio')) {
+  if (unmet('title')) return 'A title should tell the reader what to see. Swap “Chart Title” for one that states the finding.';
+  if (unmet('cut')) {
     if (spec.plotFill) return 'The shaded plot area is the biggest piece of non-data ink left. Try taking it away.';
-    if (spec.barWidth > 0.45) return 'A bar’s width only repeats its value. Narrow the bars some more, but not until they’re hard to compare.';
     return 'Erase the lines a reader doesn’t need: gridlines, borders, tick marks and outlines.';
   }
   return null;
@@ -155,7 +149,8 @@ const GoalList: React.FC<{ goals: Goal[] }> = ({ goals }) => (
 
 // The goals, as the guide's advice in brief (for the article view).
 const PRINCIPLES = [
-  `Raise the data-ink ratio to at least ${TARGET === 3 ? 'three' : TARGET} times where it started.`,
+  'Erase at least half of the non-data ink.',
+  'Give it a title that says what the chart shows.',
   'Keep every value readable.',
   'Keep every bar named.',
   'Keep the bars easy to compare: not too wide, not too thin.',
@@ -179,7 +174,7 @@ const ChallengeSummary: React.FC = () => {
       <div className="article max-w-[38rem] space-y-[1em]">
         <p>
           In the interactive guide, this part is a challenge: clean up the cluttered chart from the start of the guide without losing
-          anything a reader needs. Its six goals sum up the whole guide.
+          anything a reader needs. Its seven goals sum up the whole guide.
         </p>
         <ol className="list-decimal pl-7 space-y-1 marker:text-content-2">
           {PRINCIPLES.map((principle) => (
@@ -192,8 +187,9 @@ const ChallengeSummary: React.FC = () => {
       <ChartPanels columns={2} panels={panels} label="The cluttered chart, and one way to fix it" />
       <div className="article max-w-[38rem] space-y-[1em]">
         <p>
-          This fix drops the shading, the gridlines, the borders, the tick marks and the outlines, slims the bars to about a third of
-          their space, and says each value once, on its bar. Everything a reader needs is still there.
+          This fix, the same one Part 1 stops at, drops the shading, the gridlines, the borders, the tick marks and the outlines, slims
+          the bars to half their space, sorts them, says each value once, on its bar, and swaps “Chart Title” for the finding.
+          Everything a reader needs is still there.
         </p>
       </div>
       <button
@@ -231,7 +227,8 @@ const Challenge: React.FC = () => {
   const warnings = readabilityChecks(spec);
   const has = (id: string) => warnings.some((w) => w.id === id);
   const goals: Goal[] = [
-    { id: 'ratio', text: `Raise the data-ink ratio to ${TARGET}× where it started, or more`, met: stats.ratio >= start.ratio * TARGET },
+    { id: 'cut', text: 'Erase at least half of the non-data ink', met: stats.nonData <= start.nonData * (1 - NON_DATA_CUT) },
+    { id: 'title', text: 'The title says what the chart shows', met: shape.title === FINDING_TITLE },
     { id: 'values', text: 'Every value can still be read', met: !has('no-values') && !has('ends-only') },
     { id: 'names', text: 'Every bar is still named', met: !has('no-categories') },
     { id: 'compare', text: 'The bars are easy to compare: not too wide, not too thin', met: widthZone(spec.barWidth) === 'comfortable' },
@@ -257,6 +254,7 @@ const Challenge: React.FC = () => {
     if (preset) load(applyPreset(preset), id);
   };
 
+  const titleChoice: TitleChoice = shape.title === null ? 'none' : shape.title === FINDING_TITLE ? 'finding' : 'generic';
   const textSize: TextSize | null = TEXT_SIZES.find((t) => t.title === shape.titleSize && t.labels === shape.labelSize)?.value ?? null;
   const reference = mode === 'free' ? pinned : { label: 'the start', stats: start };
   const presetLabel = PRESETS.find((p) => p.id === presetId)?.label;
@@ -408,8 +406,13 @@ const Challenge: React.FC = () => {
           <Chips>
             <Toggle label="Values on the bars" on={shape.dataLabels} onChange={(dataLabels) => edit({ shape: { dataLabels } })} />
             <Toggle label="Category labels" on={shape.categoryLabels} onChange={(categoryLabels) => edit({ shape: { categoryLabels } })} />
-            <Toggle label="Title" on={shape.title !== null} onChange={(on) => edit({ shape: { title: on ? 'Chart Title' : null } })} />
           </Chips>
+          <Segmented
+            label="Title"
+            options={TITLES.map(({ value, label }) => ({ value, label }))}
+            value={titleChoice}
+            onChange={(value) => edit({ shape: { title: TITLE_TEXT[value as TitleChoice] } })}
+          />
           <Segmented
             label="Text size"
             options={TEXT_SIZES.map(({ value, label }) => ({ value, label }))}
