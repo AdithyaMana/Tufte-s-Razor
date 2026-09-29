@@ -92,8 +92,8 @@ const SweepChart: React.FC<SweepChartProps> = ({
   return (
     <figure className="font-sans">
       <figcaption className="mb-1">
-        <span className="text-[0.8125rem] font-semibold text-ink">{title}</span>
-        {subtitle && <span className="block text-xs text-muted">{subtitle}</span>}
+        <span className="text-[0.8125rem] font-semibold text-content">{title}</span>
+        {subtitle && <span className="block text-xs text-content-2">{subtitle}</span>}
       </figcaption>
       <div
         ref={wrapRef}
@@ -110,9 +110,9 @@ const SweepChart: React.FC<SweepChartProps> = ({
           <svg width={width} height={HEIGHT} role="img" aria-label={ariaLabel} className="block overflow-visible">
             {zone && (
               <g>
-                <rect x={sx(zone[0])} y={M.t} width={sx(zone[1]) - sx(zone[0])} height={innerH} className="fill-ink/[0.045]" />
+                <rect x={sx(zone[0])} y={M.t} width={sx(zone[1]) - sx(zone[0])} height={innerH} className="fill-content/[0.045]" />
                 {zoneLabel && (
-                  <text x={sx(zone[0]) + 6} y={M.t + 12} className="fill-muted text-[10px]">
+                  <text x={sx(zone[0]) + 6} y={M.t + 12} className="fill-chrome text-[10px]">
                     {zoneLabel}
                   </text>
                 )}
@@ -120,36 +120,36 @@ const SweepChart: React.FC<SweepChartProps> = ({
             )}
             {yTicks.map((t) => (
               <g key={t}>
-                <line x1={M.l} x2={M.l + innerW} y1={sy(t) + 0.5} y2={sy(t) + 0.5} className={t === 0 ? 'stroke-rule-2' : 'stroke-rule'} strokeWidth={1} />
-                <text x={M.l - 8} y={sy(t)} dy="0.32em" textAnchor="end" className="fill-muted text-[10.5px] tabular-nums">
+                <line x1={M.l} x2={M.l + innerW} y1={sy(t) + 0.5} y2={sy(t) + 0.5} className={t === 0 ? 'stroke-line-2' : 'stroke-line'} strokeWidth={1} />
+                <text x={M.l - 8} y={sy(t)} dy="0.32em" textAnchor="end" className="fill-chrome text-[10.5px] tabular-nums">
                   {formatTick(t)}
                 </text>
               </g>
             ))}
             {xTicks.map((t) => (
-              <text key={t} x={sx(t)} y={M.t + innerH + 16} textAnchor="middle" className="fill-muted text-[10.5px] tabular-nums">
+              <text key={t} x={sx(t)} y={M.t + innerH + 16} textAnchor="middle" className="fill-chrome text-[10.5px] tabular-nums">
                 {formatX(t)}
               </text>
             ))}
-            <text x={M.l + innerW / 2} y={HEIGHT - 4} textAnchor="middle" className="fill-muted text-[10.5px]">
+            <text x={M.l + innerW / 2} y={HEIGHT - 4} textAnchor="middle" className="fill-chrome text-[10.5px]">
               {xLabel}
             </text>
 
             <path d={path} fill="none" style={{ stroke: colour }} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
 
             {hover && (
-              <line x1={sx(hover.x)} x2={sx(hover.x)} y1={M.t} y2={M.t + innerH} className="stroke-ink-2/40" strokeWidth={1} />
+              <line x1={sx(hover.x)} x2={sx(hover.x)} y1={M.t} y2={M.t + innerH} className="stroke-content-2/40" strokeWidth={1} />
             )}
-            <circle cx={sx(current.x)} cy={sy(current.y)} r={4.5} style={{ fill: colour }} className="stroke-card" strokeWidth={2} />
-            {hover && <circle cx={sx(hover.x)} cy={sy(hover.y)} r={3.5} style={{ fill: colour }} className="stroke-card" strokeWidth={2} />}
+            <circle cx={sx(current.x)} cy={sy(current.y)} r={4.5} style={{ fill: colour }} className="stroke-paper" strokeWidth={2} />
+            {hover && <circle cx={sx(hover.x)} cy={sy(hover.y)} r={3.5} style={{ fill: colour }} className="stroke-paper" strokeWidth={2} />}
           </svg>
         )}
         <div
-          className="pointer-events-none absolute -translate-x-1/2 rounded-md bg-card/95 px-2 py-1 text-xs shadow-sm ring-1 ring-rule whitespace-nowrap"
+          className="pointer-events-none absolute -translate-x-1/2 rounded-sm bg-paper/95 px-1.5 py-0.5 text-xs ring-1 ring-line whitespace-nowrap"
           style={{ left: tooltipLeft, top: tooltipTop }}
         >
-          <span className="font-semibold text-ink tabular-nums">{formatY(shown.y)}</span>
-          <span className="text-muted"> at {formatX(shown.x)}</span>
+          <span className="font-semibold text-content tabular-nums">{formatY(shown.y)}</span>
+          <span className="text-content-2"> at {formatX(shown.x)}</span>
         </div>
       </div>
     </figure>

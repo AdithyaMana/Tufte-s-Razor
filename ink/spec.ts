@@ -76,11 +76,17 @@ export const SPREADSHEET = {
 
 type SpecimenColours = Pick<ChartSpec, 'background' | 'barColor' | 'textColor' | 'lineColor' | 'gridColor'>;
 
-/** Colours for a specimen that follows the site theme (light paper or dark mode). */
+/** The site's own paper, light and dark (the --paper token in index.css). */
+export const PAPER = { light: '#fffff8', dark: '#151514' };
+
+/**
+ * Colours for a specimen that follows the site theme. Its background is the page's own
+ * paper, so the chart sits on the page the way a chart sits on the paper it is printed on.
+ */
 export function themeColours(isDark: boolean): SpecimenColours {
   return isDark
-    ? { background: '#1e1e1c', barColor: '#5a8ad6', textColor: '#b4b2a8', lineColor: '#4a4944', gridColor: '#3b3a36' }
-    : { background: SPREADSHEET.white, barColor: SPREADSHEET.blue, textColor: SPREADSHEET.text, lineColor: SPREADSHEET.line, gridColor: SPREADSHEET.line };
+    ? { background: PAPER.dark, barColor: '#5a8ad6', textColor: '#b4b2a8', lineColor: '#4a4944', gridColor: '#3b3a36' }
+    : { background: PAPER.light, barColor: SPREADSHEET.blue, textColor: SPREADSHEET.text, lineColor: SPREADSHEET.line, gridColor: SPREADSHEET.line };
 }
 
 /** A typical default chart, like the article's first example: every default switched on. */

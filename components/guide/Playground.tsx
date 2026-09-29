@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { Pin, PinOff, RotateCcw } from 'lucide-react';
 import { readabilityChecks } from '../../ink/checks.ts';
 import type { InkStats } from '../../ink/measure.ts';
 import {
@@ -15,10 +14,9 @@ import {
 import type { ValueLabelMode } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
 import ChartCanvas from './ChartCanvas.tsx';
-import { QuietButton, Segmented, Slider, Toggle } from './controls.tsx';
-import { pct } from './format.ts';
-import InkReadout, { CompactRatio } from './InkReadout.tsx';
-import { InkMapLegend, InkMapToggle, LabFrame, Warnings } from './LabFrame.tsx';
+import { Check, Choice, Slider, TextButton } from './controls.tsx';
+import InkReadout from './InkReadout.tsx';
+import { Lab, Warnings } from './Lab.tsx';
 import { useInkStats } from './useInk.ts';
 
 const BACKGROUNDS: { value: BackgroundChoice; label: string }[] = [
@@ -31,7 +29,7 @@ const BACKGROUNDS: { value: BackgroundChoice; label: string }[] = [
 const FILLS: { value: FillChoice; label: string }[] = [
   { value: 'none', label: 'None' },
   { value: 'white', label: 'White' },
-  { value: 'pale', label: 'Pale blue' },
+  { value: 'pale', label: 'Pale' },
   { value: 'dark', label: 'Dark blue' },
 ];
 
@@ -51,15 +49,18 @@ const VALUE_LABELS: { value: ValueLabelMode; label: string }[] = [
 
 const GROUPS = [...new Set(PRESETS.map((p) => p.group))];
 
+/** Ink scale for the playground's ink bar: roomy enough for the most cluttered preset. */
+const PLAYGROUND_SCALE = 180_000;
+
 interface Reference {
   label: string;
   stats: InkStats;
 }
 
-const ControlGroup: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+const Group: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <fieldset className="min-w-0">
     <legend className="kicker mb-3">{title}</legend>
-    <div className="space-y-4">{children}</div>
+    <div className="space-y-3">{children}</div>
   </fieldset>
 );
 
@@ -70,7 +71,6 @@ const Playground: React.FC = () => {
   const [look, setLook] = useState<Look>(initial.look);
   const [presetId, setPresetId] = useState<string>(PRESETS[0].id);
   const [reference, setReference] = useState<Reference | null>(null);
-  const [inkMap, setInkMap] = useState(false);
 
   const spec = useMemo(() => resolveSpec(shape, look, isDark), [shape, look, isDark]);
   const stats = useInkStats(spec);
@@ -95,16 +95,16 @@ const Playground: React.FC = () => {
   const presetLabel = PRESETS.find((p) => p.id === presetId)?.label;
 
   return (
-    <LabFrame label="Playground · Every control in one place">
-      <div className="flex flex-wrap items-end gap-3 mb-6">
-        <label className="font-sans min-w-0">
-          <span className="block text-[0.8125rem] font-medium text-ink mb-1.5">Start from</span>
+    <>
+      <div className="flex flex-wrap items-baseline gap-x-6 gap-y-3 font-sans text-[0.8125rem]">
+        <label className="flex items-baseline gap-2 text-chrome min-w-0">
+          <span className="font-medium">Start from</span>
           <select
             value={presetId}
             onChange={(e) => loadPreset(e.target.value)}
-            className="max-w-full rounded-md border border-rule bg-card px-3 py-1.5 text-[0.8125rem] text-ink focus-visible:outline-2"
+            className="min-w-0 max-w-[16rem] bg-transparent border-b border-line-2 py-0.5 pr-1 text-content rounded-none"
           >
-            {presetId === '' && <option value="">Your own design</option>}
+            {presetId === '' && <option value="">your own design</option>}
             {GROUPS.map((group) => (
               <optgroup key={group} label={group}>
                 {PRESETS.filter((p) => p.group === group).map((p) => (
@@ -116,85 +116,85 @@ const Playground: React.FC = () => {
             ))}
           </select>
         </label>
-        <QuietButton onClick={() => setReference({ label: presetLabel ? `“${presetLabel}”` : 'your pinned chart', stats })}>
-          <Pin size={14} aria-hidden="true" /> Pin as reference
-        </QuietButton>
-        {reference && (
-          <QuietButton onClick={() => setReference(null)}>
-            <PinOff size={14} aria-hidden="true" /> Unpin
-          </QuietButton>
-        )}
-        <QuietButton onClick={() => loadPreset(PRESETS[0].id)}>
-          <RotateCcw size={14} aria-hidden="true" /> Reset
-        </QuietButton>
-        <div className="ml-auto">
-          <InkMapToggle checked={inkMap} onChange={setInkMap} />
-        </div>
+        <TextButton onClick={() => setReference({ label: presetLabel ? `“${presetLabel}”` : 'your pinned chart', stats })}>
+          {reference ? 'Pin this instead' : 'Pin as reference'}
+        </TextButton>
+        {reference && <TextButton onClick={() => setReference(null)}>Unpin</TextButton>}
+        <TextButton onClick={() => loadPreset(PRESETS[0].id)}>Reset</TextButton>
       </div>
 
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_18rem] gap-8 lg:gap-10">
-        <div className="min-w-0">
-          <ChartCanvas spec={spec} inkMap={inkMap} />
-          {inkMap && <InkMapLegend className="mt-3" />}
-          <CompactRatio stats={stats} className="mt-3" />
-          <Warnings warnings={warnings} className="mt-5" />
-        </div>
-        <div>
-          <InkReadout stats={stats} reference={reference} />
-          {reference && (
-            <p className="mt-4 font-sans text-xs text-muted">
-              Reference: {reference.label} at {pct(reference.stats.ratio)}. The article calls this the <em>relative</em> value — the
-              difference against a version you chose, rather than a grade on its own.
-            </p>
-          )}
-        </div>
-      </div>
+      <Lab
+        label="Playground"
+        chart={
+          <>
+            <ChartCanvas spec={spec} />
+            <Warnings warnings={warnings} className="mt-4" />
+          </>
+        }
+        readout={
+          <>
+            <InkReadout stats={stats} scale={PLAYGROUND_SCALE} reference={reference} />
+            {reference && (
+              <p className="mt-4 font-sans text-xs leading-relaxed text-content-2 max-w-[17rem]">
+                Compared with {reference.label}. The article calls this the relative value: a comparison between versions,
+                not a grade.
+              </p>
+            )}
+          </>
+        }
+        controls={
+          <div className="grid gap-x-12 gap-y-8 sm:grid-cols-2 pt-2">
+            <Group title="Bars">
+              <Slider
+                label="Width"
+                value={Math.round(shape.barWidth * 100)}
+                min={0}
+                max={100}
+                onChange={(v) => setShapeField({ barWidth: v / 100 })}
+                format={(v) => (v === 0 ? 'hairline' : `${v}%`)}
+              />
+              <Choice label="Colour" options={BARS} value={look.bars} onChange={(bars) => setLookField({ bars })} />
+              <div>
+                <Check label="Outline" checked={look.outline} onChange={(outline) => setLookField({ outline })} />
+                <Check label="Sort by value" checked={shape.sorted} onChange={(sorted) => setShapeField({ sorted })} />
+              </div>
+            </Group>
 
-      <div className="mt-8 pt-6 border-t border-rule grid gap-x-12 gap-y-10 md:grid-cols-2">
-        <ControlGroup title="Bars">
-          <Slider
-            label="Width"
-            value={Math.round(shape.barWidth * 100)}
-            min={0}
-            max={100}
-            onChange={(v) => setShapeField({ barWidth: v / 100 })}
-            format={(v) => (v === 0 ? 'hairline' : `${v}% of slot`)}
-          />
-          <Segmented label="Colour" options={BARS} value={look.bars} onChange={(bars) => setLookField({ bars })} size="sm" />
-          <div className="-my-1.5">
-            <Toggle label="Outline" checked={look.outline} onChange={(outline) => setLookField({ outline })} />
-            <Toggle label="Sort by value" checked={shape.sorted} onChange={(sorted) => setShapeField({ sorted })} />
+            <Group title="Background">
+              <Choice label="Paper" options={BACKGROUNDS} value={look.background} onChange={(background) => setLookField({ background })} />
+              <Choice label="Plot fill" options={FILLS} value={look.plotFill} onChange={(plotFill) => setLookField({ plotFill })} />
+            </Group>
+
+            <Group title="Lines">
+              <div>
+                <Check label="Gridlines" checked={shape.gridlines} onChange={(gridlines) => setShapeField({ gridlines })} />
+                <Check label="Chart border" checked={shape.chartBorder} onChange={(chartBorder) => setShapeField({ chartBorder })} />
+                <Check label="Box around the plot" checked={shape.plotBorder} onChange={(plotBorder) => setShapeField({ plotBorder })} />
+                <Check label="Baseline" checked={shape.baseline} onChange={(baseline) => setShapeField({ baseline })} />
+                <Check label="Value-axis line" checked={shape.valueAxisLine} onChange={(valueAxisLine) => setShapeField({ valueAxisLine })} />
+                <Check label="Tick marks" checked={shape.tickMarks} onChange={(tickMarks) => setShapeField({ tickMarks })} />
+              </div>
+            </Group>
+
+            <Group title="Text">
+              <Choice
+                label="Axis labels"
+                options={VALUE_LABELS}
+                value={shape.valueLabels}
+                onChange={(valueLabels) => setShapeField({ valueLabels })}
+              />
+              <div>
+                <Check label="Title" checked={shape.title !== null} onChange={(on) => setShapeField({ title: on ? 'Chart Title' : null })} />
+                <Check label="Category labels" checked={shape.categoryLabels} onChange={(categoryLabels) => setShapeField({ categoryLabels })} />
+                <Check label="Values on the bars" checked={shape.dataLabels} onChange={(dataLabels) => setShapeField({ dataLabels })} />
+              </div>
+              <Slider label="Title size" value={shape.titleSize} min={8} max={40} onChange={(titleSize) => setShapeField({ titleSize })} format={(v) => `${v} px`} />
+              <Slider label="Label size" value={shape.labelSize} min={5} max={24} onChange={(labelSize) => setShapeField({ labelSize })} format={(v) => `${v} px`} />
+            </Group>
           </div>
-        </ControlGroup>
-
-        <ControlGroup title="Background">
-          <Segmented label="Chart background (the paper)" options={BACKGROUNDS} value={look.background} onChange={(background) => setLookField({ background })} size="sm" />
-          <Segmented label="Plot-area fill (paint)" options={FILLS} value={look.plotFill} onChange={(plotFill) => setLookField({ plotFill })} size="sm" />
-        </ControlGroup>
-
-        <ControlGroup title="Lines">
-          <div className="-my-1.5">
-            <Toggle label="Gridlines" checked={shape.gridlines} onChange={(gridlines) => setShapeField({ gridlines })} />
-            <Toggle label="Chart border" checked={shape.chartBorder} onChange={(chartBorder) => setShapeField({ chartBorder })} />
-            <Toggle label="Box around the plot" checked={shape.plotBorder} onChange={(plotBorder) => setShapeField({ plotBorder })} />
-            <Toggle label="Baseline" checked={shape.baseline} onChange={(baseline) => setShapeField({ baseline })} />
-            <Toggle label="Value-axis line" checked={shape.valueAxisLine} onChange={(valueAxisLine) => setShapeField({ valueAxisLine })} />
-            <Toggle label="Tick marks" checked={shape.tickMarks} onChange={(tickMarks) => setShapeField({ tickMarks })} />
-          </div>
-        </ControlGroup>
-
-        <ControlGroup title="Text">
-          <Segmented label="Value-axis labels" options={VALUE_LABELS} value={shape.valueLabels} onChange={(valueLabels) => setShapeField({ valueLabels })} size="sm" />
-          <div className="-my-1.5">
-            <Toggle label="Title" checked={shape.title !== null} onChange={(on) => setShapeField({ title: on ? 'Chart Title' : null })} />
-            <Toggle label="Category labels" checked={shape.categoryLabels} onChange={(categoryLabels) => setShapeField({ categoryLabels })} />
-            <Toggle label="Data labels on the bars" checked={shape.dataLabels} onChange={(dataLabels) => setShapeField({ dataLabels })} />
-          </div>
-          <Slider label="Title size" value={shape.titleSize} min={8} max={40} onChange={(titleSize) => setShapeField({ titleSize })} format={(v) => `${v} px`} />
-          <Slider label="Label size" value={shape.labelSize} min={5} max={24} onChange={(labelSize) => setShapeField({ labelSize })} format={(v) => `${v} px`} />
-        </ControlGroup>
-      </div>
-    </LabFrame>
+        }
+      />
+    </>
   );
 };
 

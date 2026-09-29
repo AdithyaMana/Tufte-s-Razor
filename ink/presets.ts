@@ -38,7 +38,9 @@ export function resolveSpec(shape: Shape, look: Look, isDark: boolean): ChartSpe
         ? { background: blue, textColor: white, lineColor: paleBlue, gridColor: '#7f9fd9' }
         : { background: look.background === 'white' ? white : paleBlue, textColor: SPREADSHEET.text, lineColor: SPREADSHEET.line, gridColor: SPREADSHEET.line };
   const barColor = look.bars === 'theme' ? theme.barColor : { blue, pale: paleBlue, white }[look.bars];
-  const plotFill = look.plotFill === 'none' ? null : { white, pale: paleBlue, dark: blue }[look.plotFill];
+  // On dark paper a "pale" fill is a tint of the paper, not a light block.
+  const pale = look.background === 'theme' && isDark ? '#233049' : paleBlue;
+  const plotFill = look.plotFill === 'none' ? null : { white, pale, dark: blue }[look.plotFill];
   const barOutline = look.outline ? (barColor === blue ? '#2f5597' : blue) : null;
   return {
     ...shape,

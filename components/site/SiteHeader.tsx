@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
+import { useInkLens } from './inkLens.ts';
 import { linkHandler } from './router.ts';
 
 interface SiteHeaderProps {
@@ -17,43 +18,74 @@ export const RazorMark: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const navLink =
-  'px-2 py-1.5 rounded-md text-[0.8125rem] font-medium text-ink-2 hover:text-ink transition-colors';
+/** The switch for the site-wide ink map, with its three colours as the icon. */
+const InkMapSwitch: React.FC = () => {
+  const { on, toggle } = useInkLens();
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={toggle}
+      className={`inline-flex items-center gap-2 rounded-sm px-1 py-1.5 text-[0.8125rem] font-medium transition-colors ${
+        on ? 'text-control' : 'text-chrome hover:text-content'
+      }`}
+      title="Colour every chart, and this page, by kind of ink"
+    >
+      <span className="flex h-3 items-end gap-[2px]" aria-hidden="true">
+        <span className={`w-[3px] h-3 ${on ? 'bg-ink-data' : 'bg-current'}`} />
+        <span className={`w-[3px] h-2 ${on ? 'bg-ink-redundant' : 'bg-current opacity-60'}`} />
+        <span className={`w-[3px] h-1.5 ${on ? 'bg-ink-nondata' : 'bg-current opacity-35'}`} />
+      </span>
+      <span className={on ? 'underline decoration-2 underline-offset-[5px]' : ''}>Ink map</span>
+    </button>
+  );
+};
 
-const SiteHeader: React.FC<SiteHeaderProps> = ({ page, isDark, onToggleTheme }) => (
-  <header className="sticky top-0 z-50 bg-paper/85 backdrop-blur-md border-b border-rule">
-    <div className="max-w-6xl mx-auto px-4 md:px-8 h-14 md:h-16 flex items-center justify-between gap-3">
-      <a href="/" onClick={linkHandler('/')} className="flex items-center gap-2 text-ink group" aria-label="Tufte's Razor, home">
-        <RazorMark className="w-5 h-5 transition-transform duration-300 group-hover:-rotate-6" />
-        <span className="font-serif text-xl md:text-[1.375rem] leading-none tracking-tight">Tufte's Razor</span>
-      </a>
+const navLink = 'rounded-sm px-1 py-1.5 text-[0.8125rem] font-medium text-chrome hover:text-content transition-colors';
 
-      <nav className="flex items-center gap-0.5 sm:gap-2 font-sans" aria-label="Main">
-        <a href="/#bar-width" onClick={linkHandler('/#bar-width')} className={`${navLink} hidden sm:inline-block`}>
-          Guide
+const SiteHeader: React.FC<SiteHeaderProps> = ({ page, isDark, onToggleTheme }) => {
+  // A rule under the header only once the page has scrolled beneath it.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <header className={`sticky top-0 z-50 bg-paper/90 backdrop-blur-md border-b transition-colors ${scrolled ? 'border-line' : 'border-transparent'}`}>
+      <div className="max-w-6xl mx-auto px-4 md:px-8 h-14 flex items-center justify-between gap-3 font-sans">
+        <a href="/" onClick={linkHandler('/')} className="flex items-center gap-2 text-chrome hover:text-content rounded-sm" aria-label="Tufte's Razor, home">
+          <RazorMark className="w-[18px] h-[18px]" />
+          <span className="font-serif text-xl leading-none tracking-tight">Tufte's Razor</span>
         </a>
-        <a href="/#playground" onClick={linkHandler('/#playground')} className={navLink}>
-          Playground
-        </a>
-        <a
-          href="/analyze"
-          onClick={linkHandler('/analyze')}
-          className={`${navLink} ${page === 'analyze' ? 'text-ink underline underline-offset-4 decoration-1' : ''}`}
-          aria-current={page === 'analyze' ? 'page' : undefined}
-        >
-          Measure<span className="hidden sm:inline"> a chart</span>
-        </a>
-        <span className="w-px h-5 bg-rule mx-1 sm:mx-2" aria-hidden="true" />
-        <button
-          onClick={onToggleTheme}
-          className="p-2 rounded-full text-ink-2 hover:text-ink hover:bg-ink/5 transition-colors"
-          aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-        >
-          {isDark ? <Sun size={17} /> : <Moon size={17} />}
-        </button>
-      </nav>
-    </div>
-  </header>
-);
+
+        <nav className="flex items-center gap-3 sm:gap-5" aria-label="Main">
+          <a href="/#playground" onClick={linkHandler('/#playground')} className={`${navLink} hidden sm:inline-block`}>
+            Playground
+          </a>
+          <a
+            href="/analyze"
+            onClick={linkHandler('/analyze')}
+            className={`${navLink} ${page === 'analyze' ? 'text-control underline decoration-2 underline-offset-[5px]' : ''}`}
+            aria-current={page === 'analyze' ? 'page' : undefined}
+          >
+            Measure<span className="hidden sm:inline"> a chart</span>
+          </a>
+          <InkMapSwitch />
+          <button
+            onClick={onToggleTheme}
+            className="p-1.5 -mr-1.5 rounded-sm text-chrome hover:text-content transition-colors"
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+        </nav>
+      </div>
+    </header>
+  );
+};
 
 export default SiteHeader;

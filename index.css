@@ -26,16 +26,22 @@
 @tailwind utilities;
 
 @layer base {
-  /* Channels (r g b) so Tailwind can apply alpha: bg-ink/10 etc. */
+  /*
+   * The site is built the way the guide says charts should be: the paper is not ink, the
+   * content is the data, and everything else (navigation, controls, rules) is kept to the
+   * least that still does its job. Tokens are named by those roles, as r g b channels so
+   * Tailwind can apply alpha (text-content/60).
+   */
   :root {
     --paper: 255 255 248;
-    --card: 255 255 255;
-    --ink: 17 17 17;
-    --ink-2: 73 72 66;
-    --muted: 118 116 105;
-    --rule: 229 226 213;
-    --rule-2: 207 203 187;
-    /* Ink-map categories — validated for colour-vision deficiency on both surfaces. */
+    --content: 17 17 17;
+    --content-2: 74 73 68;
+    --chrome: 107 106 99;
+    --control: 17 17 17;
+    --line: 227 224 211;
+    --line-2: 207 203 187;
+    --repeat: 107 106 99;
+    /* Ink-map colours, validated for colour-vision deficiency on both papers. */
     --ink-data: 24 79 149;
     --ink-redundant: 109 167 236;
     --ink-nondata: 235 104 52;
@@ -45,12 +51,13 @@
 
   .dark {
     --paper: 21 21 20;
-    --card: 30 30 28;
-    --ink: 236 235 228;
-    --ink-2: 190 188 178;
-    --muted: 143 141 132;
-    --rule: 46 45 42;
-    --rule-2: 69 68 63;
+    --content: 236 235 228;
+    --content-2: 190 188 178;
+    --chrome: 149 147 138;
+    --control: 236 235 228;
+    --line: 46 45 42;
+    --line-2: 69 68 63;
+    --repeat: 149 147 138;
     --ink-data: 77 147 232;
     --ink-redundant: 34 99 181;
     --ink-nondata: 217 89 38;
@@ -58,28 +65,40 @@
     color-scheme: dark;
   }
 
+  /* The ink map, applied to the page itself: what it says is data-ink, what repeats it is
+     redundant, and navigation, controls and rules are non-data ink. */
+  .inkmap {
+    --content: var(--ink-data);
+    --content-2: var(--ink-data);
+    --repeat: var(--ink-redundant);
+    --chrome: var(--ink-nondata);
+    --control: var(--ink-nondata);
+    --line: var(--ink-nondata);
+    --line-2: var(--ink-nondata);
+  }
+
   html {
     background-color: rgb(var(--paper));
-    color: rgb(var(--ink));
+    color: rgb(var(--content));
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     background-color: rgb(var(--paper));
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease;
   }
 
   ::selection {
-    background-color: rgb(var(--ink) / 0.14);
+    background-color: rgb(var(--content) / 0.14);
   }
 
   [id] {
-    scroll-margin-top: 5.5rem;
+    scroll-margin-top: 5rem;
   }
 
   :focus-visible {
-    outline: 2px solid rgb(var(--ink));
+    outline: 2px solid rgb(var(--control));
     outline-offset: 2px;
   }
 
@@ -102,7 +121,7 @@
     font-family: theme('fontFamily.serif');
     font-size: 1.1875rem;
     line-height: 1.6;
-    color: rgb(var(--ink));
+    color: rgb(var(--content));
     font-kerning: normal;
     font-variant-ligatures: common-ligatures;
   }
@@ -112,17 +131,17 @@
     }
   }
   .article p + p {
-    margin-top: 1.1em;
+    margin-top: 1em;
   }
   .article a {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.18em;
-    text-decoration-color: rgb(var(--ink) / 0.35);
+    text-decoration-color: rgb(var(--content) / 0.35);
     transition: text-decoration-color 0.15s ease;
   }
   .article a:hover {
-    text-decoration-color: rgb(var(--ink));
+    text-decoration-color: rgb(var(--content));
   }
   .article em {
     font-style: italic;
@@ -131,17 +150,47 @@
     font-weight: 700;
   }
 
-  /* Small uppercase label used above sections and inside the labs. */
+  /* Interactive figures: chart, count, controls. See Lab.tsx. */
+  .lab-grid {
+    display: grid;
+    gap: 1.75rem 3rem;
+    grid-template-areas: 'chart' 'readout' 'controls';
+  }
+  @media (min-width: 1024px) {
+    .lab-grid {
+      grid-template-columns: minmax(0, 1fr) 17rem;
+      grid-template-areas: 'chart readout' 'controls readout';
+      align-items: start;
+    }
+  }
+
+  /* Under the ink map the logo is chrome too, so it is drawn as a shape in the chrome colour. */
+  .logo-mask {
+    display: none;
+  }
+  .inkmap .logo {
+    display: none;
+  }
+  .inkmap .logo-mask {
+    display: block;
+    height: 1.75rem;
+    aspect-ratio: 1177 / 329;
+    background-color: rgb(var(--chrome));
+    -webkit-mask: url('/scienceux-logo.png') center / contain no-repeat;
+    mask: url('/scienceux-logo.png') center / contain no-repeat;
+  }
+
+  /* Small uppercase label, for the few places the page needs to name a control or figure. */
   .kicker {
     font-family: theme('fontFamily.sans');
     font-size: 0.6875rem;
     font-weight: 600;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgb(var(--muted));
+    color: rgb(var(--chrome));
   }
 
-  /* Range slider: hairline track, filled up to --fill, solid ink thumb. */
+  /* Range slider: a hairline track, filled up to --fill, and a solid thumb. */
   .range {
     -webkit-appearance: none;
     appearance: none;
@@ -156,10 +205,10 @@
     border-radius: 1px;
     background: linear-gradient(
       to right,
-      rgb(var(--ink)) 0,
-      rgb(var(--ink)) var(--fill, 0%),
-      rgb(var(--rule-2)) var(--fill, 0%),
-      rgb(var(--rule-2)) 100%
+      rgb(var(--control)) 0,
+      rgb(var(--control)) var(--fill, 0%),
+      rgb(var(--line-2)) var(--fill, 0%),
+      rgb(var(--line-2)) 100%
     );
   }
   .range::-webkit-slider-thumb {
@@ -169,9 +218,9 @@
     height: 18px;
     margin-top: -8px;
     border-radius: 9999px;
-    background: rgb(var(--ink));
-    border: 3px solid rgb(var(--card));
-    box-shadow: 0 0 0 1px rgb(var(--ink));
+    background: rgb(var(--control));
+    border: 3px solid rgb(var(--paper));
+    box-shadow: 0 0 0 1px rgb(var(--control));
     transition: transform 0.12s ease;
   }
   .range:active::-webkit-slider-thumb {
@@ -180,28 +229,62 @@
   .range::-moz-range-track {
     height: 2px;
     border-radius: 1px;
-    background: rgb(var(--rule-2));
+    background: rgb(var(--line-2));
   }
   .range::-moz-range-progress {
     height: 2px;
     border-radius: 1px;
-    background: rgb(var(--ink));
+    background: rgb(var(--control));
   }
   .range::-moz-range-thumb {
     width: 12px;
     height: 12px;
     border-radius: 9999px;
-    background: rgb(var(--ink));
-    border: 3px solid rgb(var(--card));
-    box-shadow: 0 0 0 1px rgb(var(--ink));
+    background: rgb(var(--control));
+    border: 3px solid rgb(var(--paper));
+    box-shadow: 0 0 0 1px rgb(var(--control));
   }
   .range:focus-visible {
     outline: none;
   }
   .range:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 1px rgb(var(--ink)), 0 0 0 6px rgb(var(--ink) / 0.18);
+    box-shadow: 0 0 0 1px rgb(var(--control)), 0 0 0 6px rgb(var(--control) / 0.2);
   }
   .range:focus-visible::-moz-range-thumb {
-    box-shadow: 0 0 0 1px rgb(var(--ink)), 0 0 0 6px rgb(var(--ink) / 0.18);
+    box-shadow: 0 0 0 1px rgb(var(--control)), 0 0 0 6px rgb(var(--control) / 0.2);
+  }
+
+  /* A plain checkbox in the control colour. */
+  .check {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: rgb(var(--control));
+    cursor: pointer;
+  }
+
+  /* "Show more" disclosures: a quiet + / − instead of the browser's triangle. */
+  .more > summary {
+    list-style: none;
+    cursor: pointer;
+    width: fit-content;
+    font-family: theme('fontFamily.sans');
+    font-size: 0.8125rem;
+    color: rgb(var(--chrome));
+  }
+  .more > summary::-webkit-details-marker {
+    display: none;
+  }
+  .more > summary::before {
+    content: '+';
+    display: inline-block;
+    width: 1em;
+    font-weight: 600;
+  }
+  .more[open] > summary::before {
+    content: '−';
+  }
+  .more > summary:hover {
+    color: rgb(var(--content));
   }
 }

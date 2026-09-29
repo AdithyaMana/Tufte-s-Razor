@@ -2,7 +2,7 @@ import React from 'react';
 
 const Marker: React.FC<{ x: number; y: number; n: number }> = ({ x, y, n }) => (
   <g>
-    <circle cx={x} cy={y} r={10} className="fill-ink stroke-card" strokeWidth={2.5} />
+    <circle cx={x} cy={y} r={10} className="fill-control stroke-paper" strokeWidth={2.5} />
     <text x={x} y={y} dy="0.35em" textAnchor="middle" className="fill-paper font-sans text-[11px] font-semibold">
       {n}
     </text>
@@ -14,32 +14,37 @@ const KINDS = [
     n: 1,
     title: 'Data-ink',
     swatch: 'bg-ink-data',
-    text: 'The least ink that shows each value: a 2 px hairline running the length of the bar.',
+    text: 'Shows the values. For a bar, that is a thin line as long as the bar: the least ink that could show its value.',
   },
   {
     n: 2,
-    title: 'Redundant data-ink',
+    title: 'Repeated data-ink',
     swatch: 'bg-ink-redundant',
-    text: 'Ink in data colours that repeats a value already shown: the rest of the bar’s width, outlines, numbers printed on the bars.',
+    text: 'Says a value again: the rest of the bar’s width, an outline, a number printed on the bar.',
   },
   {
     n: 3,
     title: 'Non-data ink',
     swatch: 'bg-ink-nondata',
-    text: 'Everything else that is drawn: axes, ticks, gridlines, borders, filled plot areas, titles and labels.',
+    text: 'Everything else that is drawn: axes, gridlines, borders, shaded backgrounds, titles and labels.',
   },
   {
     n: 4,
-    title: 'Not ink',
-    swatch: 'bg-card border border-rule-2',
-    text: 'The chart’s background, whatever its colour. Ink hidden behind other ink isn’t counted either.',
+    title: 'Paper',
+    swatch: 'bg-paper border border-line-2',
+    text: 'The background, whatever its colour. It isn’t ink at all, and neither is ink hidden behind other ink.',
   },
 ];
 
 /** One bar, taken apart into the kinds of ink the guide counts. */
 const BarAnatomy: React.FC = () => (
-  <figure className="my-10 md:my-12 grid md:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] gap-8 md:gap-12 items-center">
-    <svg viewBox="0 0 300 270" className="w-full max-w-[19rem] mx-auto rounded-lg bg-card ring-1 ring-rule" role="img" aria-label="Diagram of one bar: a thin dark hairline down its centre is data-ink, the rest of the bar is redundant data-ink, and the gridlines, axis line and label are non-data ink.">
+  <figure className="my-10 md:my-14 grid md:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] gap-8 md:gap-14 items-center">
+    <svg
+      viewBox="0 0 300 270"
+      className="w-full max-w-[17rem] mx-auto"
+      role="img"
+      aria-label="Diagram of one bar: a thin dark line down its centre is data-ink, the rest of the bar is repeated data-ink, and the gridlines, axis line and label are non-data ink."
+    >
       {[70, 120, 170].map((y) => (
         <line key={y} x1={30} x2={270} y1={y + 0.5} y2={y + 0.5} className="stroke-ink-nondata" strokeWidth={1.5} />
       ))}
@@ -57,15 +62,15 @@ const BarAnatomy: React.FC = () => (
     <ol className="space-y-4 font-sans">
       {KINDS.map((kind) => (
         <li key={kind.n} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3">
-          <span className="mt-0.5 w-5 h-5 rounded-full bg-ink text-paper text-[11px] font-semibold grid place-items-center" aria-hidden="true">
+          <span className="mt-0.5 w-5 h-5 rounded-full bg-control text-paper text-[11px] font-semibold grid place-items-center" aria-hidden="true">
             {kind.n}
           </span>
           <div>
-            <p className="flex items-center gap-2 text-[0.9375rem] font-semibold text-ink">
-              <span className={`w-2.5 h-2.5 rounded-[2px] ${kind.swatch}`} aria-hidden="true" />
+            <p className="flex items-center gap-2 text-[0.9375rem] font-semibold text-content">
+              <span className={`w-2.5 h-2.5 ${kind.swatch}`} aria-hidden="true" />
               {kind.title}
             </p>
-            <p className="mt-0.5 text-sm leading-relaxed text-ink-2">{kind.text}</p>
+            <p className="mt-0.5 text-sm leading-relaxed text-content-2">{kind.text}</p>
           </div>
         </li>
       ))}

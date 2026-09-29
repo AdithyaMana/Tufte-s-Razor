@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { computeLayout, niceMax, tickStep, type TextMeasurer } from './layout.ts';
 import { sumChannels, toStats } from './measure.ts';
+import { RAZOR_STEPS, razorSpec } from './razor.ts';
 import { defaultSpec, ESSENTIAL_WIDTH } from './spec.ts';
 
 // Roughly Inter's average advance; exact widths only matter in the browser.
@@ -153,5 +154,31 @@ describe('computeLayout', () => {
     const layout = computeLayout(defaultSpec(), measure);
     expect(layout.gridValues).not.toContain(0);
     expect(layout.gridValues).toContain(10);
+  });
+});
+
+describe('razor', () => {
+  it('starts with everything switched on', () => {
+    const spec = razorSpec(0, false);
+    expect(spec.plotFill).not.toBeNull();
+    expect(spec.barOutline).not.toBeNull();
+    expect(spec.gridlines && spec.plotBorder && spec.tickMarks && spec.dataLabels).toBe(true);
+  });
+
+  it('keeps every earlier cut at each step', () => {
+    for (let step = 1; step < RAZOR_STEPS.length; step++) {
+      const spec = razorSpec(step, false);
+      expect(spec.plotFill).toBeNull();
+      if (step >= 2) expect(spec.gridlines || spec.plotBorder || spec.tickMarks || spec.chartBorder).toBe(false);
+      if (step >= 3) expect(spec.barOutline).toBeNull();
+      if (step >= 4) expect(spec.barWidth).toBeLessThanOrEqual(0.31);
+    }
+  });
+
+  it('ends one step too far: hairlines and no labels', () => {
+    const last = razorSpec(RAZOR_STEPS.length - 1, false);
+    expect(last.barWidth).toBe(0);
+    expect(last.title).toBeNull();
+    expect(last.categoryLabels || last.dataLabels || last.valueLabels !== 'none').toBe(false);
   });
 });

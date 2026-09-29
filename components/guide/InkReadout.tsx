@@ -1,29 +1,45 @@
 import React from 'react';
-import { ArrowDownRight, ArrowUpRight, Equal } from 'lucide-react';
 import type { InkStats } from '../../ink/measure.ts';
+import { More } from './controls.tsx';
 import { pct, pct1, px, times } from './format.ts';
 
 export const INK_KINDS = [
-  { key: 'data', label: 'Data-ink', swatch: 'bg-ink-data', note: 'The hairline that carries each value' },
-  { key: 'redundant', label: 'Redundant data-ink', swatch: 'bg-ink-redundant', note: 'Repeats a value already shown' },
-  { key: 'nonData', label: 'Non-data ink', swatch: 'bg-ink-nondata', note: 'Axes, gridlines, borders, fills, text' },
+  { key: 'data', label: 'Data-ink', swatch: 'bg-ink-data' },
+  { key: 'redundant', label: 'Repeated data-ink', swatch: 'bg-ink-redundant' },
+  { key: 'nonData', label: 'Non-data ink', swatch: 'bg-ink-nondata' },
 ] as const;
 
-/** The whole ink budget as one stacked bar, separated by 2px gaps. */
-export const InkBar: React.FC<{ stats: InkStats; className?: string }> = ({ stats, className = '' }) => (
-  <div className={`flex h-2.5 gap-[2px] ${className}`} aria-hidden="true">
-    {INK_KINDS.map(({ key, swatch }) => {
-      const share = stats.total > 0 ? stats[key] / stats.total : 0;
-      if (share <= 0) return null;
-      return (
-        <div
-          key={key}
-          className={`${swatch} first:rounded-l-[2px] last:rounded-r-[2px] transition-[flex-grow] duration-200`}
-          style={{ flexGrow: share, flexBasis: 0, minWidth: 2 }}
-        />
-      );
-    })}
-  </div>
+/**
+ * All of a chart's ink as one bar, drawn to scale: the full width stands for `scale` pixels
+ * of ink, so erasing ink shortens the bar while the data-ink stays put. The ratio is simply
+ * the dark part over the whole bar.
+ */
+export const InkBar: React.FC<{ stats: InkStats; scale?: number; className?: string }> = ({ stats, scale, className = '' }) => {
+  const full = Math.max(scale ?? stats.total, stats.total, 1);
+  return (
+    <div className={`relative h-2.5 ${className}`} aria-hidden="true">
+      <div className="absolute inset-x-0 top-1/2 h-px bg-line" />
+      <div className="relative flex h-full gap-[2px] transition-[width] duration-300" style={{ width: `${(stats.total / full) * 100}%` }}>
+        {INK_KINDS.map(({ key, swatch }) => {
+          const share = stats.total > 0 ? stats[key] / stats.total : 0;
+          if (share <= 0) return null;
+          return <div key={key} className={swatch} style={{ flexGrow: share, flexBasis: 0, minWidth: 2 }} />;
+        })}
+      </div>
+    </div>
+  );
+};
+
+/** The key to the ink colours, used under every ink bar and in the ink-map legend. */
+export const InkKey: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <ul className={`flex flex-wrap gap-x-4 gap-y-1 font-sans text-xs text-chrome ${className}`}>
+    {INK_KINDS.map(({ key, label, swatch }) => (
+      <li key={key} className="flex items-center gap-1.5">
+        <span className={`w-2 h-2 ${swatch}`} aria-hidden="true" />
+        {label}
+      </li>
+    ))}
+  </ul>
 );
 
 export interface ReferenceStats {
@@ -33,83 +49,51 @@ export interface ReferenceStats {
 
 interface InkReadoutProps {
   stats: InkStats;
+  /** Pixels of ink the ink bar's full width stands for. */
+  scale?: number;
+  /** Compare with another version of the chart (the article's "relative value"). */
   reference?: ReferenceStats | null;
-  /** Also show the naive share that counts redundant data-ink as data. */
-  showNaive?: boolean;
   className?: string;
 }
 
-function asMuch(value: number, reference: number): string {
-  const factor = times(value, reference);
-  return factor === 'same' ? 'unchanged' : `${factor} as much`;
-}
-
-/** The relative value: this chart against a reference version of it. */
-const Comparison: React.FC<{ stats: InkStats; reference: ReferenceStats }> = ({ stats, reference }) => {
-  const factor = times(stats.ratio, reference.stats.ratio);
-  const Icon = factor === 'same' ? Equal : stats.ratio > reference.stats.ratio ? ArrowUpRight : ArrowDownRight;
-  return (
-    <div className="mt-1.5 text-[0.8125rem] text-ink-2">
-      <p className="flex items-center gap-1">
-        <Icon size={14} strokeWidth={2.25} className="shrink-0" aria-hidden="true" />
-        {factor === 'same' ? (
-          <span>Same ratio as {reference.label}</span>
-        ) : (
-          <span>
-            <span className="font-semibold text-ink">{factor}</span> the ratio of {reference.label}
-          </span>
-        )}
-      </p>
-      <p className="mt-0.5 pl-[18px] text-xs text-muted">
-        Non-data ink {asMuch(stats.nonData, reference.stats.nonData)}; redundant {asMuch(stats.redundant, reference.stats.redundant)}
-      </p>
-    </div>
-  );
-};
-
-/** The live count: the ratio as a hero figure, then where all the ink went. */
-const InkReadout: React.FC<InkReadoutProps> = ({ stats, reference, showNaive = true, className = '' }) => (
+/** The live count, said once: the ratio, and the ink it comes from. Detail on request. */
+const InkReadout: React.FC<InkReadoutProps> = ({ stats, scale, reference, className = '' }) => (
   <div className={`font-sans ${className}`}>
     <p className="kicker">Data-ink ratio</p>
-    <p className="mt-1 text-[2.75rem] leading-none font-semibold tracking-tight text-ink" aria-live="polite">
-      {pct(stats.ratio)}
+    <p className="mt-1.5 flex items-baseline gap-3">
+      <span className="text-[2.75rem] leading-none font-semibold tracking-tight text-content" aria-live="polite">
+        {pct(stats.ratio)}
+      </span>
+      {reference && (
+        <span className="text-[0.8125rem] text-content-2">
+          {times(stats.ratio, reference.stats.ratio) === 'same'
+            ? `same as ${reference.label}`
+            : `${times(stats.ratio, reference.stats.ratio)} ${reference.label}`}
+        </span>
+      )}
     </p>
-    <p className="mt-1.5 text-[0.8125rem] text-ink-2">of all ink is essential data-ink</p>
-    {reference && <Comparison stats={stats} reference={reference} />}
 
-    <InkBar stats={stats} className="mt-5" />
-    <dl className="mt-3 space-y-1.5 text-[0.8125rem]">
-      {INK_KINDS.map(({ key, label, swatch, note }) => (
-        <div key={key} className="flex items-baseline gap-2" title={note}>
-          <span className={`w-2.5 h-2.5 rounded-[2px] shrink-0 self-center ${swatch}`} aria-hidden="true" />
-          <dt className="text-ink-2 flex-1 min-w-0">{label}</dt>
-          <dd className="tabular-nums text-muted">{px(stats[key])}</dd>
-          <dd className="tabular-nums text-ink w-12 text-right">{pct1(stats.total ? stats[key] / stats.total : 0)}</dd>
-        </div>
-      ))}
-      <div className="flex items-baseline gap-2 pt-1.5 border-t border-rule">
-        <span className="w-2.5 shrink-0" aria-hidden="true" />
-        <dt className="text-ink-2 flex-1">Total ink</dt>
-        <dd className="tabular-nums text-muted">{px(stats.total)}</dd>
-        <dd className="w-12" />
-      </div>
-    </dl>
+    <InkBar stats={stats} scale={scale} className="mt-5" />
+    <InkKey className="mt-2.5" />
 
-    {showNaive && (
-      <p className="mt-4 text-xs leading-relaxed text-muted">
-        Counting every data-coloured pixel as data, redundant or not:{' '}
-        <span className="font-semibold text-ink-2 tabular-nums">{pct1(stats.dataShare)}</span>
+    <More label="Show the count" className="mt-4">
+      <dl className="grid grid-cols-[1fr_auto_auto] gap-x-4 gap-y-1 text-[0.8125rem] tabular-nums">
+        {INK_KINDS.map(({ key, label }) => (
+          <React.Fragment key={key}>
+            <dt className="text-content-2">{label}</dt>
+            <dd className="text-right text-content-2">{px(stats[key])}</dd>
+            <dd className="text-right text-content w-12">{pct1(stats.total ? stats[key] / stats.total : 0)}</dd>
+          </React.Fragment>
+        ))}
+        <dt className="text-content-2 pt-1 border-t border-line">All ink</dt>
+        <dd className="text-right text-content-2 pt-1 border-t border-line">{px(stats.total)}</dd>
+        <dd className="pt-1 border-t border-line" />
+      </dl>
+      <p className="mt-3 text-xs leading-relaxed text-content-2">
+        Counting every data-coloured pixel as data, repeated or not, would give {pct1(stats.dataShare)}.
       </p>
-    )}
+    </More>
   </div>
-);
-
-/** On narrow screens the readout sits below the controls; this keeps the ratio in view. */
-export const CompactRatio: React.FC<{ stats: InkStats; className?: string }> = ({ stats, className = '' }) => (
-  <p className={`lg:hidden flex items-baseline gap-2 font-sans ${className}`} aria-hidden="true">
-    <span className="kicker">Data-ink ratio</span>
-    <span className="text-lg font-semibold tabular-nums text-ink">{pct(stats.ratio)}</span>
-  </p>
 );
 
 export default InkReadout;
