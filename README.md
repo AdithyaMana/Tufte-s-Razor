@@ -26,7 +26,7 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 | 6. Type costs attention, not ink | Guesses how much bigger type costs; bigger, smaller, and back |
 | 7. Aim for the middle | Three charts from too low to too high, and the design flaws that push the ratio each way |
 | 8. Most good advice leaves the ratio alone | The 23 Data Visualization Checklist items, grouped by their effect on the ratio |
-| 9. Your turn: fix this chart | Cleans up the cluttered chart against six goals (triple the ratio without losing values, names, comparability, legible text or contrast), then free play with the article's charts as presets and a pinned reference |
+| 9. Your turn: fix this chart | Cleans up the cluttered chart against six goals (triple the ratio without losing values, names, comparability, legible text or contrast), with a hint on request that follows what's still missing; then free play with the article's charts as presets and a pinned reference |
 | 10. Now look at this page | Reveals the page's own ink, as an analogy |
 
 ### How it reads
@@ -34,7 +34,7 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 - **Scroll stories.** On wide screens the text runs on the left and the chart sticks on the right; on phones the chart sticks under the header and the text scrolls up beneath it. Every step stays on the page, so nothing is hidden from people who skim, search or use a screen reader, and dots under the chart jump back to any step.
 - **Guess first.** Before each counter-intuitive result the reader predicts it. Nothing waits on the guess: scrolling on shows the answer anyway.
 - **Point to inspect.** Hover, tap or arrow-key through any chart's parts. The part is picked out in its ink colour while the rest fades, with its name, kind of ink, pixel count and share of the chart's ink.
-- **Where am I.** The header shows the part being read (3/10), a reading-progress line, and a contents menu that jumps to any part and ticks off the ones already read.
+- **Where am I.** The opening says what's ahead (10 short parts, about 15 minutes). The header shows the part being read (3/10), a reading-progress line, and a contents menu that jumps to any part and ticks off the ones already read.
 - **Detail on demand.** Plain language first; pixel counts, Tufte's full definition and the naive measure sit behind disclosures.
 
 ### The ink map

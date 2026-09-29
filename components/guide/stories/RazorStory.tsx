@@ -9,13 +9,12 @@ import ScrollStory from '../ScrollStory.tsx';
 import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
 import { useInkStatsList } from '../useInk.ts';
 
-// Each step of the story: which cut of the razor the chart shows, and how.
+// Each step of the story: which cut of the razor the chart shows, and how. The thin lines and
+// the heavy type (cuts 2 and 3) go in one step: together they barely move the ratio.
 const STATES: { cut: number; map?: boolean; hideRatio?: boolean }[] = [
-  { cut: 0, hideRatio: true },
   { cut: 0, hideRatio: true },
   { cut: 0, map: true },
   { cut: 1 },
-  { cut: 2 },
   { cut: 3 },
   { cut: 4 },
   { cut: 5 },
@@ -36,26 +35,23 @@ const RazorStory: React.FC = () => {
   const r = (cut: number) => <Ratio>{pct(stats[cut].ratio)}</Ratio>;
 
   const steps = [
-    <p>
-      Here is a bar chart of five numbers. Whoever made it switched on every default and decoration their software offered.
-    </p>,
-    <Guess
-      question="Every mark on this chart is ink. How much of that ink do you think shows the five numbers?"
-      options={[
-        { value: 'half', label: 'About half' },
-        { value: 'fifth', label: 'About a fifth' },
-        { value: 'sliver', label: 'Less than a twentieth' },
-      ]}
-      answer="sliver"
-      right="Right: a sliver."
-      wrong="Less than that."
-      reveal={
-        <>
-          Just {r(0)}. The rest is decoration, scaffolding, and ink that repeats what the bars already show.
-        </>
-      }
-      onGuess={() => setGuessed(true)}
-    />,
+    <>
+      <p>Here is a bar chart of five numbers. Whoever made it switched on every default and decoration their software offered.</p>
+      <Guess
+        className="mt-7"
+        question="Every mark on it is ink. How much of that ink do you think shows the five numbers?"
+        options={[
+          { value: 'half', label: 'About half' },
+          { value: 'fifth', label: 'About a fifth' },
+          { value: 'sliver', label: 'Less than a twentieth' },
+        ]}
+        answer="sliver"
+        right="Right: a sliver."
+        wrong="Less than that."
+        reveal={<>Just {r(0)}. The rest is decoration, scaffolding, and ink that repeats what the bars already show.</>}
+        onGuess={() => setGuessed(true)}
+      />
+    </>,
     <>
       <p>
         Here is the same chart as an <em>ink map</em>, with every mark coloured by what it does. <Swatch kind="data" />
@@ -73,10 +69,9 @@ const RazorStory: React.FC = () => {
       non-data ink here. The ratio rises to {r(1)}.
     </p>,
     <p>
-      Next, the gridlines, the box and the tick marks. They’re thin, so the ratio barely moves: {r(2)}. Most of the ink is still in
-      the bars.
+      Next, the gridlines, the box, the tick marks, the outlines and the heavy type. Together they’re light on ink, so the ratio
+      barely moves: {r(3)}. Most of the ink is still in the bars.
     </p>,
-    <p>Then the outlines and the heavy type. Every value is still there: {r(3)}.</p>,
     <p>
       Now the biggest cut. A bar shows its value by its length; its width only repeats it. Slim the bars and the ratio jumps to{' '}
       {r(4)}, {times(stats[4].ratio, start.ratio)} where it started.
@@ -109,8 +104,11 @@ const RazorStory: React.FC = () => {
         Edward Tufte’s <em>data-ink ratio</em> asks what share of a chart’s ink actually shows the data. Scroll to take a cluttered
         chart apart, one piece at a time.
       </p>
-      <p className="mt-5 flex items-center gap-2 font-sans text-[0.8125rem] text-chrome">
-        <ArrowDown size={14} aria-hidden="true" /> Scroll to begin
+      <p className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1 font-sans text-[0.8125rem] text-chrome">
+        <span className="flex items-center gap-2">
+          <ArrowDown size={14} aria-hidden="true" /> Scroll to begin
+        </span>
+        <span>10 short parts, about 15 minutes</span>
       </p>
 
       <ScrollStory

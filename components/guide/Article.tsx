@@ -10,7 +10,7 @@ export const Section: React.FC<{
   lead?: React.ReactNode;
   children: React.ReactNode;
 }> = ({ id, part, title, lead, children }) => (
-  <section id={id} aria-labelledby={`${id}-title`} className="max-w-6xl mx-auto px-4 md:px-8 pt-20 md:pt-32">
+  <section id={id} aria-labelledby={`${id}-title`} className="max-w-6xl mx-auto px-4 md:px-8 pt-16 md:pt-28">
     {part && <p className="kicker mb-3">{part}</p>}
     <h2 id={`${id}-title`} className="font-serif text-[2.1rem] md:text-5xl leading-[1.08] tracking-tight text-content max-w-3xl text-balance">
       {title}

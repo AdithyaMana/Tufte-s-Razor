@@ -11,31 +11,25 @@ import { useInkStats } from '../useInk.ts';
 const NON_DATA: InkGroup[] = ['plotFill', 'gridlines', 'borders', 'axes', 'title', 'valueLabels', 'categoryLabels'];
 
 // What each step picks out on the chart. An empty list picks out the paper.
-const HIGHLIGHTS: (readonly InkGroup[] | null)[] = [
-  null,
-  ['hairlines'],
-  ['barWidth', 'outlines', 'dataLabels'],
-  NON_DATA,
-  [],
-  null,
-  null,
-];
+const HIGHLIGHTS: (readonly InkGroup[] | null)[] = [['hairlines'], ['barWidth', 'outlines', 'dataLabels'], NON_DATA, [], null];
 
 /** The three kinds of ink, picked out on one chart in turn. */
 const InkKindsStory: React.FC = () => {
   const isDark = useIsDark();
-  const { Verb } = usePointVerb();
+  const { verb } = usePointVerb();
   const spec = useMemo(() => ({ ...defaultSpec(isDark), dataLabels: true }), [isDark]);
   const stats = useInkStats(spec);
   const share = (n: number) => <strong className="font-bold tabular-nums text-echo">{pct1(stats.total ? n / stats.total : 0)}</strong>;
 
   const steps = [
-    <p>Look closely at any chart and every mark on it is one of three kinds of ink. This one has all three.</p>,
-    <p>
-      <Swatch kind="data" />
-      <strong className="font-bold">Data-ink</strong> shows the values. A bar shows its value by its length, so its data-ink is a
-      thin line as long as the bar: the least ink that could still show the number. Here that’s {share(stats.data)} of the ink.
-    </p>,
+    <>
+      <p>Look closely at any chart and every mark on it is one of three kinds of ink. This one has all three.</p>
+      <p>
+        <Swatch kind="data" />
+        <strong className="font-bold">Data-ink</strong> shows the values. A bar shows its value by its length, so its data-ink is a
+        thin line as long as the bar: the least ink that could still show the number. Here that’s {share(stats.data)} of the ink.
+      </p>
+    </>,
     <p>
       <Swatch kind="redundant" />
       <strong className="font-bold">Repeated data-ink</strong> shows a value again: the rest of each bar’s width, and the numbers
@@ -56,13 +50,11 @@ const InkKindsStory: React.FC = () => {
         data-ink <span className="text-content-2">÷</span> all the ink
       </p>
       <p>
-        For this chart, <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>.
+        For this chart, <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>. Now {verb} any
+        part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to the chart and use the
+        arrow keys.)
       </p>
     </>,
-    <p>
-      Your turn. {Verb} any part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to
-      the chart and use the arrow keys.)
-    </p>,
   ];
 
   return (

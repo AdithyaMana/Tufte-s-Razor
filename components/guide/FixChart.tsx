@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Check as CheckIcon, Circle } from 'lucide-react';
-import { readabilityChecks, widthZone } from '../../ink/checks.ts';
+import { COMFORTABLE_BAR_WIDTH, readabilityChecks, widthZone } from '../../ink/checks.ts';
 import { computeLayout } from '../../ink/layout.ts';
 import { measureText } from '../../ink/measure.ts';
 import {
@@ -13,7 +13,7 @@ import {
   type Look,
   type Shape,
 } from '../../ink/presets.ts';
-import type { ValueLabelMode } from '../../ink/spec.ts';
+import type { ChartSpec, ValueLabelMode } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
 import ChartCanvas from './ChartCanvas.tsx';
 import { Segmented, Slider, TextButton, Toggle } from './controls.tsx';
@@ -94,6 +94,38 @@ interface Goal {
   met: boolean;
 }
 
+/**
+ * The next useful thing to try: the first goal not yet met, and for the ratio, the biggest
+ * piece of ink still left to cut.
+ */
+function hintFor(goals: Goal[], spec: ChartSpec, has: (id: string) => boolean): string | null {
+  const unmet = (id: string) => goals.some((g) => g.id === id && !g.met);
+  if (unmet('values')) {
+    return has('no-values')
+      ? 'Nothing shows the values any more. Bring back the axis labels, or put the values on the bars.'
+      : 'With only the ends of the axis labelled, readers can only estimate the values. Label the data values, or put them on the bars.';
+  }
+  if (unmet('names')) return 'Nothing says which bar is which. Turn the category labels back on.';
+  if (unmet('text')) {
+    if (has('small-labels')) return 'Some text is too small to read. Try the default text size.';
+    if (has('hierarchy')) return 'The title has ended up smaller than the labels. Try the default text size.';
+    if (has('text-contrast')) return 'The text is hard to read against what’s behind it.';
+    return 'Some text is so large it competes with the bars. Try the default text size.';
+  }
+  if (unmet('contrast')) return 'The bars blend into what’s behind them. Take away the shading, or outline the bars.';
+  if (unmet('compare')) {
+    return spec.barWidth > COMFORTABLE_BAR_WIDTH[1]
+      ? 'Bars this wide crowd together, and their extra width only repeats their values. Narrow them.'
+      : 'Bars this thin are hard to compare. Widen them a little.';
+  }
+  if (unmet('ratio')) {
+    if (spec.plotFill) return 'The shaded plot area is the biggest piece of non-data ink left. Try taking it away.';
+    if (spec.barWidth > 0.45) return 'A bar’s width only repeats its value. Narrow the bars some more, but not until they’re hard to compare.';
+    return 'Erase the lines a reader doesn’t need: gridlines, borders, tick marks and outlines.';
+  }
+  return null;
+}
+
 const Group: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <fieldset className="min-w-0">
     <legend className="kicker mb-3">{title}</legend>
@@ -127,6 +159,7 @@ const FixChart: React.FC = () => {
   const [look, setLook] = useState<Look>(START.look);
   const [presetId, setPresetId] = useState('everything');
   const [pinned, setPinned] = useState<ReferenceStats | null>(null);
+  const [hinting, setHinting] = useState(false);
 
   const spec = useMemo(() => resolveSpec(shape, look, isDark), [shape, look, isDark]);
   const startSpec = useMemo(() => resolveSpec(START.shape, START.look, isDark), [isDark]);
@@ -146,6 +179,7 @@ const FixChart: React.FC = () => {
   ];
   const metCount = goals.filter((g) => g.met).length;
   const solved = metCount === goals.length;
+  const hint = hintFor(goals, spec, has);
 
   const edit = (patch: { shape?: Partial<Shape>; look?: Partial<Look> }) => {
     if (patch.shape) setShape((s) => ({ ...s, ...patch.shape }));
@@ -171,18 +205,29 @@ const FixChart: React.FC = () => {
       <ChartCanvas spec={spec} inspectable />
       <InkMeter stats={stats} scale={start.total} reference={reference} className="mt-3" />
       {mode === 'challenge' ? (
-        <p className="mt-2 font-sans text-[0.8125rem] text-content-2" aria-live="polite">
-          {solved ? (
-            <span className="font-semibold text-content">All {goals.length} goals met.</span>
-          ) : (
-            <>
-              <span className="tabular-nums">
-                {metCount} of {goals.length}
-              </span>{' '}
-              goals met
-            </>
+        // The status and the hint stay in view with the chart while the controls scroll.
+        <div className="mt-1 font-sans text-[0.8125rem] text-content-2">
+          <div className="flex flex-wrap items-center gap-x-4">
+            <p aria-live="polite" className="py-2.5">
+              {solved ? (
+                <span className="font-semibold text-content">All {goals.length} goals met.</span>
+              ) : (
+                <>
+                  <span className="tabular-nums">
+                    {metCount} of {goals.length}
+                  </span>{' '}
+                  goals met
+                </>
+              )}
+            </p>
+            {!solved && !hinting && <TextButton onClick={() => setHinting(true)}>Need a hint?</TextButton>}
+          </div>
+          {!solved && hinting && hint && (
+            <p className="leading-snug text-content max-w-xl" aria-live="polite">
+              <span className="font-semibold">Hint:</span> {hint}
+            </p>
           )}
-        </p>
+        </div>
       ) : (
         <Warnings warnings={warnings} className="mt-3" />
       )}
@@ -218,7 +263,14 @@ const FixChart: React.FC = () => {
             )}
             <div className="flex flex-wrap gap-x-5">
               <TextButton onClick={() => load(SOLUTION)}>Show one solution</TextButton>
-              <TextButton onClick={() => load(START, 'everything')}>Start again</TextButton>
+              <TextButton
+                onClick={() => {
+                  load(START, 'everything');
+                  setHinting(false);
+                }}
+              >
+                Start again
+              </TextButton>
             </div>
           </div>
         ) : (

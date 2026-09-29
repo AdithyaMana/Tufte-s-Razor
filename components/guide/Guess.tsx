@@ -16,13 +16,23 @@ interface GuessProps<T extends string> {
   right?: string;
   wrong?: string;
   onGuess?: (guess: T) => void;
+  className?: string;
 }
 
 /**
  * Asks the reader to predict before the page shows them: a guess, even a wrong one, makes
  * the answer stick. Nothing waits on it; scrolling on shows the answer anyway.
  */
-function Guess<T extends string>({ question, options, answer, reveal, right = 'Right.', wrong = 'Not quite.', onGuess }: GuessProps<T>) {
+function Guess<T extends string>({
+  question,
+  options,
+  answer,
+  reveal,
+  right = 'Right.',
+  wrong = 'Not quite.',
+  onGuess,
+  className = '',
+}: GuessProps<T>) {
   const [guess, setGuess] = useState<T | null>(null);
   const questionId = useId();
   const correct = guess === answer;
@@ -34,7 +44,7 @@ function Guess<T extends string>({ question, options, answer, reveal, right = 'R
   };
 
   return (
-    <div>
+    <div className={className}>
       <div className="kicker">Guess first</div>
       <p id={questionId} className="mt-2 font-serif text-[1.3rem] md:text-[1.45rem] leading-snug text-content text-pretty">
         {question}

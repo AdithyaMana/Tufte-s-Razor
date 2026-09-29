@@ -97,7 +97,7 @@ const ScrollStory: React.FC<ScrollStoryProps> = ({ steps, figure, label, classNa
           </div>
         )}
       </figure>
-      <div className="sticky-body min-w-0 pt-8 lg:pt-4 pb-[14vh] lg:pb-[24vh]">
+      <div className="sticky-body min-w-0 pt-8 lg:pt-4 pb-[12vh] lg:pb-[20vh]">
         {steps.map((step, i) => (
           <div
             key={i}
@@ -105,7 +105,7 @@ const ScrollStory: React.FC<ScrollStoryProps> = ({ steps, figure, label, classNa
               stepRefs.current[i] = el;
             }}
             data-active={i === active}
-            className="story-step article text-pretty [&:not(:last-child)]:mb-[30vh] lg:[&:not(:last-child)]:mb-[36vh]"
+            className="story-step article text-pretty [&:not(:last-child)]:mb-[24vh] lg:[&:not(:last-child)]:mb-[28vh]"
           >
             {step}
           </div>

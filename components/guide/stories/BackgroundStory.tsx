@@ -6,8 +6,9 @@ import ScrollStory from '../ScrollStory.tsx';
 import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
 import { useInkStatsList } from '../useInk.ts';
 
-// The article's colour variations, in the order the story visits them.
-const VARIANTS = ['A1', 'A1', 'B1', 'B2', 'C1', 'A2', 'D2'];
+// The article's colour variations, in the order the story visits them. The rest are in the
+// grid that follows the story.
+const VARIANTS = ['A1', 'A1', 'B1', 'B2', 'C1'];
 
 /** Paper isn't ink, but a colour painted on it is. */
 const BackgroundStory: React.FC = () => {
@@ -35,13 +36,8 @@ const BackgroundStory: React.FC = () => {
       readers, even when it doesn’t change the ratio.
     </p>,
     <p>
-      Now paint a pale box behind the bars. That box is ink, non-data ink, and a lot of it: the ratio falls to {r(4)}. {' '}
+      Now paint a pale box behind the bars. That box is ink, non-data ink, and a lot of it: the ratio falls to {r(4)}.{' '}
       <span className="text-content-2">({Verb} the box to see how much.)</span>
-    </p>,
-    <p>A thin box around the plot instead costs very little: {r(5)}.</p>,
-    <p>
-      And white bars on pale paper need outlines to show at all. The outlines repeat each bar’s shape, so they are repeated data-ink:{' '}
-      {r(6)}.
     </p>,
   ];
 
