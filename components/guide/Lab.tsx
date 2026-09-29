@@ -13,7 +13,7 @@ export const Lab: React.FC<{
   controls: React.ReactNode;
   after?: React.ReactNode;
 }> = ({ label, chart, readout, controls, after }) => (
-  <figure aria-label={label} className="my-12 md:my-16">
+  <figure aria-label={label} className="mt-6 md:mt-8 mb-12 md:mb-16">
     <div className="lab-grid">
       <div className="min-w-0" style={{ gridArea: 'chart' }}>
         {chart}

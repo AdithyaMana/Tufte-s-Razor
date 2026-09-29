@@ -1,5 +1,6 @@
 import React, { useId, useState } from 'react';
 import { Check, X } from 'lucide-react';
+import { useIsArticle } from '../site/view.ts';
 
 export interface GuessOption<T extends string> {
   value: T;
@@ -21,7 +22,8 @@ interface GuessProps<T extends string> {
 
 /**
  * Asks the reader to predict before the page shows them: a guess, even a wrong one, makes
- * the answer stick. Nothing waits on it; scrolling on shows the answer anyway.
+ * the answer stick. Nothing waits on it; scrolling on shows the answer anyway. In the article
+ * view it is simply the question and its answer.
  */
 function Guess<T extends string>({
   question,
@@ -35,7 +37,21 @@ function Guess<T extends string>({
 }: GuessProps<T>) {
   const [guess, setGuess] = useState<T | null>(null);
   const questionId = useId();
+  const article = useIsArticle();
   const correct = guess === answer;
+
+  if (article) {
+    return (
+      <>
+        <p>
+          <em>{question}</em>
+        </p>
+        <p>
+          <strong className="font-bold">{options.find((o) => o.value === answer)!.label}.</strong> {reveal}
+        </p>
+      </>
+    );
+  }
 
   const choose = (value: T) => {
     if (guess) return;

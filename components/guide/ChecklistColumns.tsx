@@ -10,7 +10,7 @@ const COLUMNS: { effect: Effect; title: string }[] = [
 /** The 23 checklist items, grouped by how meeting each one moves the data-ink ratio. */
 const ChecklistColumns: React.FC = () => (
   <figure className="my-12 md:my-14" aria-label="Data Visualization Checklist items grouped by their effect on the data-ink ratio">
-    <div className="grid gap-10 md:grid-cols-[1fr_1.35fr_1fr] md:gap-10">
+    <div className="grid gap-y-10 md:grid-cols-3 gap-x-5 lg:gap-x-8">
       {COLUMNS.map(({ effect, title }) => {
         const items = CHECKLIST.filter((c) => c.effect === effect);
         return (

@@ -2,8 +2,10 @@ import React, { useMemo } from 'react';
 import type { InkGroup } from '../../../ink/render.ts';
 import { defaultSpec } from '../../../ink/spec.ts';
 import { useIsDark } from '../../site/theme.ts';
+import { useIsArticle } from '../../site/view.ts';
+import ChartPanels from '../ChartPanels.tsx';
 import { pct, pct1 } from '../format.ts';
-import { Swatch } from '../InkReadout.tsx';
+import { InkTerm } from '../InkReadout.tsx';
 import ScrollStory from '../ScrollStory.tsx';
 import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
 import { useInkStats } from '../useInk.ts';
@@ -17,27 +19,28 @@ const HIGHLIGHTS: (readonly InkGroup[] | null)[] = [['hairlines'], ['barWidth', 
 const InkKindsStory: React.FC = () => {
   const isDark = useIsDark();
   const { verb } = usePointVerb();
+  const article = useIsArticle();
   const spec = useMemo(() => ({ ...defaultSpec(isDark), dataLabels: true }), [isDark]);
   const stats = useInkStats(spec);
   const share = (n: number) => <strong className="font-bold tabular-nums text-echo">{pct1(stats.total ? n / stats.total : 0)}</strong>;
 
   const steps = [
     <>
-      <p>Look closely at any chart and every mark on it is one of three kinds of ink. This one has all three.</p>
       <p>
-        <Swatch kind="data" />
-        <strong className="font-bold">Data-ink</strong> shows the values. A bar shows its value by its length, so its data-ink is a
+        Look closely at any chart and every mark on it is one of three kinds of ink. This one has all three
+        {article ? ', picked out one kind at a time above' : ''}.
+      </p>
+      <p>
+        <InkTerm kind="data">Data-ink</InkTerm> shows the values. A bar shows its value by its length, so its data-ink is a
         thin line as long as the bar: the least ink that could still show the number. Here that’s {share(stats.data)} of the ink.
       </p>
     </>,
     <p>
-      <Swatch kind="redundant" />
-      <strong className="font-bold">Repeated data-ink</strong> shows a value again: the rest of each bar’s width, and the numbers
+      <InkTerm kind="redundant">Repeated data-ink</InkTerm> shows a value again: the rest of each bar’s width, and the numbers
       printed on the bars. It can help the reader, but it adds no new information. Here: {share(stats.redundant)}.
     </p>,
     <p>
-      <Swatch kind="nonData" />
-      <strong className="font-bold">Non-data ink</strong> is everything else: the title, the labels, the axis, the gridlines and
+      <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else: the title, the labels, the axis, the gridlines and
       the border. Much of it helps people read the chart. None of it is data. Here: {share(stats.nonData)}.
     </p>,
     <p>
@@ -50,17 +53,36 @@ const InkKindsStory: React.FC = () => {
         data-ink <span className="text-content-2">÷</span> all the ink
       </p>
       <p>
-        For this chart, <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>. Now {verb} any
-        part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to the chart and use the
-        arrow keys.)
+        For this chart, <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>.
+        {!article &&
+          ` Now ${verb} any part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to the chart and use the arrow keys.)`}
       </p>
     </>,
+  ];
+
+  const shareOf = (n: number) => `${pct1(stats.total ? n / stats.total : 0)} of the ink`;
+  const articleFigures = [
+    {
+      after: -1,
+      figure: (
+        <ChartPanels
+          label="One chart, with each kind of ink picked out in turn"
+          panels={[
+            { spec, highlight: HIGHLIGHTS[0], hideRatio: true, label: 'Data-ink', caption: shareOf(stats.data) },
+            { spec, highlight: HIGHLIGHTS[1], hideRatio: true, label: 'Repeated data-ink', caption: shareOf(stats.redundant) },
+            { spec, highlight: HIGHLIGHTS[2], hideRatio: true, label: 'Non-data ink', caption: shareOf(stats.nonData) },
+            { spec, highlight: HIGHLIGHTS[3], hideRatio: true, label: 'Paper', caption: 'Not ink at all' },
+          ]}
+        />
+      ),
+    },
   ];
 
   return (
     <ScrollStory
       label="A bar chart with each kind of ink picked out in turn"
       steps={steps}
+      articleFigures={articleFigures}
       figure={(step) => <StoryFigure spec={spec} stats={stats} highlight={HIGHLIGHTS[step]} />}
     />
   );

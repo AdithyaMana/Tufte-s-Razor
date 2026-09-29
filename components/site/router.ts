@@ -1,20 +1,6 @@
-import { useSyncExternalStore, type MouseEvent } from 'react';
+import type { MouseEvent } from 'react';
 
-// A two-page site doesn't need a router library: pushState plus a subscription is enough.
-const listeners = new Set<() => void>();
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener('popstate', listener);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener('popstate', listener);
-  };
-}
-
-export function usePathname(): string {
-  return useSyncExternalStore(subscribe, () => window.location.pathname);
-}
+// One page, so "routing" is just moving between its parts.
 
 /** Scrolls to the element named by a hash, or to the top when there is none. */
 export function scrollToHash(hash: string) {
@@ -24,22 +10,19 @@ export function scrollToHash(hash: string) {
   else window.scrollTo(0, 0);
 }
 
-export function navigate(to: string) {
-  const url = new URL(to, window.location.href);
-  const samePage = url.pathname === window.location.pathname;
-  window.history.pushState({}, '', url.pathname + url.hash);
-  listeners.forEach((listener) => listener());
-  // Let the new page render before scrolling to an anchor on it.
-  if (samePage) scrollToHash(url.hash);
-  else requestAnimationFrame(() => scrollToHash(url.hash));
+/** Goes to a part of the page (e.g. "#bar-width", or "" for the top), keeping the address in step. */
+export function navigate(hash: string) {
+  const url = window.location.pathname + window.location.search + hash;
+  window.history.pushState({}, '', hash ? url : window.location.pathname + window.location.search);
+  scrollToHash(hash);
 }
 
-/** onClick for plain <a href> elements that should route without a full reload. */
-export function linkHandler(to: string) {
+/** onClick for plain <a href> links within the page. */
+export function linkHandler(hash: string) {
   return (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.defaultPrevented || event.button !== 0) return;
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    navigate(to);
+    navigate(hash);
   };
 }

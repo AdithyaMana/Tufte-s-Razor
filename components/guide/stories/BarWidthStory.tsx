@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { useIsDark } from '../../site/theme.ts';
+import { useIsArticle } from '../../site/view.ts';
 import { barWidthSpec } from '../BarWidthLab.tsx';
+import ChartPanels from '../ChartPanels.tsx';
 import { pct } from '../format.ts';
 import Guess from '../Guess.tsx';
 import ScrollStory from '../ScrollStory.tsx';
@@ -23,6 +25,7 @@ const Figure: React.FC<{ target: number; widest: number }> = ({ target, widest }
 /** Wider bars, lower ratio: guessed first, then shown. */
 const BarWidthStory: React.FC = () => {
   const isDark = useIsDark();
+  const article = useIsArticle();
   const specs = useMemo(() => [...WIDTHS, 1].map((barWidth) => ({ ...barWidthSpec(isDark), barWidth })), [isDark]);
   const stats = useInkStatsList(specs);
   const r = (i: number) => <strong className="font-bold tabular-nums text-echo">{pct(stats[i].ratio)}</strong>;
@@ -36,7 +39,7 @@ const BarWidthStory: React.FC = () => {
         { value: 'same', label: 'It stays the same' },
       ]}
       answer="down"
-      reveal="A bar’s value is in its length, so extra width is extra ink that says nothing new. Scroll on to watch it happen."
+      reveal="A bar’s value is in its length, so extra width is extra ink that says nothing new."
     />,
     <p>
       Wide bars: the same five values, drawn with far more ink. The ratio falls to {r(1)}. The article calls this “unnecessary visual
@@ -48,14 +51,33 @@ const BarWidthStory: React.FC = () => {
       bars make “visual comparison more difficult.”
     </p>,
     <p>
-      So aim between the two: bars wide enough to see, with gaps wide enough to tell them apart. Like these, at {r(4)}.
+      So aim between the two: bars wide enough to see, with gaps wide enough to tell them apart.{' '}
+      {article ? 'Like the balanced bars above' : 'Like these'}, at {r(4)}.
     </p>,
+  ];
+
+  const articleFigures = [
+    {
+      after: 0,
+      figure: (
+        <ChartPanels
+          label="The same chart with wide, balanced, thin and hairline bars"
+          panels={[
+            { spec: specs[1], label: 'Wide' },
+            { spec: specs[0], label: 'Balanced' },
+            { spec: specs[2], label: 'Thin' },
+            { spec: specs[3], label: 'Hairline' },
+          ]}
+        />
+      ),
+    },
   ];
 
   return (
     <ScrollStory
       label="A bar chart whose bars change width"
       steps={steps}
+      articleFigures={articleFigures}
       figure={(step) => <Figure target={WIDTHS[step]} widest={stats[WIDTHS.length].total} />}
     />
   );

@@ -17,7 +17,7 @@ const FlawList: React.FC<{ title: string; flaws: Flaw[] }> = ({ title, flaws }) 
 /** Design flaws on either side of the right range. */
 const FlawSpectrum: React.FC = () => (
   <figure className="my-12 md:my-14" aria-label="Design flaws that push the data-ink ratio below or above its best range">
-    <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+    <div className="grid gap-y-10 md:grid-cols-2 gap-x-5 lg:gap-x-8">
       <FlawList title="Push the ratio too low: ink that crowds out the data" flaws={TOO_LOW} />
       <FlawList title="Push it too high: too little help for the reader" flaws={TOO_HIGH} />
     </div>

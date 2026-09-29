@@ -38,6 +38,14 @@ export const Swatch: React.FC<{ kind: 'data' | 'redundant' | 'nonData' }> = ({ k
   />
 );
 
+/** A kind of ink named in running text, after its colour; the two never split across lines. */
+export const InkTerm: React.FC<{ kind: 'data' | 'redundant' | 'nonData'; children: React.ReactNode }> = ({ kind, children }) => (
+  <span className="whitespace-nowrap">
+    <Swatch kind={kind} />
+    <strong className="font-bold">{children}</strong>
+  </span>
+);
+
 /** The key to the ink colours, used under every ink bar and in the ink-map legend. */
 export const InkKey: React.FC<{ className?: string }> = ({ className = '' }) => (
   <ul className={`flex flex-wrap gap-x-4 gap-y-1 font-sans text-xs text-chrome ${className}`}>

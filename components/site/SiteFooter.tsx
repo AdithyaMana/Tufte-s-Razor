@@ -7,8 +7,8 @@ const team = [
 ];
 
 const SiteFooter: React.FC = () => (
-  <footer className="mt-16">
-    <div className="max-w-6xl mx-auto px-4 md:px-8 pt-10 pb-24 border-t border-line flex flex-col md:flex-row md:items-end justify-between gap-8 font-sans">
+  <footer className="mt-16 max-w-6xl mx-auto w-full px-4 md:px-8">
+    <div className="pt-10 pb-24 border-t border-line flex flex-col md:flex-row md:items-end justify-between gap-8 font-sans">
       <p className="max-w-md font-serif italic text-lg leading-snug text-content">
         “Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.”
         <span className="block mt-1 font-sans not-italic text-xs text-content-2">Antoine de Saint-Exupéry</span>

@@ -1,5 +1,5 @@
 {
   "name": "Tufte's Razor",
-  "description": "An interactive guide to Edward Tufte's data-ink ratio. Change a chart's bar width, colours, gridlines, labels and type, and watch every pixel get counted as data-ink, redundant data-ink or non-data ink. Includes an AI-assisted analyzer for your own charts.",
+  "description": "An interactive guide to Edward Tufte's data-ink ratio. Scroll through short stories that erase a cluttered chart piece by piece, point at any part of a chart to see what kind of ink it is, and fix a cluttered chart yourself. Every pixel is counted as data-ink, repeated data-ink or non-data ink as it changes.",
   "requestFramePermissions": []
 }

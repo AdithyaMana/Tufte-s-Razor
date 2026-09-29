@@ -3,6 +3,7 @@ import type { InkStats } from '../../../ink/measure.ts';
 import { applyPreset, DEFAULT_LOOK, PRESETS, resolveSpec } from '../../../ink/presets.ts';
 import { DEFAULT_LABEL_SIZE, DEFAULT_TITLE_SIZE } from '../../../ink/spec.ts';
 import { useIsDark } from '../../site/theme.ts';
+import ChartPanels from '../ChartPanels.tsx';
 import { pct } from '../format.ts';
 import Guess from '../Guess.tsx';
 import ScrollStory from '../ScrollStory.tsx';
@@ -67,10 +68,28 @@ const TypeStory: React.FC = () => {
     </p>,
   ];
 
+  const articleFigures = [
+    {
+      after: 0,
+      figure: (
+        <ChartPanels
+          columns={3}
+          label="The same chart with default, bigger and smaller text"
+          panels={[
+            { spec: specs[0], label: 'Default' },
+            { spec: specs[1], label: 'Bigger' },
+            { spec: specs[2], label: 'Smaller' },
+          ]}
+        />
+      ),
+    },
+  ];
+
   return (
     <ScrollStory
       label="A bar chart whose text changes size"
       steps={steps}
+      articleFigures={articleFigures}
       figure={(step) => <Figure target={SCALES[step]} reference={stats[0]} scaleInk={stats[SCALES.length].total} />}
     />
   );

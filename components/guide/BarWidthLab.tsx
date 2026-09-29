@@ -4,6 +4,7 @@ import { computeLayout } from '../../ink/layout.ts';
 import { measureText } from '../../ink/measure.ts';
 import { defaultSpec, type ChartSpec } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
+import { useIsArticle } from '../site/view.ts';
 import ChartCanvas from './ChartCanvas.tsx';
 import { More, Segmented, Slider } from './controls.tsx';
 import { pct } from './format.ts';
@@ -35,6 +36,7 @@ const widthTick = (x: number) => (x === 0 ? 'hairline' : x === 1 ? 'touching' : 
 
 const BarWidthLab: React.FC = () => {
   const isDark = useIsDark();
+  const article = useIsArticle();
   const [width, setWidth] = useState(0.31);
   const { animate, stop } = useAnimator(setWidth);
 
@@ -50,6 +52,87 @@ const BarWidthLab: React.FC = () => {
 
   const ratioPoints = sweep?.map((p) => ({ x: p.x, y: p.stats.ratio })) ?? null;
   const sharePoints = sweep?.map((p) => ({ x: p.x, y: p.stats.dataShare })) ?? null;
+
+  // In the article view this is all there is: the ratio at every width, and what it means.
+  const sweepFigure = (
+    <div className="max-w-3xl">
+      <SweepChart
+        title="The data-ink ratio at every width"
+        subtitle={article ? undefined : 'Click anywhere on the line to try that width.'}
+        still={article}
+        points={ratioPoints}
+        current={{ x: width, y: stats.ratio }}
+        colour="rgb(var(--ink-data))"
+        zone={[COMFORTABLE_BAR_WIDTH[0], COMFORTABLE_BAR_WIDTH[1]]}
+        zoneLabel="easiest to compare"
+        xLabel="Bar width, as a share of the space each bar gets"
+        formatX={widthTick}
+        formatY={pct}
+        formatTick={(y) => `${Math.round(y * 100)}%`}
+        onPick={(x) => animate(width, x)}
+        ariaLabel={
+          ratioPoints
+            ? `Line chart: the data-ink ratio falls from ${pct(ratioPoints[0].y)} with hairline bars to ${pct(ratioPoints[ratioPoints.length - 1].y)} with bars that touch.`
+            : 'Line chart of the data-ink ratio against bar width, loading.'
+        }
+      />
+      <div className={article ? 'mt-10 space-y-10' : 'mt-6 space-y-3'}>
+        <More label="Why do wider bars look like more data?">
+          <div className="max-w-2xl">
+            <p className="article text-[1.0625rem] md:text-lg text-content-2">
+              Count every blue pixel as data and wider bars do score higher, as this second line shows. That count skips one
+              word in Tufte’s definition: data-ink is <em>non-redundant</em>. A bar twice as wide says the same number twice as
+              loudly.
+            </p>
+            <div className="mt-4">
+              <SweepChart
+                title="Share of ink in data colours"
+                points={sharePoints}
+                current={{ x: width, y: stats.dataShare }}
+                colour="rgb(var(--content-2))"
+                xLabel="Bar width, as a share of the space each bar gets"
+                formatX={widthTick}
+                formatY={(y) => `${Math.round(y * 100)}%`}
+                onPick={(x) => animate(width, x)}
+                still={article}
+                ariaLabel={
+                  sharePoints
+                    ? `Line chart: the share of ink in data colours rises from ${pct(sharePoints[0].y)} with hairline bars to ${pct(sharePoints[sharePoints.length - 1].y)} with bars that touch.`
+                    : 'Line chart of the share of ink in data colours against bar width, loading.'
+                }
+              />
+            </div>
+          </div>
+        </More>
+        {sweep && (
+          <More label="Show the numbers" heading="The numbers">
+            <table className="w-full max-w-md font-sans text-[0.8125rem] tabular-nums text-content-2">
+              <thead>
+                <tr className="text-left border-b border-line">
+                  <th className="py-1.5 pr-4 font-medium">Bar width</th>
+                  <th className="py-1.5 pr-4 font-medium text-right">Data-ink ratio</th>
+                  <th className="py-1.5 font-medium text-right">In data colours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sweep
+                  .filter((_, i) => i % 4 === 0)
+                  .map((p) => (
+                    <tr key={p.x} className="border-b border-line/60">
+                      <td className="py-1 pr-4">{widthTick(p.x)}</td>
+                      <td className="py-1 pr-4 text-right text-content">{pct(p.stats.ratio)}</td>
+                      <td className="py-1 text-right">{pct(p.stats.dataShare)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </More>
+        )}
+      </div>
+    </div>
+  );
+
+  if (article) return <div className="my-10 md:my-12">{sweepFigure}</div>;
 
   return (
     <Lab
@@ -83,81 +166,7 @@ const BarWidthLab: React.FC = () => {
           )}
         </>
       }
-      after={
-        <div className="mt-10 max-w-3xl">
-          <SweepChart
-            title="The data-ink ratio at every width"
-            subtitle="Click anywhere on the line to try that width."
-            points={ratioPoints}
-            current={{ x: width, y: stats.ratio }}
-            colour="rgb(var(--ink-data))"
-            zone={[COMFORTABLE_BAR_WIDTH[0], COMFORTABLE_BAR_WIDTH[1]]}
-            zoneLabel="easiest to compare"
-            xLabel="Bar width, as a share of the space each bar gets"
-            formatX={widthTick}
-            formatY={pct}
-            formatTick={(y) => `${Math.round(y * 100)}%`}
-            onPick={(x) => animate(width, x)}
-            ariaLabel={
-              ratioPoints
-                ? `Line chart: the data-ink ratio falls from ${pct(ratioPoints[0].y)} with hairline bars to ${pct(ratioPoints[ratioPoints.length - 1].y)} with bars that touch.`
-                : 'Line chart of the data-ink ratio against bar width, loading.'
-            }
-          />
-          <div className="mt-6 space-y-3">
-            <More label="Why do wider bars look like more data?">
-              <div className="max-w-2xl">
-                <p className="article text-[1.0625rem] md:text-lg text-content-2">
-                  Count every blue pixel as data and wider bars do score higher, as this second line shows. That count skips one
-                  word in Tufte’s definition: data-ink is <em>non-redundant</em>. A bar twice as wide says the same number twice as
-                  loudly.
-                </p>
-                <div className="mt-4">
-                  <SweepChart
-                    title="Share of ink in data colours"
-                    points={sharePoints}
-                    current={{ x: width, y: stats.dataShare }}
-                    colour="rgb(var(--content-2))"
-                    xLabel="Bar width, as a share of the space each bar gets"
-                    formatX={widthTick}
-                    formatY={(y) => `${Math.round(y * 100)}%`}
-                    onPick={(x) => animate(width, x)}
-                    ariaLabel={
-                      sharePoints
-                        ? `Line chart: the share of ink in data colours rises from ${pct(sharePoints[0].y)} with hairline bars to ${pct(sharePoints[sharePoints.length - 1].y)} with bars that touch.`
-                        : 'Line chart of the share of ink in data colours against bar width, loading.'
-                    }
-                  />
-                </div>
-              </div>
-            </More>
-            {sweep && (
-              <More label="Show the numbers">
-                <table className="w-full max-w-md font-sans text-[0.8125rem] tabular-nums text-content-2">
-                  <thead>
-                    <tr className="text-left border-b border-line">
-                      <th className="py-1.5 pr-4 font-medium">Bar width</th>
-                      <th className="py-1.5 pr-4 font-medium text-right">Data-ink ratio</th>
-                      <th className="py-1.5 font-medium text-right">In data colours</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sweep
-                      .filter((_, i) => i % 4 === 0)
-                      .map((p) => (
-                        <tr key={p.x} className="border-b border-line/60">
-                          <td className="py-1 pr-4">{widthTick(p.x)}</td>
-                          <td className="py-1 pr-4 text-right text-content">{pct(p.stats.ratio)}</td>
-                          <td className="py-1 text-right">{pct(p.stats.dataShare)}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </More>
-            )}
-          </div>
-        </div>
-      }
+      after={<div className="mt-10">{sweepFigure}</div>}
     />
   );
 };

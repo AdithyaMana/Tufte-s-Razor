@@ -1,38 +1,36 @@
-import React, { Suspense, lazy } from 'react';
-import SiteHeader from './components/site/SiteHeader.tsx';
-import SiteFooter from './components/site/SiteFooter.tsx';
+import React, { useEffect } from 'react';
 import InkMapLegend from './components/site/InkMapLegend.tsx';
 import { InkMapContext, useInkMapState } from './components/site/inkMap.ts';
-import { usePathname } from './components/site/router.ts';
+import SiteFooter from './components/site/SiteFooter.tsx';
+import SiteHeader from './components/site/SiteHeader.tsx';
 import { ThemeContext, useThemeState } from './components/site/theme.ts';
+import { useViewState, ViewContext } from './components/site/view.ts';
 import GuidePage from './pages/GuidePage.tsx';
-
-// The AI analyzer brings its own code (API client, pixel classifier); load it only when visited.
-const AnalyzerPage = lazy(() => import('./pages/AnalyzerPage.tsx'));
 
 const App: React.FC = () => {
   const { isDark, toggle } = useThemeState();
   const inkMap = useInkMapState();
-  const pathname = usePathname();
-  const page = pathname.startsWith('/analyze') ? 'analyze' : 'guide';
+  const view = useViewState();
+
+  // The site is one page; old links to other paths (e.g. the retired /analyze) land on it.
+  useEffect(() => {
+    const { pathname, search, hash } = window.location;
+    if (pathname !== '/') window.history.replaceState(null, '', `/${search}${hash}`);
+  }, []);
 
   return (
     <ThemeContext.Provider value={isDark}>
       <InkMapContext.Provider value={inkMap}>
-        <div className="min-h-screen flex flex-col">
-          <SiteHeader page={page} isDark={isDark} onToggleTheme={toggle} />
-          <main className="flex-1">
-            {page === 'analyze' ? (
-              <Suspense fallback={<div className="min-h-[60vh]" />}>
-                <AnalyzerPage />
-              </Suspense>
-            ) : (
+        <ViewContext.Provider value={view}>
+          <div className="min-h-screen flex flex-col">
+            <SiteHeader isDark={isDark} onToggleTheme={toggle} />
+            <main className="flex-1">
               <GuidePage />
-            )}
-          </main>
-          <SiteFooter />
-          <InkMapLegend />
-        </div>
+            </main>
+            <SiteFooter />
+            <InkMapLegend />
+          </div>
+        </ViewContext.Provider>
       </InkMapContext.Provider>
     </ThemeContext.Provider>
   );

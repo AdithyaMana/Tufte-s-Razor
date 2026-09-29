@@ -15,7 +15,8 @@ import RazorStory from '../components/guide/stories/RazorStory.tsx';
 import RedundancyStory from '../components/guide/stories/RedundancyStory.tsx';
 import TypeStory from '../components/guide/stories/TypeStory.tsx';
 import ThreeCharts from '../components/guide/ThreeCharts.tsx';
-import { linkHandler, scrollToHash } from '../components/site/router.ts';
+import { scrollToHash } from '../components/site/router.ts';
+import { useIsArticle } from '../components/site/view.ts';
 
 const GOLDILOCKS_URL = 'https://scienceux.org/articles/data-ink-ideal-vs-minimal';
 
@@ -32,6 +33,7 @@ const SubHeading: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 const GuidePage: React.FC = () => {
+  const article = useIsArticle();
   // Content renders after load, so the browser can't jump to a #section on its own.
   useEffect(() => {
     if (window.location.hash) requestAnimationFrame(() => scrollToHash(window.location.hash));
@@ -76,7 +78,7 @@ const GuidePage: React.FC = () => {
         lead="A bar shows its value by its length. Extra width adds ink, not information."
       >
         <BarWidthStory />
-        <SubHeading>Try any width</SubHeading>
+        {!article && <SubHeading>Try any width</SubHeading>}
         <BarWidthLab />
       </Section>
 
@@ -87,8 +89,13 @@ const GuidePage: React.FC = () => {
         lead="Its colour doesn’t count. A colour painted on top of it does."
       >
         <BackgroundStory />
-        <SubHeading>All eight of the article’s versions</SubHeading>
-        <ColourGrid />
+        {/* The article view shows the grid within the story. */}
+        {!article && (
+          <>
+            <SubHeading>All eight of the article’s versions</SubHeading>
+            <ColourGrid className="mt-6 md:mt-8" />
+          </>
+        )}
         <Prose>
           <p>
             A1, B1 and B2 score the same: only the paper changed. C1, C2 and D1 also match each other, because each paints a whole
@@ -132,8 +139,10 @@ const GuidePage: React.FC = () => {
         <FlawSpectrum />
         <Prose>
           <p>
-            So compare versions of a chart rather than grading one on its own; the article calls this the <em>relative value</em>. You
-            can try it in free play, at the end of this guide.
+            So compare versions of a chart rather than grading one on its own; the article calls this the <em>relative value</em>.{' '}
+            {article
+              ? 'The interactive guide lets you try it, in free play at the end.'
+              : 'You can try it in free play, at the end of this guide.'}
           </p>
         </Prose>
       </Section>
@@ -157,7 +166,11 @@ const GuidePage: React.FC = () => {
         id="your-turn"
         part={partOf('your-turn')}
         title={title('your-turn')}
-        lead="Everything in this guide, on one cluttered chart. Clean it up without losing anything a reader needs."
+        lead={
+          article
+            ? 'Everything in this guide, applied to one cluttered chart.'
+            : 'Everything in this guide, on one cluttered chart. Clean it up without losing anything a reader needs.'
+        }
       >
         <FixChart />
       </Section>
@@ -166,22 +179,11 @@ const GuidePage: React.FC = () => {
         <PageReveal />
       </Section>
 
-      <section id="measure" className="max-w-6xl mx-auto px-4 md:px-8 pt-20 md:pt-28">
-        <p className="article max-w-2xl">
-          Have a chart of your own?{' '}
-          <a href="/analyze" onClick={linkHandler('/analyze')}>
-            Measure it
-          </a>{' '}
-          with the beta analyzer, which estimates the ratio from an image and adds an AI critique. From a picture alone it can’t
-          tell data-ink from repeated data-ink, so treat its number as a starting point.
-        </p>
-      </section>
-
       <section id="sources" aria-labelledby="sources-title" className="max-w-6xl mx-auto px-4 md:px-8 pt-16">
         <h2 id="sources-title" className="kicker">
           Sources
         </h2>
-        <ol className="mt-3 grid gap-x-12 gap-y-2.5 md:grid-cols-2 font-sans text-xs leading-relaxed text-content-2 max-w-5xl">
+        <ol className="mt-3 grid gap-x-5 lg:gap-x-8 gap-y-2.5 md:grid-cols-2 font-sans text-xs leading-relaxed text-content-2">
           <li>
             Michael Lai and Mike Morrison, <cite>Balancing clarity and clutter: the highs and lows of data-ink ratio in practice</cite>.
             ScienceUX Labs. The basis of this guide.

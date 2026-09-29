@@ -22,6 +22,8 @@ interface SweepChartProps {
   formatTick?: (y: number) => string;
   /** Clicking the chart moves the setting to that x. */
   onPick?: (x: number) => void;
+  /** No hover readout: a plain figure, as in the article view. */
+  still?: boolean;
   ariaLabel: string;
 }
 
@@ -49,6 +51,7 @@ const SweepChart: React.FC<SweepChartProps> = ({
   formatY,
   formatTick = formatY,
   onPick,
+  still = false,
   ariaLabel,
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -97,14 +100,18 @@ const SweepChart: React.FC<SweepChartProps> = ({
       </figcaption>
       <div
         ref={wrapRef}
-        className={`relative ${onPick ? 'cursor-pointer' : ''}`}
+        className={`relative ${onPick && !still ? 'cursor-pointer' : ''}`}
         style={{ height: HEIGHT }}
-        onPointerMove={(e) => setHover(nearest(e.clientX))}
-        onPointerLeave={() => setHover(null)}
-        onClick={(e) => {
-          const p = nearest(e.clientX);
-          if (p && onPick) onPick(p.x);
-        }}
+        onPointerMove={still ? undefined : (e) => setHover(nearest(e.clientX))}
+        onPointerLeave={still ? undefined : () => setHover(null)}
+        onClick={
+          still
+            ? undefined
+            : (e) => {
+                const p = nearest(e.clientX);
+                if (p && onPick) onPick(p.x);
+              }
+        }
       >
         {width > 0 && (
           <svg width={width} height={HEIGHT} role="img" aria-label={ariaLabel} className="block overflow-visible">

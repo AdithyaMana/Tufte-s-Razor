@@ -15,7 +15,9 @@ import {
 } from '../../ink/presets.ts';
 import type { ChartSpec, ValueLabelMode } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
+import { useView } from '../site/view.ts';
 import ChartCanvas from './ChartCanvas.tsx';
+import ChartPanels from './ChartPanels.tsx';
 import { Segmented, Slider, TextButton, Toggle } from './controls.tsx';
 import { pct, times } from './format.ts';
 import { InkMeter, type ReferenceStats } from './InkReadout.tsx';
@@ -151,8 +153,67 @@ const GoalList: React.FC<{ goals: Goal[] }> = ({ goals }) => (
   </ul>
 );
 
+// The goals, as the guide's advice in brief (for the article view).
+const PRINCIPLES = [
+  `Raise the data-ink ratio to at least ${TARGET === 3 ? 'three' : TARGET} times where it started.`,
+  'Keep every value readable.',
+  'Keep every bar named.',
+  'Keep the bars easy to compare: not too wide, not too thin.',
+  'Keep all the text easy to read.',
+  'Keep the bars standing out from what’s behind them.',
+];
+
+/** The challenge, for readers of the article view: its goals, and one way to meet them. */
+const ChallengeSummary: React.FC = () => {
+  const isDark = useIsDark();
+  const { setView } = useView();
+  const panels = useMemo(
+    () => [
+      { spec: resolveSpec(START.shape, START.look, isDark), label: 'Before' },
+      { spec: resolveSpec(SOLUTION.shape, SOLUTION.look, isDark), label: 'After: one way to fix it' },
+    ],
+    [isDark],
+  );
+  return (
+    <>
+      <div className="article max-w-[38rem] space-y-[1em]">
+        <p>
+          In the interactive guide, this part is a challenge: clean up the cluttered chart from the start of the guide without losing
+          anything a reader needs. Its six goals sum up the whole guide.
+        </p>
+        <ol className="list-decimal pl-7 space-y-1 marker:text-content-2">
+          {PRINCIPLES.map((principle) => (
+            <li key={principle} className="pl-1">
+              {principle}
+            </li>
+          ))}
+        </ol>
+      </div>
+      <ChartPanels columns={2} panels={panels} label="The cluttered chart, and one way to fix it" />
+      <div className="article max-w-[38rem] space-y-[1em]">
+        <p>
+          This fix drops the shading, the gridlines, the borders, the tick marks and the outlines, slims the bars to about a third of
+          their space, and says each value once, on its bar. Everything a reader needs is still there.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => setView('interactive')}
+        className="mt-4 inline-flex items-center min-h-10 rounded-sm font-sans text-[0.8125rem] text-content underline decoration-line-2 underline-offset-4 hover:decoration-content"
+      >
+        Try it yourself in the interactive guide
+      </button>
+    </>
+  );
+};
+
 /** The whole guide in one exercise: clean up a cluttered chart without losing anything a reader needs. */
 const FixChart: React.FC = () => {
+  const { view } = useView();
+  return view === 'article' ? <ChallengeSummary /> : <Challenge />;
+};
+
+const Challenge: React.FC = () => {
   const isDark = useIsDark();
   const [mode, setMode] = useState<'challenge' | 'free'>('challenge');
   const [shape, setShape] = useState<Shape>(START.shape);

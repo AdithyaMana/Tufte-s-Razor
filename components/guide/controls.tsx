@@ -1,4 +1,5 @@
 import React, { useId, useRef } from 'react';
+import { useIsArticle } from '../site/view.ts';
 
 // Controls are chrome, so each is the least that still reads as a control, but never less
 // than a comfortable target for a finger: about 40 px tall.
@@ -174,10 +175,29 @@ export const TextButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>
   />
 );
 
-/** Detail on demand: closed by default, so the page says the main thing first. */
-export const More: React.FC<{ label: string; children: React.ReactNode; className?: string }> = ({ label, children, className = '' }) => (
-  <details className={`more ${className}`}>
-    <summary>{label}</summary>
-    <div className="mt-3">{children}</div>
-  </details>
-);
+/**
+ * Detail on demand: closed by default, so the page says the main thing first. In the article
+ * view everything is shown, under `heading` (or the label).
+ */
+export const More: React.FC<{ label: string; heading?: string; children: React.ReactNode; className?: string }> = ({
+  label,
+  heading,
+  children,
+  className = '',
+}) => {
+  const article = useIsArticle();
+  if (article) {
+    return (
+      <div className={className}>
+        <p className="font-sans text-[0.8125rem] font-semibold text-content">{heading ?? label}</p>
+        <div className="mt-2">{children}</div>
+      </div>
+    );
+  }
+  return (
+    <details className={`more ${className}`}>
+      <summary>{label}</summary>
+      <div className="mt-3">{children}</div>
+    </details>
+  );
+};

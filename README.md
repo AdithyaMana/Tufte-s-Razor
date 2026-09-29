@@ -4,7 +4,7 @@
 
 **Tufte's Razor** is an interactive guide to Edward Tufte's **data-ink ratio**: how much of a chart's ink actually shows data, why that number moves the way it does, and why it is a range to aim for rather than a score to max out.
 
-The guide is a set of short **scroll-driven stories**: a chart stays in view while the text beside it scrolls, and each step changes the chart. Every chart is drawn on a canvas and **counted pixel by pixel** as it changes, so the ink is sorted into data-ink, repeated data-ink and non-data ink in real time. Readers guess before each surprise, point at any part of a chart to see what kind of ink it is, and finish by fixing a cluttered chart themselves.
+The guide is a set of short **scroll-driven stories**: a chart stays in view while the text beside it scrolls, and each step changes the chart. Every chart is drawn on a canvas and **counted pixel by pixel** as it changes, so the ink is sorted into data-ink, repeated data-ink and non-data ink in real time. Readers guess before each surprise, point at any part of a chart to see what kind of ink it is, and finish by fixing a cluttered chart themselves. Anyone who would rather just read can switch to a plain article of the same guide.
 
 The guide is adapted from *Balancing clarity and clutter: the highs and lows of data-ink ratio in practice* by Michael Lai and Mike Morrison, and recreates that article's examples.
 
@@ -36,14 +36,11 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 - **Point to inspect.** Hover, tap or arrow-key through any chart's parts. The part is picked out in its ink colour while the rest fades, with its name, kind of ink, pixel count and share of the chart's ink.
 - **Where am I.** The opening says what's ahead (10 short parts, about 15 minutes). The header shows the part being read (3/10), a reading-progress line, and a contents menu that jumps to any part and ticks off the ones already read.
 - **Detail on demand.** Plain language first; pixel counts, Tufte's full definition and the naive measure sit behind disclosures.
+- **Or just read.** A switch in the header (and in the opening) turns the whole guide into a plain article: every story's text in order, its charts as side-by-side small multiples, guesses as questions with their answers, disclosures open, and no scrolling tricks. The choice is remembered, links can open it directly with `?view=article`, and switching keeps the reader in the same part.
 
 ### The ink map
 
 The **Ink map** switch in the header recolours every chart by kind of ink. At the end of the guide, the reader can also reveal the page's own ink: its words are data-ink, the numbers that repeat a chart are repeated ink, and menus, controls and rules are non-data ink. It is labelled as an analogy, not a measurement.
-
-### Measure a chart (`/analyze`, beta)
-
-The original AI-assisted analyzer: upload a chart image for a pixel-level estimate of its data-ink ratio and a Gemini critique of its chartjunk, shown as plain numbers, an ink map of your chart and three short lists. It needs a Gemini API key; the guide does not.
 
 ## 🎨 Design: the site follows its own rule
 
@@ -81,16 +78,14 @@ Absolute values depend on these counting rules; the direction and size of each c
 | Typography | ET Book (self-hosted, MIT) and Inter |
 | Icons | Lucide React |
 | Tests | Vitest |
-| Backend | Express 5, Vite 6 (dev middleware) |
-| AI (analyzer only) | Google Gemini (structured output + thinking) |
+| Server | A static site: Vite 6 in development; a small Express 5 server serves the build |
 | Runtime | Node.js, tsx |
 
 ## 🚀 Getting started
 
 ### Prerequisites
 
-- **Node.js** ≥ 18
-- For the analyzer only: a **Google Gemini API key** ([get one here](https://aistudio.google.com/apikey))
+- **Node.js** ≥ 18. No API keys or environment variables are needed.
 
 ### Setup
 
@@ -98,10 +93,6 @@ Absolute values depend on these counting rules; the direction and size of each c
 git clone https://github.com/AdithyaMana/Tufte-s-Razor.git
 cd Tufte-s-Razor
 npm install
-
-# Only needed for /analyze
-cp .env.example .env
-# then set GEMINI_API_KEY=your_key_here
 ```
 
 ### Scripts
@@ -111,16 +102,16 @@ npm run dev        # dev server with hot reload at http://localhost:3000
 npm test           # unit tests (layout and ink counting)
 npm run typecheck  # TypeScript, no emit
 npm run build      # production build into dist/
-NODE_ENV=production npm start   # serve dist/ and the analyzer API
+NODE_ENV=production npm start   # serve dist/ (any static host works too)
 ```
 
 ## 📁 Project structure
 
 ```
-├── App.tsx                     # Site shell: header, routing, footer, theme
+├── App.tsx                     # Site shell: header, footer, theme, view (interactive or article)
 ├── index.html / index.tsx      # Entry point
 ├── index.css                   # Tailwind, role-based tokens (light, dark, ink map), ET Book, controls
-├── server.ts                   # Express: static site + Gemini proxy with rate limiting
+├── server.ts                   # Serves the site: Vite in development, dist/ in production
 ├── ink/                        # The counting engine (framework-free)
 │   ├── spec.ts                 # ChartSpec: every design choice the guide varies
 │   ├── razor.ts                # The razor: a cluttered chart, cleaned up one cut at a time
@@ -133,23 +124,13 @@ NODE_ENV=production npm start   # serve dist/ and the analyzer API
 │   └── ink.test.ts             # Unit tests
 ├── content/                    # The guide's parts, chart-part descriptions, checklist and design flaws
 ├── pages/
-│   ├── GuidePage.tsx           # The guide
-│   └── AnalyzerPage.tsx        # The AI-assisted analyzer
+│   └── GuidePage.tsx           # The guide
 ├── components/
 │   ├── guide/                  # Scroll stories, guesses, the challenge, charts, readouts and controls
 │   │   └── stories/            # One scroll story per part of the guide
-│   ├── site/                   # Header (progress, contents), footer, router, theme, ink maps
-│   └── *.tsx                   # Analyzer components
-├── services/ utils/            # Analyzer: API client and pixel classifier
+│   └── site/                   # Header (progress, contents), footer, theme, view, ink maps
 └── public/                     # Fonts (ET Book + licence), logo, favicon
 ```
-
-## 🔒 Security (analyzer)
-
-- **API key isolation** — The Gemini API key lives server-side only; the client never sees it
-- **Rate limiting** — 10 requests per minute per IP with automatic cleanup
-- **Input validation** — File type whitelist, 10 MB size cap, base64 length guard
-- **Error sanitization** — Raw API errors are never leaked to the client
 
 ## 📚 Sources
 

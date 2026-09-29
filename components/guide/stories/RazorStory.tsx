@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, BookOpen, MousePointer2 } from 'lucide-react';
 import { RAZOR_STEPS, razorSpec } from '../../../ink/razor.ts';
 import { useIsDark } from '../../site/theme.ts';
+import { useView } from '../../site/view.ts';
+import ChartPanels from '../ChartPanels.tsx';
 import { pct, times } from '../format.ts';
 import Guess from '../Guess.tsx';
-import { Swatch } from '../InkReadout.tsx';
+import { InkKey, InkTerm } from '../InkReadout.tsx';
 import ScrollStory from '../ScrollStory.tsx';
 import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
 import { useInkStatsList } from '../useInk.ts';
@@ -28,6 +30,8 @@ const Ratio: React.FC<{ children: React.ReactNode }> = ({ children }) => <strong
 const RazorStory: React.FC = () => {
   const isDark = useIsDark();
   const { Verb } = usePointVerb();
+  const { view, setView } = useView();
+  const article = view === 'article';
   const [guessed, setGuessed] = useState(false);
   const specs = useMemo(() => RAZOR_STEPS.map((_, i) => razorSpec(i, isDark)), [isDark]);
   const stats = useInkStatsList(specs);
@@ -36,7 +40,10 @@ const RazorStory: React.FC = () => {
 
   const steps = [
     <>
-      <p>Here is a bar chart of five numbers. Whoever made it switched on every default and decoration their software offered.</p>
+      <p>
+        Here is a bar chart of five numbers{article ? ', on the left' : ''}. Whoever made it switched on every default and decoration
+        their software offered.
+      </p>
       <Guess
         className="mt-7"
         question="Every mark on it is ink. How much of that ink do you think shows the five numbers?"
@@ -54,19 +61,17 @@ const RazorStory: React.FC = () => {
     </>,
     <>
       <p>
-        Here is the same chart as an <em>ink map</em>, with every mark coloured by what it does. <Swatch kind="data" />
-        <strong className="font-bold">Data-ink</strong> shows the values: a thin line down each bar, as long as the bar.{' '}
-        <Swatch kind="redundant" />
-        <strong className="font-bold">Repeated data-ink</strong> says a value again. <Swatch kind="nonData" />
-        <strong className="font-bold">Non-data ink</strong> is everything else.
+        {article ? 'On the right is' : 'Here is'} the same chart as an <em>ink map</em>, with every mark coloured by what it does.{' '}
+        <InkTerm kind="data">Data-ink</InkTerm> shows the values: a thin line down each bar, as long as the bar.{' '}
+        <InkTerm kind="redundant">Repeated data-ink</InkTerm> says a value again. <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else.
       </p>
       <p>
-        The data-ink ratio is the data-ink divided by all of it: {r(0)}. {Verb} any part of the chart to see what it is.
+        The data-ink ratio is the data-ink divided by all of it: {r(0)}.{article ? '' : ` ${Verb} any part of the chart to see what it is.`}
       </p>
     </>,
     <p>
-      Edward Tufte’s advice: erase the ink that isn’t data, within reason. Start with the shaded background, the biggest piece of
-      non-data ink here. The ratio rises to {r(1)}.
+      Edward Tufte’s advice: erase the ink that isn’t data, within reason.{article ? ' The charts above do it one cut at a time.' : ''}{' '}
+      Start with the shaded background, the biggest piece of non-data ink here. The ratio rises to {r(1)}.
     </p>,
     <p>
       Next, the gridlines, the box, the tick marks, the outlines and the heavy type. Together they’re light on ink, so the ratio
@@ -84,37 +89,89 @@ const RazorStory: React.FC = () => {
     </p>,
     <>
       <p>
-        So the goal isn’t the highest ratio. It’s ink that earns its place. One cut back, shown here again, was a good place to
-        stop: {r(5)}, {times(stats[5].ratio, start.ratio)} the start, and nothing a reader needs is gone.
+        So the goal isn’t the highest ratio. It’s ink that earns its place.{' '}
+        {article ? 'The cut before that' : 'One cut back, shown here again,'} was a good place to stop: {r(5)},{' '}
+        {times(stats[5].ratio, start.ratio)} the start, and nothing a reader needs is gone.
       </p>
       <p>The rest of this guide shows where to stop, one kind of ink at a time.</p>
     </>,
   ];
 
+  const articleFigures = [
+    {
+      after: -1,
+      figure: (
+        <ChartPanels
+          columns={2}
+          label="A cluttered bar chart, and the same chart as an ink map"
+          panels={[
+            { spec: specs[0], label: 'The chart', caption: 'Every default and decoration switched on.' },
+            { spec: specs[0], inkMap: true, hideRatio: true, label: 'The same chart as an ink map', caption: <InkKey /> },
+          ]}
+        />
+      ),
+    },
+    {
+      after: 1,
+      figure: (
+        <ChartPanels
+          columns={6}
+          label="The chart erased one cut at a time"
+          panels={[
+            { spec: specs[0], label: 'Start' },
+            { spec: specs[1], label: 'No shading' },
+            { spec: specs[3], label: 'No lines or heavy type' },
+            { spec: specs[4], label: 'Slimmer bars' },
+            { spec: specs[5], label: 'Each value said once' },
+            { spec: specs[6], label: 'Too far' },
+          ]}
+        />
+      ),
+    },
+  ];
+
+  // The choice between the two views, offered where every reader starts.
+  const switchView = (
+    <button
+      type="button"
+      onClick={() => setView(article ? 'interactive' : 'article')}
+      className="inline-flex items-center gap-2 min-h-10 rounded-sm text-content underline decoration-line-2 underline-offset-4 hover:decoration-content"
+    >
+      {article ? <MousePointer2 size={14} aria-hidden="true" /> : <BookOpen size={14} aria-hidden="true" />}
+      {article ? 'Switch to the interactive guide' : 'Rather just read? Switch to the article view'}
+    </button>
+  );
+
   return (
     <section id="razor" aria-labelledby="razor-title" className="max-w-6xl mx-auto px-4 md:px-8 pt-10 md:pt-16">
-      <p className="kicker">An interactive guide to the data-ink ratio</p>
+      <p className="kicker">{article ? 'A guide to the data-ink ratio' : 'An interactive guide to the data-ink ratio'}</p>
       <h1
         id="razor-title"
         className="mt-4 max-w-4xl font-serif text-[2.6rem] sm:text-6xl lg:text-[4.5rem] leading-[1.02] tracking-tight text-content text-balance"
       >
         How much of a chart is data?
       </h1>
-      <p className="article mt-5 max-w-2xl text-content-2">
-        Edward Tufte’s <em>data-ink ratio</em> asks what share of a chart’s ink actually shows the data. Scroll to take a cluttered
-        chart apart, one piece at a time.
+      <p className="article mt-5 max-w-2xl text-content-2 text-pretty">
+        Edward Tufte’s <em>data-ink ratio</em> asks what share of a chart’s ink actually shows the data.{' '}
+        {article
+          ? 'This guide takes a cluttered chart apart, one piece at a time, then looks at each kind of ink in turn.'
+          : 'Scroll to take a cluttered chart apart, one piece at a time.'}
       </p>
-      <p className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1 font-sans text-[0.8125rem] text-chrome">
-        <span className="flex items-center gap-2">
-          <ArrowDown size={14} aria-hidden="true" /> Scroll to begin
-        </span>
-        <span>10 short parts, about 15 minutes</span>
-      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-x-6 font-sans text-[0.8125rem] text-chrome">
+        {!article && (
+          <span className="flex items-center gap-2 min-h-10">
+            <ArrowDown size={14} aria-hidden="true" /> Scroll to begin
+          </span>
+        )}
+        <span className="flex items-center min-h-10">{article ? '10 short parts, about 12 minutes to read' : '10 short parts, about 15 minutes'}</span>
+        {switchView}
+      </div>
 
       <ScrollStory
         className="mt-8 md:mt-12"
         label="A cluttered bar chart, erased step by step"
         steps={steps}
+        articleFigures={articleFigures}
         figure={(step) => {
           const state = STATES[step];
           return (

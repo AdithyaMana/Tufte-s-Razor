@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMediaQuery } from '../site/media.ts';
+import { useIsArticle } from '../site/view.ts';
 
 /** A figure that stays in view while the content beside (or below) it scrolls. */
 export const StickyLayout: React.FC<{ figure: React.ReactNode; children: React.ReactNode; label?: string; className?: string }> = ({
@@ -38,21 +39,57 @@ const StoryDots: React.FC<{ count: number; active: number; onPick: (index: numbe
   </div>
 );
 
+/** A figure for the article view, placed after one of the steps (-1: before them all). */
+export interface ArticleFigure {
+  after: number;
+  figure: React.ReactNode;
+}
+
 interface ScrollStoryProps {
   /** The text of each step, in order. */
   steps: React.ReactNode[];
   /** The figure for the step being read. */
   figure: (step: number) => React.ReactNode;
+  /** In the article view the steps are plain paragraphs, with these figures between them. */
+  articleFigures?: ArticleFigure[];
   label: string;
   className?: string;
 }
+
+/** The article view of a story: its steps as paragraphs, with static figures between them. */
+const ArticleStory: React.FC<{ steps: React.ReactNode[]; figures: ArticleFigure[]; className: string }> = ({ steps, figures, className }) => {
+  const blocks: React.ReactNode[] = [];
+  let run: React.ReactNode[] = [];
+  const flush = (key: string) => {
+    if (run.length) blocks.push(<div key={key} className="article max-w-[38rem] space-y-[1em] text-pretty">{run}</div>);
+    run = [];
+  };
+  const place = (after: number) => {
+    const here = figures.filter((f) => f.after === after);
+    if (!here.length) return;
+    flush(`text-${after}`);
+    here.forEach((f, i) => blocks.push(<React.Fragment key={`figure-${after}-${i}`}>{f.figure}</React.Fragment>));
+  };
+  place(-1);
+  steps.forEach((step, i) => {
+    run.push(<div key={i}>{step}</div>);
+    place(i);
+  });
+  flush('text-end');
+  return <div className={`mb-5 md:mb-6 ${className}`}>{blocks}</div>;
+};
 
 /**
  * A scroll-driven story: the figure stays in view, and changes as each step of the text
  * scrolls past the middle of the space left for reading. Every step stays on the page, so
  * nothing is hidden from readers who skim, search or use a screen reader.
  */
-const ScrollStory: React.FC<ScrollStoryProps> = ({ steps, figure, label, className = '' }) => {
+const ScrollStory: React.FC<ScrollStoryProps> = (props) => {
+  const article = useIsArticle();
+  return article ? <ArticleStory steps={props.steps} figures={props.articleFigures ?? []} className={props.className ?? ''} /> : <InteractiveStory {...props} />;
+};
+
+const InteractiveStory: React.FC<ScrollStoryProps> = ({ steps, figure, label, className = '' }) => {
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const figureRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -97,7 +134,7 @@ const ScrollStory: React.FC<ScrollStoryProps> = ({ steps, figure, label, classNa
           </div>
         )}
       </figure>
-      <div className="sticky-body min-w-0 pt-8 lg:pt-4 pb-[12vh] lg:pb-[20vh]">
+      <div className="sticky-body min-w-0 pt-8 lg:pt-0 pb-[12vh] lg:pb-[20vh]">
         {steps.map((step, i) => (
           <div
             key={i}

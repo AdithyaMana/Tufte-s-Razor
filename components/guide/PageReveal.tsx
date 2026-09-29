@@ -1,10 +1,40 @@
 import React from 'react';
 import { useInkMap } from '../site/inkMap.ts';
+import { useIsArticle } from '../site/view.ts';
 import { Swatch } from './InkReadout.tsx';
+
+const REVEAL = [
+  {
+    kind: 'data',
+    text: (
+      <>
+        The words are this page’s <strong className="font-bold">data-ink</strong>: what you came to read.
+      </>
+    ),
+  },
+  {
+    kind: 'redundant',
+    text: (
+      <>
+        The numbers that repeat what a chart already shows are <strong className="font-bold">repeated data-ink</strong>.
+      </>
+    ),
+  },
+  {
+    kind: 'nonData',
+    text: (
+      <>
+        Menus, buttons, rules and labels are <strong className="font-bold">non-data ink</strong>: needed, but kept in the background.
+      </>
+    ),
+  },
+] as const;
 
 /** The last chart in the guide is the page itself: its ink, by the same three kinds. */
 const PageReveal: React.FC = () => {
   const { page, setPage } = useInkMap();
+  // The article view shows the explanation either way; the button still colours the page.
+  const article = useIsArticle();
   return (
     <div className="max-w-[38rem]">
       <div className="article">
@@ -29,17 +59,18 @@ const PageReveal: React.FC = () => {
       </button>
 
       <div aria-live="polite">
-        {page && (
+        {(page || article) && (
           <div className="article mt-8">
-            <p>
-              <Swatch kind="data" />
-              The words are this page’s <strong className="font-bold">data-ink</strong>: what you came to read.{' '}
-              <Swatch kind="redundant" />
-              The numbers that repeat what a chart already shows are <strong className="font-bold">repeated data-ink</strong>.{' '}
-              <Swatch kind="nonData" />
-              Menus, buttons, rules and labels are <strong className="font-bold">non-data ink</strong>: needed, but kept in the
-              background.
-            </p>
+            <ul className="space-y-2">
+              {REVEAL.map(({ kind, text }) => (
+                <li key={kind} className="grid grid-cols-[1em_minmax(0,1fr)] gap-x-2.5">
+                  <span className="pt-[0.1em]">
+                    <Swatch kind={kind} />
+                  </span>
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
             <p className="text-content-2">
               It’s an analogy, not a measurement: a page isn’t a chart, and words aren’t data. But the question carries over to anything
               you design. What is each mark doing for the reader?
