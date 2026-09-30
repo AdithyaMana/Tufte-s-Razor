@@ -16,6 +16,6 @@ export const PUBLISH_CHECKS: PublishCheck[] = [
   { text: 'Labels sit next to what they name.', why: 'Label the bars or lines directly rather than making readers match colours to a legend.' },
   { text: 'Long names go on horizontal bars.', why: 'Station names fit under a column; “Central and Riverside interchange” doesn’t.' },
   { text: 'Categories are sorted, unless they have an order of their own.', why: 'Sort stations by size; leave months, years and age bands in order.' },
-  { text: 'The one thing that matters stands out.', why: 'Colour the key bar and keep the rest muted, or add a short note beside it. It costs a little ink, and it’s ink that earns its place.' },
+  { text: 'The one thing that matters stands out.', why: 'Colour the key bar and keep the rest muted, or add a short note beside it. It costs a little ink, and it’s worth it.' },
   { text: 'Every word is readable at arm’s length.', why: 'And the title is the biggest text on the chart.' },
 ];

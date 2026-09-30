@@ -4,7 +4,7 @@
 
 **Tufte's Razor** is an interactive guide to Edward Tufte's **data-ink ratio**: how much of a chart's ink actually shows data, why that number moves the way it does, and why it is a range to aim for rather than a score to max out.
 
-The guide is a set of short **scroll-driven stories**: a chart stays in view while the text beside it scrolls, and each step changes the chart. Every chart is drawn on a canvas and **counted pixel by pixel** as it changes, so the ink is sorted into data-ink, repeated data-ink and non-data ink in real time. Readers guess before each surprise, point at any part of a chart to see what kind of ink it is, and finish by fixing a cluttered chart themselves. Anyone who would rather just read can switch to a plain article of the same guide.
+The guide is a set of short **scroll-driven stories**: a chart stays in view while the text beside it scrolls, and each step changes the chart. Every chart is drawn on a canvas and **counted pixel by pixel** as it changes, so the ink is sorted into data-ink, repeated data-ink and non-data ink in real time. Readers guess before each surprise, point at any part of a chart to see what kind of ink it is, and finish by fixing a cluttered chart themselves. Anyone who would rather just read can switch to a reading view of the same guide.
 
 The guide is adapted from *Balancing clarity and clutter: the highs and lows of data-ink ratio in practice* by Michael Lai and Mike Morrison, and recreates that article's examples.
 
@@ -21,7 +21,7 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 | 1. How much of a chart is data? | Guesses which way the ratio moves when the background goes, sees it as an ink map, then scrolls to erase it one cut at a time, until one cut goes too far |
 | 2. Three kinds of ink | Each kind picked out on one chart in turn, then the equation, then free inspection |
 | 3. A bar's width isn't data | Guesses which way the ratio moves as bars widen; wide, thin, hairline and balanced bars; then a slider and the ratio at every width |
-| 4. The background is paper | Guesses whether a background colour counts; the article's colour variations one by one, then all eight side by side |
+| 4. The background is paper | Guesses whether a background colour counts; the same chart on white, pale blue and dark paper, then with a painted plot area |
 | 5. Say it once | The article's label and gridline revisions, plus one step too far |
 | 6. Type costs attention, not ink | Guesses how much bigger type costs; bigger, smaller, and back |
 | 7. Aim for the middle | Three charts from too low to too high, then a slideshow of each design flaw that pushes the ratio one way or the other, with what to do instead |
@@ -36,7 +36,7 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 - **Point to inspect.** Hover, tap or arrow-key through any chart's parts. The part is picked out in its ink colour while the rest fades, with its name, kind of ink, pixel count and share of the chart's ink.
 - **Where am I.** The opening says what's ahead (9 short parts, about 15 minutes). A reading-progress line runs under the header, and a contents button at the foot of the screen (tucked away while scrolling down) shows the part being read (3/9), jumps to any part and ticks off the ones already read. Any chart can be enlarged to fill the screen.
 - **Detail on demand.** Plain language first; pixel counts, Tufte's full definition and the naive measure sit behind disclosures.
-- **Or just read.** The header's Interactive switch (and a link in the opening and the footer) turns the whole guide into a plain article: every story's text in order, its charts as side-by-side small multiples, guesses as questions with their answers, disclosures open, and no scrolling tricks. The choice is remembered, links can open it directly with `?view=article`, and switching keeps the reader in the same part.
+- **Or just read.** The header's Interactive switch (and a link in the opening) turns the whole guide into a reading view. Each part has its own text, written as prose rather than as steps: no guesses, no pointing, every chart introduced before it appears and placed as a still figure, and disclosures open. Part 8 becomes a worked example instead of a challenge. The choice is remembered, links can open it directly with `?view=article`, and switching keeps the reader in the same part.
 
 ### The page's own ink
 
@@ -108,7 +108,7 @@ NODE_ENV=production npm start   # serve dist/ (any static host works too)
 ## 📁 Project structure
 
 ```
-├── App.tsx                     # Site shell: header, footer, theme, view (interactive or article)
+├── App.tsx                     # Site shell: header, footer, theme, view (interactive or reading)
 ├── index.html / index.tsx      # Entry point
 ├── index.css                   # Tailwind, role-based tokens (light, dark, ink map), ET Book, controls
 ├── server.ts                   # Serves the site: Vite in development, dist/ in production

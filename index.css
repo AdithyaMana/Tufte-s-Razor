@@ -44,7 +44,7 @@
     --echo: var(--content);
     /* Ink-map colours, validated for colour-vision deficiency on both papers. */
     --ink-data: 24 79 149;
-    --ink-redundant: 138 79 199;
+    --ink-redundant: 15 138 106;
     --ink-nondata: 235 104 52;
     --warn: 180 83 9;
     color-scheme: light;
@@ -59,7 +59,7 @@
     --line: 46 45 42;
     --line-2: 69 68 63;
     --ink-data: 77 147 232;
-    --ink-redundant: 181 138 232;
+    --ink-redundant: 92 214 176;
     --ink-nondata: 217 89 38;
     --warn: 250 178 25;
     color-scheme: dark;
@@ -180,6 +180,10 @@
     padding: 0.5rem 0 0.75rem;
     border-bottom: 1px solid rgb(var(--line));
   }
+  /* On narrow screens the challenge's chart and goals sit above the controls; a smaller chart leaves room to use them. */
+  .challenge .sticky-figure {
+    --chart-max: calc(22vh * 1.6);
+  }
   @media (max-width: 1023px) and (max-height: 560px) {
     /* A landscape phone has no room for a figure that stays put. */
     .sticky-figure {
@@ -194,6 +198,10 @@
       grid-template-areas: 'body figure';
       column-gap: 4.5rem;
     }
+    /*
+     * The figure lines up with the top of the text beside it. The chart is capped by the
+     * screen's height, so the chart, its count and anything pinned under it stay in view.
+     */
     .sticky-figure {
       grid-area: figure;
       align-self: start;
@@ -201,6 +209,11 @@
       padding: 0;
       border-bottom: 0;
       background: none;
+      --chart-max: calc((100vh - 13rem) * 1.6);
+    }
+    /* The challenge also pins its goals under the chart, so the chart gives up more room. */
+    .challenge .sticky-figure {
+      --chart-max: calc((100vh - 22rem) * 1.6);
     }
     .sticky-body {
       grid-area: body;

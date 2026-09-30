@@ -131,10 +131,10 @@ const Group: React.FC<{ title: string; children: React.ReactNode }> = ({ title, 
 
 const Chips: React.FC<{ children: React.ReactNode }> = ({ children }) => <div className="flex flex-wrap gap-2">{children}</div>;
 
-const GoalList: React.FC<{ goals: Goal[] }> = ({ goals }) => (
-  <ul className="space-y-1.5 font-sans">
+const GoalList: React.FC<{ goals: Goal[]; className?: string }> = ({ goals, className = '' }) => (
+  <ul className={`grid grid-cols-2 gap-x-4 gap-y-1 lg:gap-y-1.5 font-sans ${className}`}>
     {goals.map((goal) => (
-      <li key={goal.id} className={`flex gap-2.5 text-[0.875rem] leading-snug ${goal.met ? 'text-content' : 'text-content-2'}`}>
+      <li key={goal.id} className={`flex gap-2 text-xs lg:text-[0.8125rem] leading-snug ${goal.met ? 'text-content' : 'text-content-2'}`}>
         <span className={`mt-[1px] grid place-items-center w-4 h-4 shrink-0 rounded-full ${goal.met ? 'bg-control text-paper' : 'text-chrome'}`}>
           {goal.met ? <CheckIcon size={11} strokeWidth={3} aria-hidden="true" /> : <Circle size={14} aria-hidden="true" />}
         </span>
@@ -147,57 +147,40 @@ const GoalList: React.FC<{ goals: Goal[] }> = ({ goals }) => (
   </ul>
 );
 
-// The goals, as the guide's advice in brief (for the article view).
-const PRINCIPLES = [
-  'Erase at least half of the non-data ink.',
-  'Give it a title that says what the chart shows.',
-  'Keep every value readable.',
-  'Keep every bar named.',
-  'Keep the bars easy to compare: not too wide, not too thin.',
-  'Keep all the text easy to read.',
-  'Keep the bars standing out from what’s behind them.',
-];
-
-/** The challenge, for readers of the article view: its goals, and one way to meet them. */
-const ChallengeSummary: React.FC = () => {
+/** The reading view's version of the challenge: a worked example. */
+const WorkedExample: React.FC = () => {
   const isDark = useIsDark();
   const { setView } = useView();
   const panels = useMemo(
     () => [
       { spec: resolveSpec(START.shape, START.look, isDark), label: 'Before' },
-      { spec: resolveSpec(SOLUTION.shape, SOLUTION.look, isDark), label: 'After: one way to fix it' },
+      { spec: resolveSpec(SOLUTION.shape, SOLUTION.look, isDark), label: 'After' },
     ],
     [isDark],
   );
   return (
     <>
       <div className="article max-w-[38rem] space-y-[1em]">
-        <p>
-          In the interactive guide, this part is a challenge: clean up the cluttered chart from the start of the guide without losing
-          anything a reader needs. Its seven goals sum up the whole guide.
-        </p>
-        <ol className="list-decimal pl-7 space-y-1 marker:text-content-2">
-          {PRINCIPLES.map((principle) => (
-            <li key={principle} className="pl-1">
-              {principle}
-            </li>
-          ))}
-        </ol>
+        <p>Here is the cluttered chart from Part 1 again, and the version the guide stopped at.</p>
       </div>
-      <ChartPanels columns={2} panels={panels} label="The cluttered chart, and one way to fix it" />
+      <ChartPanels columns={2} panels={panels} label="The cluttered chart, before and after" />
       <div className="article max-w-[38rem] space-y-[1em]">
         <p>
-          This fix, the same one Part 1 stops at, drops the shading, the gridlines, the borders, the tick marks and the outlines, slims
-          the bars to half their space, sorts them, says each value once, on its bar, and swaps “Chart Title” for the finding.
-          Everything a reader needs is still there.
+          The fix drops the shading, the gridlines, the borders, the tick marks and the outlines. It slims the bars to half their space
+          and sorts them, says each value once, on its bar, and swaps “Chart Title” for the finding.
+        </p>
+        <p>Nothing a reader needs was lost. The next part turns everything behind these cuts into a checklist for your own charts.</p>
+        <p className="text-content-2">
+          In the interactive guide, this part is a challenge: you make the cuts yourself, against seven goals, with a hint when you’re
+          stuck.
         </p>
       </div>
       <button
         type="button"
         onClick={() => setView('interactive')}
-        className="mt-4 inline-flex items-center min-h-10 rounded-sm font-sans text-[0.8125rem] text-content underline decoration-line-2 underline-offset-4 hover:decoration-content"
+        className="mt-3 inline-flex items-center min-h-10 rounded-sm font-sans text-[0.8125rem] text-content underline decoration-line-2 underline-offset-4 hover:decoration-content"
       >
-        Try it yourself in the interactive guide
+        Try the challenge
       </button>
     </>
   );
@@ -206,7 +189,7 @@ const ChallengeSummary: React.FC = () => {
 /** The whole guide in one exercise: clean up a cluttered chart without losing anything a reader needs. */
 const FixChart: React.FC = () => {
   const { view } = useView();
-  return view === 'article' ? <ChallengeSummary /> : <Challenge />;
+  return view === 'article' ? <WorkedExample /> : <Challenge />;
 };
 
 const Challenge: React.FC = () => {
@@ -227,13 +210,13 @@ const Challenge: React.FC = () => {
   const warnings = readabilityChecks(spec);
   const has = (id: string) => warnings.some((w) => w.id === id);
   const goals: Goal[] = [
-    { id: 'cut', text: 'Erase at least half of the non-data ink', met: stats.nonData <= start.nonData * (1 - NON_DATA_CUT) },
-    { id: 'title', text: 'The title says what the chart shows', met: shape.title === FINDING_TITLE },
-    { id: 'values', text: 'Every value can still be read', met: !has('no-values') && !has('ends-only') },
-    { id: 'names', text: 'Every bar is still named', met: !has('no-categories') },
-    { id: 'compare', text: 'The bars are easy to compare: not too wide, not too thin', met: widthZone(spec.barWidth) === 'comfortable' },
-    { id: 'text', text: 'All the text is easy to read', met: !['small-labels', 'big-labels', 'hierarchy', 'big-title', 'text-contrast'].some(has) },
-    { id: 'contrast', text: 'The bars stand out from what’s behind them', met: !has('bar-contrast') },
+    { id: 'cut', text: 'Half the non-data ink erased', met: stats.nonData <= start.nonData * (1 - NON_DATA_CUT) },
+    { id: 'title', text: 'Title says what it shows', met: shape.title === FINDING_TITLE },
+    { id: 'values', text: 'Every value readable', met: !has('no-values') && !has('ends-only') },
+    { id: 'names', text: 'Every bar named', met: !has('no-categories') },
+    { id: 'compare', text: 'Bars easy to compare', met: widthZone(spec.barWidth) === 'comfortable' },
+    { id: 'text', text: 'All text easy to read', met: !['small-labels', 'big-labels', 'hierarchy', 'big-title', 'text-contrast'].some(has) },
+    { id: 'contrast', text: 'Bars stand out', met: !has('bar-contrast') },
   ];
   const metCount = goals.filter((g) => g.met).length;
   const solved = metCount === goals.length;
@@ -262,27 +245,28 @@ const Challenge: React.FC = () => {
   const figure = (
     <>
       <ChartCanvas spec={spec} inspectable />
-      <InkMeter stats={stats} scale={start.total} reference={reference} className="mt-3" />
+      <InkMeter stats={stats} scale={start.total} reference={reference} compact={mode === 'challenge'} className="mt-3" />
       {mode === 'challenge' ? (
-        // The status and the hint stay in view with the chart while the controls scroll.
-        <div className="mt-1 font-sans text-[0.8125rem] text-content-2">
-          <div className="flex flex-wrap items-center gap-x-4">
-            <p aria-live="polite" className="py-2.5">
+        // The goals and the hint stay in view with the chart, so each edit ticks its goal where the reader is looking.
+        <div className="mt-3 pt-2.5 lg:mt-4 lg:pt-3 border-t border-line font-sans text-[0.8125rem] text-content-2">
+          <div className="flex flex-wrap items-baseline gap-x-4">
+            <p aria-live="polite" className="text-content">
               {solved ? (
-                <span className="font-semibold text-content">All {goals.length} goals met.</span>
+                <>
+                  <span className="font-semibold">All {goals.length} goals met.</span> {pct(stats.ratio)},{' '}
+                  {times(stats.ratio, start.ratio)} the start, and still easy to read.
+                </>
               ) : (
                 <>
-                  <span className="tabular-nums">
-                    {metCount} of {goals.length}
-                  </span>{' '}
-                  goals met
+                  Goals: <span className="tabular-nums">{metCount}</span> of {goals.length} met
                 </>
               )}
             </p>
             {!solved && !hinting && <TextButton onClick={() => setHinting(true)}>Need a hint?</TextButton>}
           </div>
+          <GoalList goals={goals} className="mt-1.5 lg:mt-2.5" />
           {!solved && hinting && hint && (
-            <p className="leading-snug text-content max-w-xl" aria-live="polite">
+            <p className="mt-2.5 leading-snug text-content max-w-xl" aria-live="polite">
               <span className="font-semibold">Hint:</span> {hint}
             </p>
           )}
@@ -294,8 +278,9 @@ const Challenge: React.FC = () => {
   );
 
   return (
-    <StickyLayout figure={figure} label="Your chart" className="mt-2">
-      <div className="pt-6 lg:pt-0 pb-10 space-y-10">
+    <StickyLayout figure={figure} label="Your chart" className="challenge mt-2">
+      {/* Room after the last control, so the chart and its goals stay pinned while it is used. */}
+      <div className="pt-6 lg:pt-0 pb-10 lg:pb-[30vh] space-y-10">
         <Segmented
           label="Mode"
           showLabel={false}
@@ -310,16 +295,9 @@ const Challenge: React.FC = () => {
         {mode === 'challenge' ? (
           <div className="space-y-5">
             <p className="article">
-              This chart starts at <strong className="font-bold tabular-nums">{pct(start.ratio)}</strong>. Clean it up using everything
-              in this guide, without losing anything a reader needs.
+              The chart starts at <strong className="font-bold tabular-nums">{pct(start.ratio)}</strong>. Use the controls below; the
+              goals under the chart tick off as you meet them.
             </p>
-            <GoalList goals={goals} />
-            {solved && (
-              <p className="font-serif text-[1.1875rem] md:text-[1.3125rem] leading-snug text-content" role="status">
-                <strong className="font-bold">Done.</strong> {pct(stats.ratio)}, {times(stats.ratio, start.ratio)} the start, and still
-                easy to read. That’s the whole idea.
-              </p>
-            )}
             <div className="flex flex-wrap gap-x-5">
               <TextButton onClick={() => load(SOLUTION)}>Show one solution</TextButton>
               <TextButton
@@ -335,8 +313,8 @@ const Challenge: React.FC = () => {
         ) : (
           <div className="space-y-4">
             <p className="article">
-              Start from any chart in the article, change anything, and pin a version to compare against: the article calls this the
-              chart’s <em>relative value</em>.
+              Start from any chart in the guide and change whatever you like. Pin a version to compare against; Lai and Morrison call
+              that comparison the chart’s <em>relative value</em>.
             </p>
             <label className="flex flex-col gap-1.5 font-sans text-[0.8125rem] text-chrome">
               <span className="font-medium">Start from</span>

@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { PUBLISH_CHECKS } from '../content/publish.ts';
-import { SECTIONS } from '../content/sections.ts';
+import { SECTIONS, sectionTitle } from '../content/sections.ts';
 import { MarginNote, Prose, Section } from '../components/guide/Article.tsx';
 import BarWidthLab from '../components/guide/BarWidthLab.tsx';
-import ColourSlides from '../components/guide/ColourSlides.tsx';
 import { More } from '../components/guide/controls.tsx';
 import FixChart from '../components/guide/FixChart.tsx';
 import FlawSpectrum from '../components/guide/FlawSpectrum.tsx';
@@ -25,15 +24,17 @@ function partOf(id: string): string {
   return `Part ${SECTIONS.findIndex((s) => s.id === id) + 1} of ${SECTIONS.length}`;
 }
 
-const title = (id: string) => SECTIONS.find((s) => s.id === id)!.title;
 
 /** A small heading inside a section, e.g. over a hands-on figure that follows a story. */
-const SubHeading: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <h3 className="mt-4 font-serif text-2xl md:text-[1.75rem] leading-tight text-content">{children}</h3>
+const SubHeading: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = 'mt-4' }) => (
+  <h3 className={`font-serif text-2xl md:text-[1.75rem] leading-tight text-content ${className}`}>{children}</h3>
 );
 
 const GuidePage: React.FC = () => {
   const article = useIsArticle();
+  const title = (id: string) => sectionTitle(SECTIONS.find((s) => s.id === id)!, article);
+  // Room between a scroll story's pinned chart and whatever follows it; the reading view just flows on.
+  const afterStory = article ? 'mt-6' : 'mt-16 md:mt-28';
   // Content renders after load, so the browser can't jump to a #section on its own.
   useEffect(() => {
     if (window.location.hash) requestAnimationFrame(() => scrollToHash(window.location.hash));
@@ -46,7 +47,7 @@ const GuidePage: React.FC = () => {
       <Section id="ink" part={partOf('ink')} title="Every mark is one of three kinds of ink" lead="Plus the paper, which isn’t ink at all.">
         <InkKindsStory />
         <Prose
-          className="mt-16 md:mt-28"
+          className={afterStory}
           notes={
             <MarginNote title="Why a thin line?">
               Each bar is credited with the least ink that could show its value: a line 2 px wide. Change that allowance and every
@@ -80,10 +81,10 @@ const GuidePage: React.FC = () => {
         id="bar-width"
         part={partOf('bar-width')}
         title={title('bar-width')}
-        lead="A bar shows its value by its length. Extra width adds ink, not information."
+        lead="A bar shows its value by its length. Any extra width is more ink saying the same number."
       >
         <BarWidthStory />
-        {!article && <SubHeading>Try any width</SubHeading>}
+        {!article && <SubHeading className={afterStory}>Try any width</SubHeading>}
         <BarWidthLab />
       </Section>
 
@@ -94,23 +95,11 @@ const GuidePage: React.FC = () => {
         lead="Its colour doesn’t count. A colour painted on top of it does."
       >
         <BackgroundStory />
-        {/* The article view shows the grid within the story. */}
-        {!article && (
-          <>
-            <SubHeading>All eight of the article’s versions</SubHeading>
-            <ColourSlides className="mt-6 md:mt-8" />
-          </>
-        )}
-        <Prose>
+        <Prose className={afterStory}>
           <p>
-            A1, B1 and B2 score the same: only the paper changed. C1, C2 and D1 also match each other, because each paints a whole
-            plot area, which costs far more ink than a thin box (A2) or outlines (D2).
-          </p>
-          <p>
-            Two conventions decide these scores, so it’s worth saying them plainly. First, the count sees whether a pixel is inked, not
-            how dark it is: a barely-there tint costs as much as solid blue, so muting a gridline doesn’t change the ratio, though it
-            helps the reader. Second, the paper is whatever sits at the back. That suits a screen, where every colour costs the same;
-            in print, B2’s dark background would be the heaviest ink of all.
+            A note on how this guide counts. It checks whether a pixel is inked, not how dark it is, so a faint tint costs as much as
+            solid blue. Muting a gridline helps the reader but leaves the ratio alone. The paper is whatever colour sits at the back.
+            That’s fair on a screen, where every colour costs the same, but in print a dark background would use the most ink of all.
           </p>
         </Prose>
       </Section>
@@ -142,20 +131,13 @@ const GuidePage: React.FC = () => {
         <ThreeCharts />
         <Prose>
           <p>
-            An earlier ScienceUX article, <a href={GOLDILOCKS_URL}>The Story of Goldilocks and the Three Charts</a>, makes the case: a
-            high or low ratio isn’t good or bad in itself. What matters is the right range for your context, audience and objective.
-            Design flaws can push a chart out of that range either way.
+            A ratio isn’t good or bad on its own. The right range depends on who’s reading and why, the case ScienceUX made in{' '}
+            <a href={GOLDILOCKS_URL}>The Story of Goldilocks and the Three Charts</a>. So compare versions of one chart, as above,
+            instead of grading a chart by itself. Lai and Morrison call this the <em>relative value</em>.
           </p>
+          <p>These are the design flaws that most often push a chart out of that range, in one direction or the other.</p>
         </Prose>
         <FlawSpectrum />
-        <Prose>
-          <p>
-            So compare versions of a chart rather than grading one on its own; the article calls this the <em>relative value</em>.{' '}
-            {article
-              ? 'The interactive guide lets you try it, in free play at the end.'
-              : 'You can try it in free play, at the end of this guide.'}
-          </p>
-        </Prose>
       </Section>
 
 
@@ -165,7 +147,7 @@ const GuidePage: React.FC = () => {
         title={title('your-turn')}
         lead={
           article
-            ? 'Everything in this guide, applied to one cluttered chart.'
+            ? 'Everything in this guide, applied to the cluttered chart from Part 1.'
             : 'Everything in this guide, on one cluttered chart. Clean it up without losing anything a reader needs.'
         }
       >

@@ -13,11 +13,11 @@ function stopSpec(isDark: boolean, change: Partial<ChartSpec> = {}): ChartSpec {
 }
 
 const CHARTS: { verdict: string; text: string; spec: (isDark: boolean) => ChartSpec }[] = [
-  { verdict: 'Too low', text: 'Fills, gridlines, outlines and heavy type bury five numbers.', spec: (d) => presetSpec('everything', d) },
+  { verdict: 'Too low', text: 'Five numbers buried under fills, gridlines and outlines.', spec: (d) => presetSpec('everything', d) },
   { verdict: 'About right', text: 'Each value said once, on its bar, under a title that states the finding.', spec: (d) => stopSpec(d) },
   {
     verdict: 'Too high',
-    text: 'Every label is still here, but hairline bars are hard to see and harder to compare.',
+    text: 'Every label kept, but the bars cut down to hairlines.',
     // The same chart with bars cut to the thinnest line that still shows a value.
     spec: (d) => stopSpec(d, { barWidth: 0 }),
   },
@@ -30,17 +30,20 @@ const ThreeCharts: React.FC = () => {
     () =>
       CHARTS.map((chart) => {
         const spec = chart.spec(isDark);
-        const issues = readabilityChecks(spec).length;
+        // What the ratio can't see: the same readability checks the challenge in Part 8 uses.
+        const issues = readabilityChecks(spec);
         return {
           spec,
           label: chart.verdict,
           caption: (
             <>
               <p className="text-[0.8125rem] leading-snug">{chart.text}</p>
-              {issues > 0 && (
-                <p className="mt-1">
-                  {issues} readability warning{issues > 1 ? 's' : ''}
-                </p>
+              {issues.length > 0 && (
+                <ul className="mt-1.5 space-y-1 text-xs leading-snug">
+                  {issues.map((issue) => (
+                    <li key={issue.id}>{issue.text}</li>
+                  ))}
+                </ul>
               )}
             </>
           ),

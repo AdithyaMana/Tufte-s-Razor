@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, ChevronUp, List, Moon, Scissors, Sun } from 'lucide-react';
-import { SECTIONS } from '../../content/sections.ts';
+import { SECTIONS, sectionShort, sectionTitle } from '../../content/sections.ts';
 import { useReadingProgress, type ReadingProgress } from './progress.ts';
 import { linkHandler, navigate } from './router.ts';
-import { useView } from './view.ts';
+import { useIsArticle, useView } from './view.ts';
 
 interface SiteHeaderProps {
   isDark: boolean;
@@ -17,7 +17,7 @@ export const RazorMark: React.FC<{ className?: string }> = ({ className }) => (
 
 const control = 'inline-flex items-center justify-center min-h-10 rounded-sm text-[0.8125rem] font-medium transition-colors';
 
-/** Interactive stories, or the plain article. Shown as a switch: on means interactive. */
+/** Interactive stories, or the reading view. Shown as a switch: on means interactive. */
 const InteractiveSwitch: React.FC = () => {
   const { view, setView } = useView();
   const on = view === 'interactive';
@@ -27,7 +27,7 @@ const InteractiveSwitch: React.FC = () => {
       role="switch"
       aria-checked={on}
       onClick={() => setView(on ? 'article' : 'interactive')}
-      title={on ? 'Switch to the plain article' : 'Switch to the interactive guide'}
+      title={on ? 'Switch to the reading view' : 'Switch to the interactive guide'}
       className={`${control} gap-2 px-1.5 text-chrome hover:text-content`}
     >
       <span
@@ -49,26 +49,8 @@ export const ContentsDock: React.FC<{ progress: ReadingProgress }> = ({ progress
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const { active, visited } = progress;
+  const reading = useIsArticle();
   const current = SECTIONS[Math.max(active, 0)];
-  // Out of the way while reading down the page; back when the reader scrolls up or pauses.
-  const [tucked, setTucked] = useState(false);
-  useEffect(() => {
-    let last = window.scrollY;
-    let timer = 0;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (Math.abs(y - last) > 6) setTucked(y > last);
-      last = y;
-      window.clearTimeout(timer);
-      timer = window.setTimeout(() => setTucked(false), 900);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.clearTimeout(timer);
-    };
-  }, []);
-
   useEffect(() => {
     if (!open) return;
     menuRef.current?.querySelectorAll<HTMLAnchorElement>('a')[Math.max(active, 0)]?.focus();
@@ -101,11 +83,8 @@ export const ContentsDock: React.FC<{ progress: ReadingProgress }> = ({ progress
   };
 
   return (
-    <div
-      className={`fixed left-3 sm:left-5 bottom-3 sm:bottom-5 z-40 font-sans transition-[transform,opacity] duration-300 ${
-        tucked && !open ? 'translate-y-[150%] opacity-0 pointer-events-none' : ''
-      }`}
-    >
+    // Always in the same place once the reader is past the opening, so they never have to hunt for it.
+    <div className="fixed left-3 sm:left-5 bottom-3 sm:bottom-5 z-40 font-sans">
       {open && (
         <div
           ref={menuRef}
@@ -127,7 +106,7 @@ export const ContentsDock: React.FC<{ progress: ReadingProgress }> = ({ progress
                       }`}
                     >
                       <span className="tabular-nums text-chrome text-xs">{i + 1}</span>
-                      <span className="py-2 leading-snug">{section.title}</span>
+                      <span className="py-2 leading-snug">{sectionTitle(section, reading)}</span>
                       {visited[i] && !isCurrent ? (
                         <span className="text-chrome">
                           <Check size={13} aria-hidden="true" />
@@ -157,7 +136,7 @@ export const ContentsDock: React.FC<{ progress: ReadingProgress }> = ({ progress
         <span className="tabular-nums text-chrome" aria-hidden="true">
           {Math.max(active, 0) + 1}/{SECTIONS.length}
         </span>
-        <span className="hidden sm:inline">{current.short}</span>
+        <span className="hidden sm:inline">{sectionShort(current, reading)}</span>
         <ChevronUp size={14} className={`transition-transform ${open ? '' : 'rotate-180'}`} aria-hidden="true" />
       </button>
     </div>

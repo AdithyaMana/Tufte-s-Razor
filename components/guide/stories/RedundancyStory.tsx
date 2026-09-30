@@ -12,7 +12,7 @@ import { useChartFontsReady, useInkStatsList } from '../useInk.ts';
 
 const presetShape = (id: string) => applyPreset(PRESETS.find((p) => p.id === id)!).shape;
 
-// The article's revisions, A to C, plus one step too far.
+// Lai and Morrison's revisions, A to C, plus one step too far.
 const SHAPES: Shape[] = [
   presetShape('redundancy-a'),
   presetShape('redundancy-b'),
@@ -44,10 +44,11 @@ const RedundancyStory: React.FC = () => {
     </p>,
     <p>
       {article
-        ? 'C sorts the bars from tallest to shortest, and marks on the axis only the values that occur'
-        : 'Sort the bars from tallest to shortest, and mark on the axis only the values that occur'}
-      : {r(2)}. Tufte calls an axis like this a <em>range-frame</em>. Sort only when the categories have no natural order: stations
-      can be sorted, months and age bands can’t.
+        ? 'C sorts the bars from tallest to shortest, and moves the values onto the axis, marking only the ones that occur'
+        : 'Sort the bars from tallest to shortest, and move the values onto the axis, marking only the ones that occur'}
+      . The ratio hardly changes, {r(2)}, because each value is still said once, just in a different place. Tufte calls an axis like
+      this a <em>range-frame</em>. Sort only when the categories have no natural order: stations can be sorted, months and age bands
+      can’t.
     </p>,
     <p>
       {article ? 'D takes away every value label, and the ratio rises again' : 'Take away every value label and the ratio rises again'},
@@ -60,7 +61,7 @@ const RedundancyStory: React.FC = () => {
       after: 0,
       figure: (
         <ChartPanels
-          label="The article’s revisions of one chart, and one step too far"
+          label="Lai and Morrison’s revisions of one chart, and one step too far"
           panels={[
             { spec: specs[0], label: 'A · The default' },
             { spec: specs[1], label: 'B · Values on the bars' },

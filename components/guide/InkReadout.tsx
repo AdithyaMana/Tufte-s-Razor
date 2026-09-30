@@ -93,8 +93,10 @@ export const InkMeter: React.FC<{
   scale?: number;
   reference?: ReferenceStats | null;
   hidden?: boolean;
+  /** Drop the colour key on narrow screens, where the figure needs the room. */
+  compact?: boolean;
   className?: string;
-}> = ({ stats, scale, reference, hidden = false, className = '' }) => {
+}> = ({ stats, scale, reference, hidden = false, compact = false, className = '' }) => {
   const compared = hidden ? null : comparedWith(stats, reference);
   const nonData = hidden ? null : nonDataChange(stats, reference);
   return (
@@ -108,7 +110,7 @@ export const InkMeter: React.FC<{
         {nonData && <span className="text-[0.8125rem] text-content-2 tabular-nums">· {nonData}</span>}
       </p>
       <InkBar stats={hidden ? { ...stats, total: 0, data: 0, redundant: 0, nonData: 0 } : stats} scale={scale} className="mt-2.5" />
-      <InkKey className="mt-2" />
+      <InkKey className={`mt-2 ${compact ? 'max-lg:hidden' : ''}`} />
     </div>
   );
 };

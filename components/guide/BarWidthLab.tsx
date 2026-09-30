@@ -18,7 +18,7 @@ type Preset = 'wide' | 'balanced' | 'thin';
 
 // The article's wide and thin examples (A and C), and balanced bars at half of each slot.
 const PRESETS: { value: Preset; label: string; width: number; hint: string }[] = [
-  { value: 'wide', label: 'Wide', width: 0.9, hint: 'The article’s example A: wide bars, minimal gaps' },
+  { value: 'wide', label: 'Wide', width: 0.9, hint: 'Lai and Morrison’s example A: wide bars, minimal gaps' },
   { value: 'balanced', label: 'Balanced', width: 0.5, hint: 'Bars fill half of each slot' },
   { value: 'thin', label: 'Thin', width: 0.16, hint: 'Example C: very thin bars, far apart' },
 ];
@@ -104,7 +104,7 @@ const BarWidthLab: React.FC = () => {
             </div>
           </div>
         </More>
-        {sweep && (
+        {sweep && !article && (
           <More label="Show the numbers" heading="The numbers">
             <table className="w-full max-w-md font-sans text-[0.8125rem] tabular-nums text-content-2">
               <thead>
@@ -132,7 +132,17 @@ const BarWidthLab: React.FC = () => {
     </div>
   );
 
-  if (article) return <div className="my-10 md:my-12">{sweepFigure}</div>;
+  if (article) {
+    return (
+      <div className="my-10 md:my-12">
+        <p className="article max-w-[38rem] mb-6">
+          The chart below follows the ratio through every width, from a hairline to bars that touch. The shaded band marks the widths
+          that are easiest to compare.
+        </p>
+        {sweepFigure}
+      </div>
+    );
+  }
 
   return (
     <Lab
@@ -154,7 +164,7 @@ const BarWidthLab: React.FC = () => {
             valueText={`${barPx} pixels wide. Data-ink ratio ${pct(stats.ratio)}.`}
           />
           <Segmented
-            label="The article’s examples"
+            label="Examples"
             options={PRESETS}
             value={preset}
             onChange={(value) => animate(width, PRESETS.find((p) => p.value === value)!.width)}

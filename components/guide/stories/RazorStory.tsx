@@ -39,12 +39,10 @@ const RazorStory: React.FC = () => {
   const start = stats[0];
   const r = (cut: number) => <Ratio>{pct(stats[cut].ratio)}</Ratio>;
 
+  // The interactive story: guess first, then watch the chart lose one kind of ink per step.
   const steps = [
     <>
-      <p>
-        Here is a bar chart of five numbers{article ? ', on the left' : ''}. Whoever made it switched on every default and decoration
-        their software offered.
-      </p>
+      <p>Here is a bar chart of five numbers. Whoever made it switched on every default and decoration their software offered.</p>
       <Guess
         className="mt-7"
         question="Every mark on it is ink. Erase the shaded background: does the share of ink that shows the five numbers go up, down, or stay the same?"
@@ -58,8 +56,8 @@ const RazorStory: React.FC = () => {
         wrong="It goes up."
         reveal={
           <>
-            The background shows no numbers, so erasing it leaves the same data in less ink. Right now that share is only {r(0)}. The rest
-            is decoration, scaffolding, and ink that repeats what the bars already show.
+            The background shows no numbers, so erasing it leaves the same data in less ink. Right now that share is only {r(0)}. Most of
+            the rest is decoration, or ink that repeats what the bars already show.
           </>
         }
         onGuess={() => setGuessed(true)}
@@ -67,17 +65,17 @@ const RazorStory: React.FC = () => {
     </>,
     <>
       <p>
-        {article ? 'On the right is' : 'Here is'} the same chart as an <em>ink map</em>, with every mark coloured by what it does.{' '}
+        Here is the same chart as an <em>ink map</em>, with every mark coloured by what it does.{' '}
         <InkTerm kind="data">Data-ink</InkTerm> shows the values: a thin line down each bar, as long as the bar.{' '}
         <InkTerm kind="redundant">Repeated data-ink</InkTerm> says a value again. <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else.
       </p>
       <p>
-        The data-ink ratio is the data-ink divided by all of it: {r(0)}.{article ? '' : ` ${Verb} any part of the chart to see what it is.`}
+        The data-ink ratio is the data-ink divided by all of it: {r(0)}. {Verb} any part of the chart to see what it is.
       </p>
     </>,
     <p>
-      Edward Tufte’s advice: erase the ink that isn’t data, within reason.{article ? ' The charts above do it one cut at a time.' : ''}{' '}
-      Start with the shaded background, the biggest piece of non-data ink here. The ratio rises to {r(1)}.
+      Edward Tufte’s advice: erase the ink that isn’t data, within reason. Start with the shaded background, the biggest piece of
+      non-data ink here. The ratio rises to {r(1)}.
     </p>,
     <p>
       Next, the gridlines, the box, the tick marks, the outlines and the heavy type. Together they’re light on ink, so the ratio
@@ -88,8 +86,9 @@ const RazorStory: React.FC = () => {
       {r(4)}, {times(stats[4].ratio, start.ratio)} where it started.
     </p>,
     <p>
-      The axis labels repeat the numbers printed on the bars, so they go too. Each value is now said once. Sort the bars, and swap
-      “Chart Title” for a title that says what the chart shows, with its unit: {r(5)}.
+      The axis labels repeat the numbers printed on the bars, so they go too, and “Chart Title” becomes a title that says what the
+      chart shows, with its unit. The ratio barely moves, {r(5)}, because the new title puts a little ink back. What changed is
+      that the chart now says something.
     </p>,
     <p>
       Keep erasing and you reach {r(6)}: nothing but data. But what are these bars? What do they measure? Nothing says any more.
@@ -97,9 +96,62 @@ const RazorStory: React.FC = () => {
     </p>,
     <>
       <p>
-        So the goal isn’t the highest ratio. It’s ink that earns its place.{' '}
-        {article ? 'The cut before that' : 'One cut back, shown here again,'} was a good place to stop: {r(5)},{' '}
-        {times(stats[5].ratio, start.ratio)} the start, and nothing a reader needs is gone.
+        So chasing the highest ratio is a mistake. Keep the ink that helps someone read the chart, and cut the rest. One cut back,
+        shown here again, was a good place to stop: {r(5)}, {times(stats[5].ratio, start.ratio)} the start, with nothing a reader
+        needs gone.
+      </p>
+      <p>The rest of this guide shows where to stop, one kind of ink at a time.</p>
+    </>,
+  ];
+
+  // The reading view: the same argument as prose, each figure after the paragraph that introduces it.
+  const readingSteps = [
+    <p>
+      Here is a bar chart of five numbers: weekly bike-share trips, in thousands, at five stations. Whoever made it switched on every
+      default and decoration their software offered. The second copy is an <em>ink map</em>: the same chart, with every mark coloured
+      by what it does.
+    </p>,
+    <>
+      <p>
+        <InkTerm kind="data">Data-ink</InkTerm> shows the values: a thin line down each bar, as long as the bar.{' '}
+        <InkTerm kind="redundant">Repeated data-ink</InkTerm> says a value again: the rest of each bar’s width, and the numbers printed
+        on top. <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else.
+      </p>
+      <p>
+        The <em>data-ink ratio</em> is the data-ink divided by all of it. For this chart it’s {r(0)}. Most of the rest is
+        decoration, or ink that repeats what the bars already show.
+      </p>
+    </>,
+    <p>
+      Edward Tufte’s advice is to erase the ink that isn’t data, within reason. Here is that advice applied one cut at a time, each
+      chart keeping every cut before it.
+    </p>,
+    <p>
+      The first cut is the shaded background, the biggest piece of non-data ink. It shows no numbers, so erasing it leaves the same
+      data in less ink, and the ratio rises to {r(1)}.
+    </p>,
+    <p>
+      The gridlines, the box, the tick marks, the outlines and the heavy type go next. Together they’re light on ink, so the ratio
+      barely moves: {r(3)}. Most of the ink is still in the bars.
+    </p>,
+    <p>
+      Then the biggest cut. A bar shows its value by its length; its width only repeats it. Slimmer bars take the ratio to {r(4)},{' '}
+      {times(stats[4].ratio, start.ratio)} where it started.
+    </p>,
+    <p>
+      The axis labels repeat the numbers printed on the bars, so they go too, and “Chart Title” becomes a title that says what the
+      chart shows, with its unit. The ratio barely moves, {r(5)}, because the new title puts a little ink back. What changed is
+      that the chart now says something.
+    </p>,
+    <p>
+      Keep erasing and the last chart reaches {r(6)}: nothing but data. But what are these bars? What do they measure? Nothing says
+      any more. By Tufte’s own test, that erasure lost information, so the “perfect” score is misleading.
+    </p>,
+    <>
+      <p>
+        So chasing the highest ratio is a mistake. Keep the ink that helps someone read the chart, and cut the rest. The fifth chart,
+        “Each value said once”, is a good place to stop: {r(5)}, {times(stats[5].ratio, start.ratio)} the start, with nothing a reader
+        needs gone.
       </p>
       <p>The rest of this guide shows where to stop, one kind of ink at a time.</p>
     </>,
@@ -107,20 +159,20 @@ const RazorStory: React.FC = () => {
 
   const articleFigures = [
     {
-      after: -1,
+      after: 0,
       figure: (
         <ChartPanels
           columns={2}
           label="A cluttered bar chart, and the same chart as an ink map"
           panels={[
-            { spec: specs[0], label: 'The chart', caption: 'Every default and decoration switched on.' },
+            { spec: specs[0], hideRatio: true, label: 'The chart', caption: 'Every default and decoration switched on.' },
             { spec: specs[0], inkMap: true, hideRatio: true, label: 'The same chart as an ink map', caption: <InkKey /> },
           ]}
         />
       ),
     },
     {
-      after: 1,
+      after: 2,
       figure: (
         <ChartPanels
           columns={6}
@@ -146,7 +198,7 @@ const RazorStory: React.FC = () => {
       className="inline-flex items-center gap-2 min-h-10 rounded-sm text-content underline decoration-line-2 underline-offset-4 hover:decoration-content"
     >
       {article ? <MousePointer2 size={14} aria-hidden="true" /> : <BookOpen size={14} aria-hidden="true" />}
-      {article ? 'Switch to the interactive guide' : 'Rather just read? Switch to the article view'}
+      {article ? 'Switch to the interactive guide' : 'Rather just read? Switch to the reading view'}
     </button>
   );
 
@@ -178,7 +230,7 @@ const RazorStory: React.FC = () => {
       <ScrollStory
         className="mt-8 md:mt-12"
         label="A cluttered bar chart, erased step by step"
-        steps={steps}
+        steps={article ? readingSteps : steps}
         articleFigures={articleFigures}
         figure={(step) => {
           const state = STATES[step];

@@ -45,7 +45,7 @@ export function readabilityChecks(spec: ChartSpec): Check[] {
   if (zone === 'sparse') {
     checks.push({ id: 'sparse', text: 'Bars this thin sit far apart, so comparing their heights takes more effort.' });
   } else if (zone === 'crowded') {
-    checks.push({ id: 'crowded', text: 'Bars this wide crowd into one block. The extra width adds ink, not information.' });
+    checks.push({ id: 'crowded', text: 'Bars this wide crowd into one block, and the extra width only repeats their values.' });
   }
 
   if (spec.valueLabels === 'none' && !spec.dataLabels) {

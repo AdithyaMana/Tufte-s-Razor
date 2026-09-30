@@ -3,6 +3,7 @@ import type { InkStats } from '../../../ink/measure.ts';
 import { applyPreset, DEFAULT_LOOK, PRESETS, resolveSpec } from '../../../ink/presets.ts';
 import { DEFAULT_LABEL_SIZE, DEFAULT_TITLE_SIZE } from '../../../ink/spec.ts';
 import { useIsDark } from '../../site/theme.ts';
+import { useIsArticle } from '../../site/view.ts';
 import ChartPanels from '../ChartPanels.tsx';
 import { pct } from '../format.ts';
 import Guess from '../Guess.tsx';
@@ -41,6 +42,7 @@ const Figure: React.FC<{ target: number; reference: InkStats; scaleInk: number }
 /** Bigger type costs little ink but a lot of attention. */
 const TypeStory: React.FC = () => {
   const isDark = useIsDark();
+  const article = useIsArticle();
   const specs = useMemo(() => [...SCALES, 2].map((s) => resolveSpec(sized(s), DEFAULT_LOOK, isDark)), [isDark]);
   const stats = useInkStatsList(specs);
   const r = (i: number) => <strong className="font-bold tabular-nums text-echo">{pct(stats[i].ratio)}</strong>;
@@ -57,12 +59,25 @@ const TypeStory: React.FC = () => {
       reveal="Letters are mostly empty space, so text costs little ink. Bigger type lowers the ratio, but only slightly."
     />,
     <p>
-      Bigger type: the ratio dips from {r(0)} to {r(1)}. The real cost isn’t ink but attention. In the article’s words, it “takes
-      focus off the data in the chart.”
+      Bigger type: the ratio dips from {r(0)} to {r(1)}. What bigger type really costs is attention. In Lai and Morrison’s words,
+      it “takes focus off the data in the chart.”
     </p>,
     <p>
       Smaller type: the ratio creeps up to {r(2)}, but now readers “work harder to see the details.”
     </p>,
+    <p>
+      Keep the title larger than the labels, and nothing too small to read at arm’s length. The ratio will take care of itself.
+    </p>,
+  ];
+
+  // The reading view: the point first, then the three sizes side by side.
+  const readingSteps = [
+    <p>Here is one chart with its text at three sizes.</p>,
+    <p>
+      Bigger type dips the ratio from {r(0)} to {r(1)}. What it really costs is attention. In Lai and Morrison’s words, it “takes
+      focus off the data in the chart.”
+    </p>,
+    <p>Smaller type nudges the ratio up to {r(2)}, but now readers “work harder to see the details.”</p>,
     <p>
       Keep the title larger than the labels, and nothing too small to read at arm’s length. The ratio will take care of itself.
     </p>,
@@ -88,7 +103,7 @@ const TypeStory: React.FC = () => {
   return (
     <ScrollStory
       label="A bar chart whose text changes size"
-      steps={steps}
+      steps={article ? readingSteps : steps}
       articleFigures={articleFigures}
       figure={(step) => <Figure target={SCALES[step]} reference={stats[0]} scaleInk={stats[SCALES.length].total} />}
     />

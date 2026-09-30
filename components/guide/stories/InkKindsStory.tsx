@@ -4,7 +4,7 @@ import { defaultSpec } from '../../../ink/spec.ts';
 import { useIsDark } from '../../site/theme.ts';
 import { useIsArticle } from '../../site/view.ts';
 import ChartPanels from '../ChartPanels.tsx';
-import { pct, pct1 } from '../format.ts';
+import { pct } from '../format.ts';
 import { InkTerm } from '../InkReadout.tsx';
 import ScrollStory from '../ScrollStory.tsx';
 import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
@@ -22,45 +22,41 @@ const InkKindsStory: React.FC = () => {
   const article = useIsArticle();
   const spec = useMemo(() => ({ ...defaultSpec(isDark), dataLabels: true }), [isDark]);
   const stats = useInkStats(spec);
-  const share = (n: number) => <strong className="font-bold tabular-nums text-echo">{pct1(stats.total ? n / stats.total : 0)}</strong>;
+  const share = (n: number) => <strong className="font-bold tabular-nums text-echo">{pct(stats.total ? n / stats.total : 0)}</strong>;
 
+  // Part 1 named the three kinds; this part looks at each one up close, on a plainer chart.
   const steps = [
     <>
       <p>
-        Look closely at any chart and every mark on it is one of three kinds of ink. This one has all three
+        Part 1 sorted a chart’s ink into three kinds. Here they are up close, on a plainer chart
         {article ? ', picked out one kind at a time above' : ''}.
       </p>
       <p>
-        <InkTerm kind="data">Data-ink</InkTerm> shows the values. A bar shows its value by its length, so its data-ink is a
-        thin line as long as the bar: the least ink that could still show the number. Here that’s {share(stats.data)} of the ink.
+        <InkTerm kind="data">Data-ink</InkTerm> is a thin line down each bar, as long as the bar. A bar shows its value by its length,
+        so that line is the least ink that could still show the number. Here it’s {share(stats.data)} of the ink.
       </p>
     </>,
     <p>
-      <InkTerm kind="redundant">Repeated data-ink</InkTerm> shows a value again: the rest of each bar’s width, and the numbers
-      printed on the bars. It can help the reader, but it adds no new information. Here: {share(stats.redundant)}.
+      <InkTerm kind="redundant">Repeated data-ink</InkTerm> is the rest of each bar’s width, and the numbers printed on the bars. It
+      can help the reader, but it says nothing new. On this chart it’s {share(stats.redundant)} of the ink.
     </p>,
     <p>
-      <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else: the title, the labels, the axis, the gridlines and
-      the border. Much of it helps people read the chart. None of it is data. Here: {share(stats.nonData)}.
+      <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else: the title, the labels, the axis, the gridlines and the
+      border. Much of it helps people read the chart, but none of it is data. Here it’s {share(stats.nonData)}.
     </p>,
     <p>
-      And the <strong className="font-bold">paper</strong> isn’t ink at all, whatever its colour. Neither is ink hidden behind
-      other ink: gridlines behind a bar don’t count, because nobody can see them.
+      The <strong className="font-bold">paper</strong> isn’t ink at all, whatever its colour. Neither is ink hidden behind other
+      ink: gridlines behind a bar don’t count, because nobody can see them.
     </p>,
-    <>
-      <p>The data-ink ratio is the data-ink divided by all the ink:</p>
-      <p className="my-4 font-serif text-[1.5rem] md:text-[1.75rem] leading-snug text-content">
-        data-ink <span className="text-content-2">÷</span> all the ink
-      </p>
-      <p>
-        For this chart, <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>.
-        {!article &&
-          ` Now ${verb} any part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to the chart and use the arrow keys.)`}
-      </p>
-    </>,
+    <p>
+      So this chart’s data-ink ratio is <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>: its
+      data-ink divided by all its ink.
+      {!article &&
+        ` Now ${verb} any part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to the chart and use the arrow keys.)`}
+    </p>,
   ];
 
-  const shareOf = (n: number) => `${pct1(stats.total ? n / stats.total : 0)} of the ink`;
+  const shareOf = (n: number) => `${pct(stats.total ? n / stats.total : 0)} of the ink`;
   const articleFigures = [
     {
       after: -1,
