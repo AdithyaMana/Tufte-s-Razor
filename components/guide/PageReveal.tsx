@@ -1,5 +1,6 @@
 import React from 'react';
 import { useInkMap } from '../site/inkMap.ts';
+import { MarginNote, Prose } from './Article.tsx';
 import { Swatch } from './InkReadout.tsx';
 
 const REVEAL = [
@@ -23,7 +24,7 @@ const REVEAL = [
     kind: 'nonData',
     text: (
       <>
-        Menus, buttons, rules and labels are <strong className="font-bold">non-data ink</strong>: needed, but kept in the background.
+        Menus, buttons and rules are <strong className="font-bold">non-data ink</strong>: needed, but kept in the background.
       </>
     ),
   },
@@ -31,7 +32,7 @@ const REVEAL = [
 
 const Explanation: React.FC = () => (
   <>
-    <ul className="space-y-2">
+    <ul className="mt-8 space-y-2">
       {REVEAL.map(({ kind, text }) => (
         <li key={kind} className="grid grid-cols-[1em_minmax(0,1fr)] gap-x-2.5">
           <span className="pt-[0.1em]">
@@ -41,10 +42,6 @@ const Explanation: React.FC = () => (
         </li>
       ))}
     </ul>
-    <p className="text-content-2">
-      Treat this as an analogy, since a page isn’t a chart and words aren’t data. The question still works for anything you design:
-      what is each mark doing for the reader?
-    </p>
   </>
 );
 
@@ -69,22 +66,21 @@ const PageReveal: React.FC = () => {
   );
 
   return (
-    <div className="max-w-[38rem]">
-      <div className="article">
-        <p>
-          A web page is ink on paper too. We designed this one by the guide’s own rule: the reading gets the ink, and everything else
-          stays as quiet as it can while still doing its job. Want to see its ink?
-        </p>
-      </div>
+    <Prose
+      notes={
+        <MarginNote title="An analogy, not a measurement">
+          A page isn’t a chart and words aren’t data, so nothing here is counted. The question still works for anything you design:
+          what is each mark doing for the reader?
+        </MarginNote>
+      }
+    >
+      <p>
+        A web page is ink on paper too. We designed this one by the guide’s own rule: the reading gets the ink, and everything else
+        stays as quiet as it can while still doing its job. Want to see its ink?
+      </p>
       {button}
-      <div aria-live="polite">
-        {page && (
-          <div className="article mt-8">
-            <Explanation />
-          </div>
-        )}
-      </div>
-    </div>
+      <div aria-live="polite">{page && <Explanation />}</div>
+    </Prose>
   );
 };
 

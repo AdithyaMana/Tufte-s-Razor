@@ -39,7 +39,7 @@ const Figure: React.FC<{ target: number; reference: InkStats; scaleInk: number }
   );
 };
 
-/** Bigger type costs little ink but a lot of attention. */
+/** Bigger type raises the ratio, and costs the reader attention. */
 const TypeStory: React.FC = () => {
   const isDark = useIsDark();
   const article = useIsArticle();
@@ -51,22 +51,21 @@ const TypeStory: React.FC = () => {
     <Guess
       question="Make the title and labels bigger. What happens to the data-ink ratio?"
       options={[
-        { value: 'lot', label: 'It falls a lot' },
-        { value: 'little', label: 'It falls a little' },
+        { value: 'falls', label: 'It falls' },
+        { value: 'same', label: 'It barely moves' },
         { value: 'rises', label: 'It rises' },
       ]}
-      answer="little"
-      reveal="Letters are mostly empty space, so text costs little ink. Bigger type lowers the ratio, but only slightly."
+      answer="rises"
+      reveal="The title and labels are data-ink, so bigger letters mean more data-ink, and the ratio rises."
     />,
     <p>
-      Bigger type: the ratio dips from {r(0)} to {r(1)}. What bigger type really costs is attention. In Lai and Morrison’s words,
-      it “takes focus off the data in the chart.”
+      Bigger type: the ratio rises from {r(0)} to {r(1)}. By the numbers, a better chart. But bigger type costs attention: in Lai
+      and Morrison’s words, it “takes focus off the data in the chart.”
     </p>,
+    <p>Smaller type: the ratio falls to {r(2)}, and now readers “work harder to see the details.”</p>,
     <p>
-      Smaller type: the ratio creeps up to {r(2)}, but now readers “work harder to see the details.”
-    </p>,
-    <p>
-      Keep the title larger than the labels, and nothing too small to read at arm’s length. The ratio will take care of itself.
+      So the ratio can’t settle type size. Keep the title larger than the labels, and nothing too small to read at arm’s length,
+      whatever the number says.
     </p>,
   ];
 
@@ -74,12 +73,13 @@ const TypeStory: React.FC = () => {
   const readingSteps = [
     <p>Here is one chart with its text at three sizes.</p>,
     <p>
-      Bigger type dips the ratio from {r(0)} to {r(1)}. What it really costs is attention. In Lai and Morrison’s words, it “takes
-      focus off the data in the chart.”
+      The title and labels are data-ink, so bigger type raises the ratio, from {r(0)} to {r(1)}. By the numbers, a better chart.
+      But bigger type costs attention: in Lai and Morrison’s words, it “takes focus off the data in the chart.”
     </p>,
-    <p>Smaller type nudges the ratio up to {r(2)}, but now readers “work harder to see the details.”</p>,
+    <p>Smaller type lowers the ratio to {r(2)}, and now readers “work harder to see the details.”</p>,
     <p>
-      Keep the title larger than the labels, and nothing too small to read at arm’s length. The ratio will take care of itself.
+      So the ratio can’t settle type size. Keep the title larger than the labels, and nothing too small to read at arm’s length,
+      whatever the number says.
     </p>,
   ];
 

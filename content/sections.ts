@@ -15,7 +15,7 @@ export const SECTIONS: GuideSection[] = [
   { id: 'bar-width', title: 'A bar’s width isn’t data', short: 'Bar width' },
   { id: 'background', title: 'The background is paper', short: 'Background' },
   { id: 'redundancy', title: 'Say it once', short: 'Say it once' },
-  { id: 'type', title: 'Type costs attention, not ink', short: 'Type size' },
+  { id: 'type', title: 'Size type for the reader, not the ratio', short: 'Type size' },
   { id: 'balance', title: 'Aim for the middle', short: 'Aim for the middle' },
   {
     id: 'your-turn',

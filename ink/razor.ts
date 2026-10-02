@@ -3,7 +3,8 @@ import { DEFAULT_LABEL_SIZE, DEFAULT_TITLE_SIZE, FINDING_TITLE, type ChartSpec }
 
 // The razor: one cluttered chart, cleaned up a step at a time — first non-data ink, then
 // repeated data-ink, then one step too far. Each step keeps everything the previous step
-// erased, so the data-ink ratio rises all the way.
+// erased. The ratio rises nearly all the way: shrinking the oversized type takes a little
+// data-ink with it.
 
 export interface RazorStep {
   /** What this step erases, in a few words. */
@@ -23,7 +24,7 @@ export const RAZOR_STEPS: RazorStep[] = [
     shape: { gridlines: false, plotBorder: false, tickMarks: false, chartBorder: false },
   },
   {
-    label: 'outlines and heavy type',
+    label: 'outlines and oversized type',
     shape: { titleSize: DEFAULT_TITLE_SIZE, labelSize: DEFAULT_LABEL_SIZE },
     look: { outline: false },
   },

@@ -13,7 +13,7 @@ import InkKindsStory from '../components/guide/stories/InkKindsStory.tsx';
 import RazorStory from '../components/guide/stories/RazorStory.tsx';
 import RedundancyStory from '../components/guide/stories/RedundancyStory.tsx';
 import TypeStory from '../components/guide/stories/TypeStory.tsx';
-import ThreeCharts from '../components/guide/ThreeCharts.tsx';
+import ThreeCharts, { RelativeValueNote } from '../components/guide/ThreeCharts.tsx';
 import { scrollToHash } from '../components/site/router.ts';
 import { useIsArticle } from '../components/site/view.ts';
 
@@ -61,8 +61,13 @@ const GuidePage: React.FC = () => {
             when the numbers change.
           </p>
           <p>
-            Labels pass the first test but not the second: a bar’s name stays the same whatever its value. So this guide counts text
-            as non-data ink, even though erasing it can leave a chart unreadable. That’s why the ratio alone can’t say when to stop.
+            Strictly, a title and labels fail the second part: a bar’s name stays the same whatever its value. But erase them and
+            the reader loses information they need, so this guide counts them as data-ink, and sorts every mark with two simpler
+            questions. Does it tell the reader something about the data? And is that already said somewhere else, so erasing it
+            would lose nothing? The thin line down each bar, the title and the axis labels tell the reader something nothing else
+            says: data-ink. The rest of each bar’s width, and numbers that repeat the axis, say it
+            again: repeated data-ink. Shading, gridlines, borders and axis lines say nothing about the numbers themselves: non-data
+            ink.
           </p>
           <More label="Tufte’s full definition" className="mt-5">
             <div className="space-y-1.5 font-serif text-lg leading-snug text-content-2">
@@ -117,7 +122,7 @@ const GuidePage: React.FC = () => {
         id="type"
         part={partOf('type')}
         title={title('type')}
-        lead="Letters are mostly empty space, so resizing them barely moves the ratio. What changes is how hard the text pulls at the eye."
+        lead="The title and labels are data-ink, so bigger type raises the ratio. It also pulls the eye away from the bars."
       >
         <TypeStory />
       </Section>
@@ -129,7 +134,7 @@ const GuidePage: React.FC = () => {
         lead="A higher ratio isn’t always better. Too much ink buries the data; too little leaves the reader guessing."
       >
         <ThreeCharts />
-        <Prose>
+        <Prose notes={<RelativeValueNote />}>
           <p>
             A ratio isn’t good or bad on its own. The right range depends on who’s reading and why, the case ScienceUX made in{' '}
             <a href={GOLDILOCKS_URL}>The Story of Goldilocks and the Three Charts</a>. So compare versions of one chart, as above,

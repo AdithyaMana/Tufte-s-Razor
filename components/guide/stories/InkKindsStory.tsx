@@ -10,10 +10,11 @@ import ScrollStory from '../ScrollStory.tsx';
 import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
 import { useInkStats } from '../useInk.ts';
 
-const NON_DATA: InkGroup[] = ['plotFill', 'gridlines', 'borders', 'axes', 'title', 'valueLabels', 'categoryLabels'];
+const DATA: InkGroup[] = ['hairlines', 'title', 'valueLabels', 'categoryLabels'];
+const NON_DATA: InkGroup[] = ['plotFill', 'gridlines', 'borders', 'axes'];
 
 // What each step picks out on the chart. An empty list picks out the paper.
-const HIGHLIGHTS: (readonly InkGroup[] | null)[] = [['hairlines'], ['barWidth', 'outlines', 'dataLabels'], NON_DATA, [], null];
+const HIGHLIGHTS: (readonly InkGroup[] | null)[] = [DATA, ['barWidth', 'outlines', 'dataLabels'], NON_DATA, [], null];
 
 /** The three kinds of ink, picked out on one chart in turn. */
 const InkKindsStory: React.FC = () => {
@@ -32,17 +33,19 @@ const InkKindsStory: React.FC = () => {
         {article ? ', picked out one kind at a time above' : ''}.
       </p>
       <p>
-        <InkTerm kind="data">Data-ink</InkTerm> is a thin line down each bar, as long as the bar. A bar shows its value by its length,
-        so that line is the least ink that could still show the number. Here it’s {share(stats.data)} of the ink.
+        <InkTerm kind="data">Data-ink</InkTerm> tells the reader about the data. A bar shows its value by its length, so a thin
+        line down each bar, as long as the bar, is the least ink that could still show the number. The title and the axis labels
+        say what those numbers are. Erase any of it and the reader loses something. Here it’s {share(stats.data)} of the ink.
       </p>
     </>,
     <p>
-      <InkTerm kind="redundant">Repeated data-ink</InkTerm> is the rest of each bar’s width, and the numbers printed on the bars. It
-      can help the reader, but it says nothing new. On this chart it’s {share(stats.redundant)} of the ink.
+      <InkTerm kind="redundant">Repeated data-ink</InkTerm> is the rest of each bar’s width, and the numbers printed on the bars,
+      which the axis already gives. It can help the reader, but erasing it loses nothing. On this chart it’s{' '}
+      {share(stats.redundant)} of the ink.
     </p>,
     <p>
-      <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else: the title, the labels, the axis, the gridlines and the
-      border. Much of it helps people read the chart, but none of it is data. Here it’s {share(stats.nonData)}.
+      <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else: the axis line, the gridlines and the border. Some of it
+      helps people read the chart, but none of it says anything about the numbers. Here it’s {share(stats.nonData)}.
     </p>,
     <p>
       The <strong className="font-bold">paper</strong> isn’t ink at all, whatever its colour. Neither is ink hidden behind other

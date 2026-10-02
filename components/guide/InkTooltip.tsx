@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { PARTS } from '../../content/parts.ts';
 import { PART_GROUPS, type InkPart } from '../../ink/inspect.ts';
 import { measureChart, measureGroups } from '../../ink/measure.ts';
-import { GROUP_KIND, type InkKind } from '../../ink/render.ts';
+import { groupKind, type InkKind } from '../../ink/render.ts';
 import type { ChartSpec } from '../../ink/spec.ts';
 import { pct1, px } from './format.ts';
 import { INK_KINDS } from './InkReadout.tsx';
@@ -30,7 +30,7 @@ function rowsFor(part: InkPart, spec: ChartSpec): Row[] {
       ];
     default:
       return PART_GROUPS[part].map((group) => {
-        const kind = GROUP_KIND[group];
+        const kind = groupKind(group, spec);
         return { kind, label: kindLabel(kind), pixels: groups[group] };
       });
   }

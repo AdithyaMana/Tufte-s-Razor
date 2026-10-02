@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { COMFORTABLE_BAR_WIDTH, readabilityChecks, widthZone } from '../../ink/checks.ts';
-import { computeLayout } from '../../ink/layout.ts';
+import { computeLayout, REFERENCE_PLOT_WIDTH } from '../../ink/layout.ts';
 import { measureText } from '../../ink/measure.ts';
-import { defaultSpec, type ChartSpec } from '../../ink/spec.ts';
+import { ARTICLE_DATA, defaultSpec, ESSENTIAL_WIDTH, type ChartSpec } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
 import { useIsArticle } from '../site/view.ts';
 import ChartCanvas from './ChartCanvas.tsx';
@@ -32,7 +32,13 @@ export function barWidthSpec(isDark: boolean): ChartSpec {
   return { ...defaultSpec(isDark), sorted: true, gridlines: false };
 }
 
-const widthTick = (x: number) => (x === 0 ? 'hairline' : x === 1 ? 'touching' : `${Math.round(x * 100)}%`);
+// Widths are read in pixels everywhere, the slider and the charts below it alike. Each bar
+// gets an 84 px slot, so at 84 px the bars touch.
+const SLOT_PX = REFERENCE_PLOT_WIDTH / ARTICLE_DATA.length;
+const pxOf = (x: number) => Math.max(ESSENTIAL_WIDTH, Math.round(x * SLOT_PX));
+const widthTick = (x: number) => `${pxOf(x)} px`;
+const WIDTH_TICKS = [0, 20, 40, 60, SLOT_PX].map((px) => px / SLOT_PX);
+const WIDTH_AXIS = `Bar width, in px (each bar has ${SLOT_PX} px of space)`;
 
 const BarWidthLab: React.FC = () => {
   const isDark = useIsDark();
@@ -65,14 +71,15 @@ const BarWidthLab: React.FC = () => {
         colour="rgb(var(--ink-data))"
         zone={[COMFORTABLE_BAR_WIDTH[0], COMFORTABLE_BAR_WIDTH[1]]}
         zoneLabel="easiest to compare"
-        xLabel="Bar width, as a share of the space each bar gets"
+        xLabel={WIDTH_AXIS}
+        xTicks={WIDTH_TICKS}
         formatX={widthTick}
         formatY={pct}
         formatTick={(y) => `${Math.round(y * 100)}%`}
         onPick={(x) => animate(width, x)}
         ariaLabel={
           ratioPoints
-            ? `Line chart: the data-ink ratio falls from ${pct(ratioPoints[0].y)} with hairline bars to ${pct(ratioPoints[ratioPoints.length - 1].y)} with bars that touch.`
+            ? `Line chart: the data-ink ratio falls from ${pct(ratioPoints[0].y)} with 2 px hairlines to ${pct(ratioPoints[ratioPoints.length - 1].y)} with ${SLOT_PX} px bars that touch.`
             : 'Line chart of the data-ink ratio against bar width, loading.'
         }
       />
@@ -90,14 +97,15 @@ const BarWidthLab: React.FC = () => {
                 points={sharePoints}
                 current={{ x: width, y: stats.dataShare }}
                 colour="rgb(var(--content-2))"
-                xLabel="Bar width, as a share of the space each bar gets"
+                xLabel={WIDTH_AXIS}
+                xTicks={WIDTH_TICKS}
                 formatX={widthTick}
                 formatY={(y) => `${Math.round(y * 100)}%`}
                 onPick={(x) => animate(width, x)}
                 still={article}
                 ariaLabel={
                   sharePoints
-                    ? `Line chart: the share of ink in data colours rises from ${pct(sharePoints[0].y)} with hairline bars to ${pct(sharePoints[sharePoints.length - 1].y)} with bars that touch.`
+                    ? `Line chart: the share of ink in data colours rises from ${pct(sharePoints[0].y)} with 2 px hairlines to ${pct(sharePoints[sharePoints.length - 1].y)} with ${SLOT_PX} px bars that touch.`
                     : 'Line chart of the share of ink in data colours against bar width, loading.'
                 }
               />
@@ -136,8 +144,8 @@ const BarWidthLab: React.FC = () => {
     return (
       <div className="my-10 md:my-12">
         <p className="article max-w-[38rem] mb-6">
-          The chart below follows the ratio through every width, from a hairline to bars that touch. The shaded band marks the widths
-          that are easiest to compare.
+          The chart below follows the ratio through every width, from a 2 px hairline to {SLOT_PX} px bars that touch. The shaded
+          band marks the widths that are easiest to compare.
         </p>
         {sweepFigure}
       </div>

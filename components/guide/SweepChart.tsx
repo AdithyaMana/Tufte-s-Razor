@@ -16,6 +16,8 @@ interface SweepChartProps {
   zone?: [number, number];
   zoneLabel?: string;
   xLabel: string;
+  /** Where to label the x axis, from 0 to 1. */
+  xTicks?: number[];
   formatX: (x: number) => string;
   formatY: (y: number) => string;
   /** Axis tick labels; defaults to formatY. */
@@ -47,6 +49,7 @@ const SweepChart: React.FC<SweepChartProps> = ({
   zone,
   zoneLabel,
   xLabel,
+  xTicks = [0, 0.25, 0.5, 0.75, 1],
   formatX,
   formatY,
   formatTick = formatY,
@@ -74,7 +77,6 @@ const SweepChart: React.FC<SweepChartProps> = ({
   const sx = (x: number) => M.l + x * innerW;
   const sy = (y: number) => M.t + innerH - (y / yTop) * innerH;
   const yTicks = [0, yTop / 2, yTop];
-  const xTicks = [0, 0.25, 0.5, 0.75, 1];
 
   const path = data.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join('');
 

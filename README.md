@@ -23,7 +23,7 @@ Ten parts, each a headline, one sentence, then a story or figure that shows it:
 | 3. A bar's width isn't data | Guesses which way the ratio moves as bars widen; wide, thin, hairline and balanced bars; then a slider and the ratio at every width |
 | 4. The background is paper | Guesses whether a background colour counts; the same chart on white, pale blue and dark paper, then with a painted plot area |
 | 5. Say it once | The article's label and gridline revisions, plus one step too far |
-| 6. Type costs attention, not ink | Guesses how much bigger type costs; bigger, smaller, and back |
+| 6. Size type for the reader, not the ratio | Guesses which way bigger type moves the ratio (it rises: text is data-ink); bigger, smaller, and back |
 | 7. Aim for the middle | Three charts from too low to too high, then a slideshow of each design flaw that pushes the ratio one way or the other, with what to do instead |
 | 8. Your turn: fix this chart | Cleans up the cluttered chart against seven goals (halve the non-data ink and give it a title that states the finding, without losing values, names, comparability, legible text or contrast), with a hint on request that follows what's still missing; then free play with the article's charts as presets and a pinned reference |
 | 9. Before you publish | The guide as a checklist, including what the ratio can't measure |
@@ -59,13 +59,15 @@ Design tokens in [`index.css`](index.css) are named by role (`content`, `echo`, 
 The engine lives in [`ink/`](ink):
 
 - **The chart's background is the paper.** Whatever its colour (white, dark mode, pale blue), it is never ink. Any fill painted on top of it, such as a shaded plot area, is.
-- **Data-ink is the least ink that shows each value**: a 2 px hairline the length of each bar. A bar's value lives in its length, so every pixel of width beyond the hairline repeats the same number and counts as **repeated (redundant) data-ink**, as do bar outlines and values printed on the bars.
-- **Non-data ink** is everything else that is drawn: axes, ticks, gridlines, borders, fills, titles and labels.
+- **Two questions sort every mark**: does it tell the reader something about the data, and is that already said somewhere else, so erasing it loses nothing?
+- **Data-ink is the least ink that shows each value**, a 2 px hairline the length of each bar, **plus the title, axis labels and category labels**, which say what the values are. Erase them and the reader loses information.
+- **Repeated (redundant) data-ink**: a bar's value lives in its length, so every pixel of width beyond the hairline repeats the same number, as do bar outlines. Values printed on the bars repeat the labelled axis; on a chart with no axis labels they are the only place the values are written, so they count as data-ink (`groupKind` in [`ink/render.ts`](ink/render.ts)).
+- **Non-data ink** is everything else that is drawn: axis lines, ticks, gridlines, borders and fills.
 - **Hidden ink doesn't count.** Each chart is drawn once, offscreen at 480 × 300 (a spreadsheet's default chart size, so default type looks as it does in a spreadsheet and stays readable on a phone), with each kind of ink in its own colour channel (data red, redundant green, non-data blue). Ordinary paint compositing then gives each pixel to whatever is visible on top, anti-aliased edges count fractionally, and one pass over the image data adds it all up (`sumChannels` in [`ink/measure.ts`](ink/measure.ts)).
 - **Bars keep their pixel width when labels change**, so a label change never also changes how much redundant bar ink there is.
 - **Every mark belongs to one of eleven ink groups** (plot fill, gridlines, borders, axes, bar width, outlines, hairlines, title, axis labels, category labels, values on bars). Pointing at a chart hit-tests those groups geometrically ([`ink/inspect.ts`](ink/inspect.ts)); each group's visible pixels are counted three at a time, one per colour channel, while the other groups only erase what they cover (`measureGroups`). The same trick draws a highlighted part exactly where it is visible.
 
-The **data-ink ratio** shown everywhere is Tufte's strict version: essential data-ink ÷ total ink. The naive share (all data-coloured ink ÷ total ink) is available beside it, because the two move in opposite directions as bars widen.
+The **data-ink ratio** shown everywhere is the simplest version: ink used to show the data ÷ all the ink used in the chart, leaving repeated data-ink out of the top. The naive share (all data-coloured ink ÷ total ink) is available beside it, because the two move in opposite directions as bars widen.
 
 Absolute values depend on these counting rules; the direction and size of each change are what the guide is about.
 

@@ -3,6 +3,7 @@ import { hitTest, presentParts, textBox } from './inspect.ts';
 import { computeLayout, niceMax, PAD, tickStep, type TextMeasurer } from './layout.ts';
 import { sumChannels, toStats } from './measure.ts';
 import { RAZOR_STEPS, razorSpec } from './razor.ts';
+import { groupKind } from './render.ts';
 import { defaultSpec, ESSENTIAL_WIDTH } from './spec.ts';
 
 // Roughly Inter's average advance; exact widths only matter in the browser.
@@ -239,5 +240,18 @@ describe('bar spacing', () => {
       expect(new Set(gaps).size).toBe(1);
       expect(gaps[0]).toBeGreaterThanOrEqual(0);
     }
+  });
+});
+
+describe('groupKind', () => {
+  it('counts the title and labels as data-ink, and lines and fills as non-data ink', () => {
+    const spec = defaultSpec();
+    for (const group of ['hairlines', 'title', 'valueLabels', 'categoryLabels'] as const) expect(groupKind(group, spec)).toBe('data');
+    for (const group of ['plotFill', 'gridlines', 'borders', 'axes'] as const) expect(groupKind(group, spec)).toBe('nonData');
+  });
+
+  it('counts values on the bars as repeated while the axis is labelled, and as data-ink once it isn’t', () => {
+    expect(groupKind('dataLabels', { ...defaultSpec(), dataLabels: true })).toBe('redundant');
+    expect(groupKind('dataLabels', { ...defaultSpec(), dataLabels: true, valueLabels: 'none' })).toBe('data');
   });
 });

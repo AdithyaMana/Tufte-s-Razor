@@ -3,11 +3,11 @@ import { chartFont, countPaint, drawChart, drawVisible, GROUPS, INK_CHANNEL, typ
 import { CHART_HEIGHT, CHART_WIDTH, ChartSpec } from './spec.ts';
 
 export interface InkStats {
-  /** Essential data-ink: the hairline length of every bar, in px. */
+  /** Essential data-ink: the hairline length of every bar, the title and the labels, in px. */
   data: number;
-  /** Data-ink that repeats a value already shown: extra bar width, outlines, value labels. */
+  /** Data-ink that repeats a value already shown: extra bar width, outlines, values on the bars. */
   redundant: number;
-  /** Everything else: axes, gridlines, borders, fills, titles and labels. */
+  /** Everything else: axis lines, ticks, gridlines, borders and fills. */
   nonData: number;
   total: number;
   /** Tufte's data-ink ratio: non-redundant data-ink ÷ total ink. */

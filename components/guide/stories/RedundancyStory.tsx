@@ -51,8 +51,8 @@ const RedundancyStory: React.FC = () => {
       can’t.
     </p>,
     <p>
-      {article ? 'D takes away every value label, and the ratio rises again' : 'Take away every value label and the ratio rises again'},
-      to {r(3)}. But now nothing says what the bars measure. That ink was doing a job.
+      {article ? 'D takes away every value label' : 'Take away every value label'}, and the ratio is {r(3)}. But now nothing says
+      what the bars measure. Those labels were data-ink, and the information went with them.
     </p>,
   ];
 

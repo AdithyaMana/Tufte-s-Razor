@@ -21,8 +21,12 @@ export type InkGroup =
 /**
  * Drawing order, bottom to top. A pixel belongs to whichever group is visible on top of
  * it: gridlines hidden behind a bar are not ink, because nobody can see them.
+ *
+ * Two questions sort each group (see groupKind): does it carry information about the data,
+ * and is that information already shown somewhere else, so erasing it loses nothing?
  */
 export const GROUPS: ReadonlyArray<{ id: InkGroup; kind: InkKind }> = [
+  // The shading behind the plot: no information.
   { id: 'plotFill', kind: 'nonData' },
   { id: 'gridlines', kind: 'nonData' },
   // Chart border and the box around the plot.
@@ -33,14 +37,26 @@ export const GROUPS: ReadonlyArray<{ id: InkGroup; kind: InkKind }> = [
   { id: 'barWidth', kind: 'redundant' },
   { id: 'outlines', kind: 'redundant' },
   { id: 'hairlines', kind: 'data' },
-  { id: 'title', kind: 'nonData' },
-  { id: 'valueLabels', kind: 'nonData' },
-  { id: 'categoryLabels', kind: 'nonData' },
-  // Values printed on the bars repeat what the bar lengths already show.
+  // What the chart shows, the scale it's read against and which bar is which: erase them
+  // and the reader loses information they need.
+  { id: 'title', kind: 'data' },
+  { id: 'valueLabels', kind: 'data' },
+  { id: 'categoryLabels', kind: 'data' },
+  // Values printed on the bars repeat what the labelled axis already says (see groupKind).
   { id: 'dataLabels', kind: 'redundant' },
 ];
 
-export const GROUP_KIND = Object.fromEntries(GROUPS.map((g) => [g.id, g.kind])) as Record<InkGroup, InkKind>;
+const DEFAULT_KIND = Object.fromEntries(GROUPS.map((g) => [g.id, g.kind])) as Record<InkGroup, InkKind>;
+
+/**
+ * The kind of ink a group is on this chart. Values printed on the bars repeat the labelled
+ * axis; on a chart whose axis has no labels they are the only place the values are written,
+ * so they become data-ink.
+ */
+export function groupKind(group: InkGroup, spec: ChartSpec): InkKind {
+  if (group === 'dataLabels' && spec.valueLabels === 'none') return 'data';
+  return DEFAULT_KIND[group];
+}
 
 /** The colour to draw each group in, or null to leave it out. */
 export type Paint = (group: InkGroup, kind: InkKind) => string | null;
@@ -137,8 +153,8 @@ export function drawGroup(ctx: CanvasRenderingContext2D, id: InkGroup, layout: C
 
 /** Draws every group, bottom to top, in the colours `paint` gives them. */
 export function drawChart(ctx: CanvasRenderingContext2D, layout: ChartLayout, spec: ChartSpec, paint: Paint) {
-  for (const { id, kind } of GROUPS) {
-    const colour = paint(id, kind);
+  for (const { id } of GROUPS) {
+    const colour = paint(id, groupKind(id, spec));
     if (colour) drawGroup(ctx, id, layout, spec, colour);
   }
 }
@@ -191,8 +207,8 @@ export function drawVisible(
   spec: ChartSpec,
   colourOf: (group: InkGroup, kind: InkKind) => string | null,
 ) {
-  for (const { id, kind } of GROUPS) {
-    const colour = colourOf(id, kind);
+  for (const { id } of GROUPS) {
+    const colour = colourOf(id, groupKind(id, spec));
     ctx.globalCompositeOperation = colour ? 'source-over' : 'destination-out';
     drawGroup(ctx, id, layout, spec, colour ?? '#000000');
   }

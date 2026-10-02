@@ -4,7 +4,10 @@ import { presetSpec, resolveSpec } from '../../ink/presets.ts';
 import { razorShapeAndLook, STOP_STEP } from '../../ink/razor.ts';
 import type { ChartSpec } from '../../ink/spec.ts';
 import { useIsDark } from '../site/theme.ts';
+import { MarginNote } from './Article.tsx';
 import ChartPanels from './ChartPanels.tsx';
+import { pct, times } from './format.ts';
+import { useInkStatsList } from './useInk.ts';
 
 /** Part 1's stopping point, optionally with a change: the guide's one model of a good chart. */
 function stopSpec(isDark: boolean, change: Partial<ChartSpec> = {}): ChartSpec {
@@ -22,6 +25,19 @@ const CHARTS: { verdict: string; text: string; spec: (isDark: boolean) => ChartS
     spec: (d) => stopSpec(d, { barWidth: 0 }),
   },
 ];
+
+/** A relative value worked through on the first two charts, for the margin beside the text. */
+export const RelativeValueNote: React.FC = () => {
+  const isDark = useIsDark();
+  const specs = useMemo(() => CHARTS.slice(0, 2).map((chart) => chart.spec(isDark)), [isDark]);
+  const [low, right] = useInkStatsList(specs);
+  return (
+    <MarginNote title="A relative value">
+      From too low to about right, the ratio goes from {pct(low.ratio)} to {pct(right.ratio)}, {times(right.ratio, low.ratio)} as
+      much. Neither number means much alone; the change between them shows the clean-up worked.
+    </MarginNote>
+  );
+};
 
 /** Goldilocks and the three charts: the ratio is a range to aim for, not a score to max out. */
 const ThreeCharts: React.FC = () => {

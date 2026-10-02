@@ -28,3 +28,8 @@ export function times(value: number, reference: number): string {
   if (Math.abs(ratio - 1) < 0.005) return 'same';
   return `${ratio >= 10 ? ratio.toFixed(0) : ratio.toFixed(ratio >= 1 ? 1 : 2)}×`;
 }
+
+/** A ratio as a decimal, to match pct's precision: 0.0331 → "0.033", 0.187 → "0.19". */
+export function decimal(share: number): string {
+  return share < 0.1 ? share.toFixed(3) : share.toFixed(2);
+}
