@@ -183,6 +183,10 @@ const GuidePage: React.FC = () => {
       </Section>
 
       <section id="sources" aria-labelledby="sources-title" className="max-w-6xl mx-auto px-4 md:px-8 pt-16">
+        <h2 className="kicker">Credits</h2>
+        <p className="mt-3 mb-10 font-sans text-xs leading-relaxed text-content-2">
+          Made by Adithya Manavalan, Michael Lai and Mike Morrison, ScienceUX Labs.
+        </p>
         <h2 id="sources-title" className="kicker">
           Sources
         </h2>

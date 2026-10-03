@@ -145,7 +145,7 @@ NODE_ENV=production npm start   # serve dist/ (any static host works too)
 
 Built by [**ScienceUX Labs**](https://scienceux.org/):
 
-- **Adithya Mana** — [adithyamana@gmail.com](mailto:adithyamana@gmail.com)
+- **Adithya Manavalan** — [adithyamana@gmail.com](mailto:adithyamana@gmail.com)
 - **Michael Lai** — [m.lai.s4074433@gmail.com](mailto:m.lai.s4074433@gmail.com)
 - **Mike Morrison** — [mikeamorrison@gmail.com](mailto:mikeamorrison@gmail.com)
 
