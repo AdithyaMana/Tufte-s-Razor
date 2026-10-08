@@ -10,9 +10,9 @@ export interface GuideSection {
 }
 
 export const SECTIONS: GuideSection[] = [
-  { id: 'razor', title: 'How much of a chart is data?', short: 'Erase a chart' },
-  { id: 'ink', title: 'Three kinds of ink', short: 'Three kinds of ink' },
-  { id: 'bar-width', title: 'A bar’s width isn’t data', short: 'Bar width' },
+  { id: 'razor', title: 'How much data is there in your chart?', short: 'Erase a chart' },
+  { id: 'ink', title: 'Every ink leaves a mark on the chart', short: 'Three kinds of ink' },
+  { id: 'bar-width', title: 'The width of a bar contains redundant data', short: 'Bar width' },
   { id: 'background', title: 'The background is paper', short: 'Background' },
   { id: 'redundancy', title: 'Say it once', short: 'Say it once' },
   { id: 'type', title: 'Size type for the reader, not the ratio', short: 'Type size' },

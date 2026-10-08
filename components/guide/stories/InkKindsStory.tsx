@@ -7,7 +7,7 @@ import ChartPanels from '../ChartPanels.tsx';
 import { pct } from '../format.ts';
 import { InkTerm } from '../InkReadout.tsx';
 import ScrollStory from '../ScrollStory.tsx';
-import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
+import StoryFigure from '../StoryFigure.tsx';
 import { useInkStats } from '../useInk.ts';
 
 const DATA: InkGroup[] = ['hairlines', 'title', 'valueLabels', 'categoryLabels'];
@@ -19,7 +19,6 @@ const HIGHLIGHTS: (readonly InkGroup[] | null)[] = [DATA, ['barWidth', 'outlines
 /** The three kinds of ink, picked out on one chart in turn. */
 const InkKindsStory: React.FC = () => {
   const isDark = useIsDark();
-  const { verb } = usePointVerb();
   const article = useIsArticle();
   const spec = useMemo(() => ({ ...defaultSpec(isDark), dataLabels: true }), [isDark]);
   const stats = useInkStats(spec);
@@ -29,33 +28,35 @@ const InkKindsStory: React.FC = () => {
   const steps = [
     <>
       <p>
-        Part 1 sorted a chart’s ink into three kinds. Here they are up close, on a plainer chart
-        {article ? ', picked out one kind at a time above' : ''}.
+        Part 1 introduced three types of ink on a chart. Here they are again up close, on a plain chart.
       </p>
       <p>
-        <InkTerm kind="data">Data-ink</InkTerm> tells the reader about the data. A bar shows its value by its length, so a thin
-        line down each bar, as long as the bar, is the least ink that could still show the number. The title and the axis labels
-        say what those numbers are. Erase any of it and the reader loses something. Here it’s {share(stats.data)} of the ink.
+        <InkTerm kind="data">Data-ink</InkTerm> encodes or conveys some form of information or data. A bar represents a value with
+        its height, so a thin line down each bar is the minimum amount of ink that can be used to show the value. The title and
+        the axis labels tells you more information about what those numbers are. Erase any of it and the reader loses something.
+        Here it makes up around{' '}
+        {share(stats.data)} of the ink.
       </p>
     </>,
     <p>
-      <InkTerm kind="redundant">Repeated data-ink</InkTerm> is the rest of each bar’s width, and the numbers printed on the bars,
-      which the axis already gives. It can help the reader, but erasing it loses nothing. On this chart it’s{' '}
-      {share(stats.redundant)} of the ink.
+      <InkTerm kind="redundant">Redundant data-ink</InkTerm> is contained within the width of each bar, and the data labels shown
+      on the bars that you can work out from lining the top of the bar with the axis. It can help the reader work out the value,
+      but you don't lose any information by removing it. On this chart it makes up around {share(stats.redundant)} of the ink.
     </p>,
     <p>
       <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else: the axis line, the gridlines and the border. Some of it
-      helps people read the chart, but none of it says anything about the numbers. Here it’s {share(stats.nonData)}.
+      helps people read the chart, but none of it says anything about the numbers. Here it makes up {share(stats.nonData)}.
     </p>,
     <p>
-      The <strong className="font-bold">paper</strong> isn’t ink at all, whatever its colour. Neither is ink hidden behind other
-      ink: gridlines behind a bar don’t count, because nobody can see them.
+      The paper does not contain data-ink at all, regardless of its colour. Neither is ink hidden behind other ink: so the part
+      of the gridlines behind a bar don’t count, because they are not actually visible to the reader.
     </p>,
     <p>
-      So this chart’s data-ink ratio is <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>: its
-      data-ink divided by all its ink.
+      So theoretically this chart’s data-ink ratio is{' '}
+      <strong className="font-bold tabular-nums text-echo">{pct(stats.ratio)}</strong>: its data-ink divided by all of the ink that's
+      there.
       {!article &&
-        ` Now ${verb} any part of the chart to see which kind of ink it is, and how much of it there is. (With a keyboard, move to the chart and use the arrow keys.)`}
+        ' Now point at any part of the chart to see which kind of ink it is, and how much of it there is (with a keyboard, move to the chart and use the arrow keys).'}
     </p>,
   ];
 
@@ -68,7 +69,7 @@ const InkKindsStory: React.FC = () => {
           label="One chart, with each kind of ink picked out in turn"
           panels={[
             { spec, highlight: HIGHLIGHTS[0], hideRatio: true, label: 'Data-ink', caption: shareOf(stats.data) },
-            { spec, highlight: HIGHLIGHTS[1], hideRatio: true, label: 'Repeated data-ink', caption: shareOf(stats.redundant) },
+            { spec, highlight: HIGHLIGHTS[1], hideRatio: true, label: 'Redundant data-ink', caption: shareOf(stats.redundant) },
             { spec, highlight: HIGHLIGHTS[2], hideRatio: true, label: 'Non-data ink', caption: shareOf(stats.nonData) },
             { spec, highlight: HIGHLIGHTS[3], hideRatio: true, label: 'Paper', caption: 'Not ink at all' },
           ]}

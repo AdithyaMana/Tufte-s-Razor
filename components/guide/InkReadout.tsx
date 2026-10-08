@@ -5,7 +5,7 @@ import { pct, pct1, px, times } from './format.ts';
 
 export const INK_KINDS = [
   { key: 'data', label: 'Data-ink', swatch: 'bg-ink-data' },
-  { key: 'redundant', label: 'Repeated data-ink', swatch: 'bg-ink-redundant' },
+  { key: 'redundant', label: 'Redundant data-ink', swatch: 'bg-ink-redundant' },
   { key: 'nonData', label: 'Non-data ink', swatch: 'bg-ink-nondata' },
 ] as const;
 

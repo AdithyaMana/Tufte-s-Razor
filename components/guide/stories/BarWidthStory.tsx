@@ -32,48 +32,32 @@ const BarWidthStory: React.FC = () => {
 
   const steps = [
     <Guess
-      question="Bars can be wide or thin. What happens to the data-ink ratio as they get wider?"
+      question="Bar widths can be made wider or thinner. What happens to the data-ink ratio as they get wider?"
       options={[
         { value: 'up', label: 'It goes up' },
         { value: 'down', label: 'It goes down' },
         { value: 'same', label: 'It stays the same' },
       ]}
       answer="down"
-      reveal="A bar’s value is in its length, so extra width is extra ink that says nothing new."
+      reveal="A bar represents a value with its height. Widening a bar uses more ink to encode the same value."
     />,
     <p>
-      Wide bars: the same five values, drawn with far more ink. The ratio falls to {r(1)}. Lai and Morrison call this “unnecessary
-      visual clutter.”
+      Wide bars: the same five values, drawn with far more ink. The ratio falls to {r(1)}.
     </p>,
     <p>Thin bars: less ink for the same values, so the ratio rises, to {r(2)}.</p>,
     <p>
-      At a hairline the ratio peaks, at {r(3)}. But look at the chart: bars this thin are easy to miss, and they make “visual
-      comparison more difficult.”
+      At a hairline width the ratio peaks, at {r(3)}. But look at the chart: bars this thin are easy to miss, and they make reading
+      the value and any visual comparison more difficult.
     </p>,
     <p>
-      So aim between the two: bars wide enough to see, with gaps wide enough to tell them apart. Like these, at {r(4)}: each bar
-      fills half the space it gets. Stephen Few suggests gaps between half and a whole bar wide, so bars fill about half to
-      two-thirds of their space. A spreadsheet’s default bars are thinner than that.
+      So aim for something between the two: bars wide enough to see, with gaps wide enough to tell them apart. Like these, at{' '}
+      {r(4)}: each bar fills half the space it gets. See how this compares to the default settings for bar width on your
+      spreadsheet or charting software.
     </p>,
   ];
 
-  // The reading view: the point first, then the four widths side by side.
-  const readingSteps = [
-    <p>The wider the bars, the lower the data-ink ratio. Here is one chart drawn at four widths.</p>,
-    <p>
-      Wide bars draw the same five values with far more ink: {r(1)}. Lai and Morrison call this “unnecessary visual clutter.” Thin
-      bars use less ink for the same values, so the ratio rises, to {r(2)}.
-    </p>,
-    <p>
-      At a hairline the ratio peaks, at {r(3)}. But bars that thin are easy to miss, and they make “visual comparison more
-      difficult.”
-    </p>,
-    <p>
-      So aim between the two: bars wide enough to see, with gaps wide enough to tell them apart. The balanced bars, at {r(4)}, each
-      fill half the space they get. Stephen Few suggests gaps between half and a whole bar wide, so bars fill about half to
-      two-thirds of their space. A spreadsheet’s default bars are thinner than that.
-    </p>,
-  ];
+  // The reading view uses the same paragraphs without the interactive guess.
+  const readingSteps = steps.slice(1);
 
   const articleFigures = [
     {

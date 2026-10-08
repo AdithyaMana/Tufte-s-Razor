@@ -16,7 +16,7 @@ const REVEAL = [
     kind: 'redundant',
     text: (
       <>
-        The numbers that repeat what a chart already shows are <strong className="font-bold">repeated data-ink</strong>.
+        The numbers that repeat what a chart already shows are <strong className="font-bold">redundant data-ink</strong>.
       </>
     ),
   },

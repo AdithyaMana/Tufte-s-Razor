@@ -44,7 +44,7 @@ const GuidePage: React.FC = () => {
     <article id="guide">
       <RazorStory />
 
-      <Section id="ink" part={partOf('ink')} title="Every mark is one of three kinds of ink" lead="Plus the paper, which isn’t ink at all.">
+      <Section id="ink" part={partOf('ink')} title={title('ink')} lead="And be aware of what is paper and what is ink">
         <InkKindsStory />
         <Prose
           className={afterStory}
@@ -58,16 +58,16 @@ const GuidePage: React.FC = () => {
           <p>
             Tufte called data-ink “the non-erasable core of a graphic, the non-redundant ink arranged in response to variation in the
             numbers represented.” That has two parts. Data-ink can’t be erased without losing information, <em>and</em> it changes
-            when the numbers change.
+            when the values being represented changes.
           </p>
           <p>
             Strictly, a title and labels fail the second part: a bar’s name stays the same whatever its value. But erase them and
-            the reader loses information they need, so this guide counts them as data-ink, and sorts every mark with two simpler
-            questions. Does it tell the reader something about the data? And is that already said somewhere else, so erasing it
-            would lose nothing? The thin line down each bar, the title and the axis labels tell the reader something nothing else
-            says: data-ink. The rest of each bar’s width, and numbers that repeat the axis, say it
-            again: repeated data-ink. Shading, gridlines, borders and axis lines say nothing about the numbers themselves: non-data
-            ink.
+            the reader loses information they need, so this guide counts them as data-ink, and we use two simple questions to
+            determine what type of ink it is: 1) Does it tell the reader something about the data? 2) And it is saying something
+            that is already present somewhere else, so removing it won't result in the loss of information? The thin line down
+            each bar, the title and the axis labels tell the reader something nothing else says: data-ink. The rest of each bar’s
+            width, and numbers that repeat the axis, say it again: redundant data-ink. Shading, gridlines, borders and axis lines
+            say nothing about the numbers themselves: non-data ink.
           </p>
           <More label="Tufte’s full definition" className="mt-5">
             <div className="space-y-1.5 font-serif text-lg leading-snug text-content-2">
@@ -86,7 +86,7 @@ const GuidePage: React.FC = () => {
         id="bar-width"
         part={partOf('bar-width')}
         title={title('bar-width')}
-        lead="A bar shows its value by its length. Any extra width is more ink saying the same number."
+        lead="A bar represents a value with its height. Widening a bar uses more ink to encode the same value."
       >
         <BarWidthStory />
         {!article && <SubHeading className={afterStory}>Try any width</SubHeading>}

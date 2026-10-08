@@ -5,12 +5,12 @@ import { RAZOR_STEPS, razorSpec } from '../../../ink/razor.ts';
 import { useIsDark } from '../../site/theme.ts';
 import { useView } from '../../site/view.ts';
 import ChartPanels from '../ChartPanels.tsx';
-import { decimal, pct, times } from '../format.ts';
+import { pct, times } from '../format.ts';
 import Guess from '../Guess.tsx';
 import { InkKey, InkTerm } from '../InkReadout.tsx';
 import RatioFormula from '../RatioFormula.tsx';
 import ScrollStory from '../ScrollStory.tsx';
-import StoryFigure, { usePointVerb } from '../StoryFigure.tsx';
+import StoryFigure from '../StoryFigure.tsx';
 import { useInkStatsList } from '../useInk.ts';
 
 // Each step of the story: which cut of the razor the chart shows, and how. The thin lines and
@@ -31,7 +31,6 @@ const Ratio: React.FC<{ children: React.ReactNode }> = ({ children }) => <strong
 /** The opening: one cluttered chart, erased a piece at a time as the reader scrolls. */
 const RazorStory: React.FC = () => {
   const isDark = useIsDark();
-  const { Verb } = usePointVerb();
   const { view, setView } = useView();
   const article = view === 'article';
   const [guessed, setGuessed] = useState(false);
@@ -39,14 +38,15 @@ const RazorStory: React.FC = () => {
   const stats = useInkStatsList(specs);
   const start = stats[0];
   const r = (cut: number) => <Ratio>{pct(stats[cut].ratio)}</Ratio>;
+  const chartIntroduction = <p>Here is a typical bar chart containing five value. Whoever made it was happy to use the default design and style without making any changes.</p>;
 
   // The interactive story: guess first, then watch the chart lose one kind of ink per step.
   const steps = [
     <>
-      <p>Here is a bar chart of five numbers. Whoever made it switched on every default and decoration their software offered.</p>
+      {chartIntroduction}
       <Guess
         className="mt-7"
-        question="Every mark on it is ink. Erase the shaded background: does the share of ink that shows the five numbers go up, down, or stay the same?"
+        question="Data-ink ratio measures the amount of ink used to represent data divided by the total mount of ink used to create the chart. If you remove the shaded background behind the bars, does the share of ink that shows the five numbers go up, down, or stay the same?"
         options={[
           { value: 'up', label: 'Up' },
           { value: 'same', label: 'Stays the same' },
@@ -66,112 +66,53 @@ const RazorStory: React.FC = () => {
     </>,
     <>
       <p>
-        Here is the same chart as an <em>ink map</em>, with every mark coloured by what it does.{' '}
-        <InkTerm kind="data">Data-ink</InkTerm> tells the reader about the data: a thin line down each bar, as long as the bar, and
-        the title and axis labels. <InkTerm kind="redundant">Repeated data-ink</InkTerm> says something again.{' '}
-        <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else.
+        Here is the same chart shown as an ink map, colour coded by its property.{' '}
+        <InkTerm kind="data">Data-ink</InkTerm> conveys some form of information or data, including the bars, the title and axis
+        labels. <InkTerm kind="redundant">Redundant data-ink</InkTerm> is information or data that can be removed without loss of
+        information. <InkTerm kind="nonData">Non-data ink</InkTerm> is everything else that doesn't represent any information or
+        data, including the gridlines.
       </p>
       <RatioFormula />
       <p>
-        For this chart that’s about {r(0)}: an estimate, because what counts as ink is partly a judgement call. {Verb} any part of
-        the chart to see what it is.
+        For this chart that’s about {r(0)}: an estimate, because what counts as redundant data-ink is partly a judgement call.
+        {!article && ' Point at any part of the chart to see what it is.'}
       </p>
     </>,
     <p>
-      Edward Tufte’s advice: erase the ink that isn’t data, within reason. Start with the shaded background, the biggest piece of
-      non-data ink here. The ratio rises to {r(1)}.
+      Edward Tufte’s advice: remove ink that does not represent data or convey meaning. Start with the shaded background, the
+      biggest piece of non-data ink here. The ratio rises to {r(1)}.
     </p>,
     <p>
-      Next, the gridlines, the box, the tick marks, the outlines and the oversized type. The lines are light on ink, and smaller
-      type is less data-ink, so the ratio slips to {r(3)}. Erasing clutter doesn’t always raise it. Most of the ink is still in the
-      bars.
+      Next, the gridlines, the tick marks, the borders, and the oversized type. The lines do not use much ink, and smaller type
+      also uses less data-ink, so the ratio falls slightly to {r(3)}. What you quickly realize is that most of the data-ink is
+      still in the bars, although a lot of it might be redundant.
     </p>,
     <p>
-      Now the biggest cut. A bar shows its value by its length; its width only repeats it. Slim the bars and the ratio jumps to{' '}
-      {r(4)}, {times(stats[4].ratio, start.ratio)} where it started.
+      Now the biggest cut. A bar represents a value by its length; the width of the bar is mostly redundant information. Slimming
+      the bars and the ratio jumps to {r(4)}, {times(stats[4].ratio, start.ratio)} where it started.
     </p>,
     <p>
-      The axis labels and the numbers on the bars say each value twice. Erase the axis labels and the numbers on the bars carry
-      the values alone, so they now count as data-ink. “Chart Title” becomes a title that says what the chart shows, with its
-      unit. The ratio rises to {r(5)}, and the chart now says something.
+      The axis labels and the data labels on the bars provide the same information in different ways. Erase the axis labels and
+      the data labels on the bars carry the values alone, so now count as data-ink. “Chart Title” becomes a meaningful title that
+      provides some information and tells you the unit of measurement. The ratio rises to {r(5)}.
     </p>,
     <p>
-      Keep erasing and you reach {r(6)}: nothing but data. But what are these bars? What do they measure? Nothing says any more.
-      The title and labels were data-ink too, so this cut lost information, yet the ratio still went up. It only compares the ink
-      that’s left, so it can’t see what’s missing.
+      Keep erasing ink from the chart and you reach {r(6)}: nothing but pure data. But what are these lines? What do they measure?
+      We've lost information. The title and labels were data-ink too, so removing them results in the loss of information, even
+      though you continue to increase the data-ink ratio.
     </p>,
     <>
       <p>
-        So chasing the highest ratio is a mistake. Keep the ink that helps someone read the chart, and cut the rest. One cut back,
-        shown here again, was a good place to stop: {r(5)}, {times(stats[5].ratio, start.ratio)} the start, with nothing a reader
-        needs gone.
+        Clearly we should not just be chasing the highest data-ink ratio. Keep the ink that helps someone read the chart, and cut
+        the rest. One cut back, shown here again, was a good place to stop: {r(5)}, {times(stats[5].ratio, start.ratio)} the start,
+        with nothing a reader needs gone.
       </p>
-      <p>The rest of this guide shows where to stop, one kind of ink at a time.</p>
+      <p>The rest of this guide shows you how to work out what a chart with optimal data-ink ratio looks like.</p>
     </>,
   ];
 
-  // The reading view: the same argument as prose, each figure after the paragraph that introduces it.
-  const readingSteps = [
-    <p>
-      Here is a bar chart of five numbers: weekly bike-share trips, in thousands, at five stations. Whoever made it switched on every
-      default and decoration their software offered. The second copy is an <em>ink map</em>: the same chart, with every mark coloured
-      by what it does.
-    </p>,
-    <>
-      <p>
-        <InkTerm kind="data">Data-ink</InkTerm> tells the reader about the data: a thin line down each bar, as long as the bar, and
-        the title and axis labels that say what the bars show. <InkTerm kind="redundant">Repeated data-ink</InkTerm> says something
-        again: the rest of each bar’s width, and the numbers printed on top. <InkTerm kind="nonData">Non-data ink</InkTerm> is
-        everything else: the shading, the gridlines, the borders and the axis lines.
-      </p>
-      <p>The <em>data-ink ratio</em>, at its simplest, is one share of the ink:</p>
-      <RatioFormula />
-      <p>
-        For this chart it’s about {decimal(start.ratio)}, or {r(0)}. Most of the rest is decoration, or ink that repeats what the
-        bars already show.
-      </p>
-      <p>
-        Treat that number as an estimate rather than an exact value. How thin a bar can get before it’s hard to see, and how a chart
-        looks on different screens, are judgement calls, so no count is exact. What holds up is the comparison between two versions
-        of one chart, which Lai and Morrison call the <em>relative value</em>. That’s how this guide uses the ratio.
-      </p>
-    </>,
-    <p>
-      Edward Tufte’s advice is to erase the ink that isn’t data, within reason. Here is that advice applied one cut at a time, each
-      chart keeping every cut before it.
-    </p>,
-    <p>
-      The first cut is the shaded background, the biggest piece of non-data ink. It shows no numbers, so erasing it leaves the same
-      data in less ink, and the ratio rises to {r(1)}.
-    </p>,
-    <p>
-      The gridlines, the box, the tick marks, the outlines and the oversized type go next. The lines are light on ink, and smaller
-      type is less data-ink, so the ratio slips to {r(3)}. Erasing clutter doesn’t always raise it. Most of the ink is still in the
-      bars.
-    </p>,
-    <p>
-      Then the biggest cut. A bar shows its value by its length; its width only repeats it. Slimmer bars take the ratio to {r(4)},{' '}
-      {times(stats[4].ratio, start.ratio)} where it started.
-    </p>,
-    <p>
-      The axis labels and the numbers on the bars say each value twice. Erase the axis labels and the numbers on the bars carry
-      the values alone, so they now count as data-ink. “Chart Title” becomes a title that says what the chart shows, with its
-      unit. The ratio rises to {r(5)}, and the chart now says something.
-    </p>,
-    <p>
-      Keep erasing and the last chart reaches {r(6)}: nothing but data. But what are these bars? What do they measure? Nothing says
-      any more. The title and labels were data-ink too, so that cut lost information, yet the ratio still went up. It only compares
-      the ink that’s left, so it can’t see what’s missing.
-    </p>,
-    <>
-      <p>
-        So chasing the highest ratio is a mistake. Keep the ink that helps someone read the chart, and cut the rest. The fifth chart,
-        “Each value said once”, is a good place to stop: {r(5)}, {times(stats[5].ratio, start.ratio)} the start, with nothing a reader
-        needs gone.
-      </p>
-      <p>The rest of this guide shows where to stop, one kind of ink at a time.</p>
-    </>,
-  ];
+  // Use the supplied prose in both views; the reading view omits the interactive guess.
+  const readingSteps = [chartIntroduction, ...steps.slice(1)];
 
   const articleFigures = [
     {
@@ -181,7 +122,7 @@ const RazorStory: React.FC = () => {
           columns={2}
           label="A cluttered bar chart, and the same chart as an ink map"
           panels={[
-            { spec: specs[0], hideRatio: true, label: 'The chart', caption: 'Every default and decoration switched on.' },
+            { spec: specs[0], hideRatio: true, label: 'The chart' },
             { spec: specs[0], inkMap: true, hideRatio: true, label: 'The same chart as an ink map', caption: <InkKey /> },
           ]}
         />
@@ -204,6 +145,10 @@ const RazorStory: React.FC = () => {
         />
       ),
     },
+    {
+      after: 6,
+      figure: <ChartPanels label="One cut back: a good place to stop" panels={[{ spec: specs[5], label: 'One cut back' }]} />,
+    },
   ];
 
   // The choice between the two views, offered where every reader starts.
@@ -225,13 +170,11 @@ const RazorStory: React.FC = () => {
         id="razor-title"
         className="mt-4 max-w-4xl font-serif text-[2.6rem] sm:text-6xl lg:text-[4.5rem] leading-[1.02] tracking-tight text-content text-balance"
       >
-        How much of a chart is data?
+        How much data is there in your chart?
       </h1>
       <p className="article mt-5 max-w-2xl text-content-2 text-pretty">
-        Edward Tufte’s <em>data-ink ratio</em> asks what share of a chart’s ink actually shows the data.{' '}
-        {article
-          ? 'This guide takes a cluttered chart apart, one piece at a time, then looks at what impact each piece has on the data-ink ratio, and how to optimise it for your chart.'
-          : 'Scroll to take a cluttered chart apart, one piece at a time, and see what impact each piece has on the data-ink ratio, and how to optimise it for your chart.'}
+        Edward Tufte’s data-ink ratio can help us to understand the information density of a chart. Scroll down to see how changes
+        to a chart can impact on the data-ink ratio, and how to optimize it for your chart.
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-x-6 font-sans text-[0.8125rem] text-chrome">
         {!article && (

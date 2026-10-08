@@ -24,7 +24,7 @@ function rowsFor(part: InkPart, spec: ChartSpec): Row[] {
         { kind: 'data', label: 'Data-ink: a thin line down each bar', pixels: groups.hairlines },
         {
           kind: 'redundant',
-          label: spec.barOutline ? 'Repeated: the rest of each bar, and its outline' : 'Repeated: the rest of each bar',
+          label: spec.barOutline ? 'Redundant: the rest of each bar, and its outline' : 'Redundant: the rest of each bar',
           pixels: groups.barWidth + groups.outlines,
         },
       ];
