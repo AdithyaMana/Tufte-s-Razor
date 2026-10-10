@@ -61,7 +61,7 @@ const PageReveal: React.FC = () => {
         <span className="w-[3px] h-2.5 bg-ink-redundant" />
         <span className="w-[3px] h-1.5 bg-ink-nondata" />
       </span>
-      {page ? 'Hide this page’s ink' : 'Show this page’s ink'}
+      {page ? 'Hide this page’s data-pixels' : 'Show this page’s data-pixels'}
     </button>
   );
 
@@ -69,14 +69,14 @@ const PageReveal: React.FC = () => {
     <Prose
       notes={
         <MarginNote title="An analogy, not a measurement">
-          A page isn’t a chart and words aren’t data, so nothing here is counted. The question still works for anything you design:
-          what is each mark doing for the reader?
+          A web page isn’t a chart and words aren’t numbers, but question still works for anything you design: what is each
+          ink/pixel doing for the reader?
         </MarginNote>
       }
     >
       <p>
-        A web page is ink on paper too. We designed this one by the guide’s own rule: the reading gets the ink, and everything else
-        stays as quiet as it can while still doing its job. Want to see its ink?
+        A web page is ink on paper too (or at least pixels on a display). We tried to design this one using the same principles:
+        optimize the data-pixels while making sure that the information is still easy to understand. How did we do?
       </p>
       {button}
       <div aria-live="polite">{page && <Explanation />}</div>

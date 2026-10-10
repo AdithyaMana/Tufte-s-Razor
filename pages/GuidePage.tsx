@@ -13,7 +13,7 @@ import InkKindsStory from '../components/guide/stories/InkKindsStory.tsx';
 import RazorStory from '../components/guide/stories/RazorStory.tsx';
 import RedundancyStory from '../components/guide/stories/RedundancyStory.tsx';
 import TypeStory from '../components/guide/stories/TypeStory.tsx';
-import ThreeCharts, { RelativeValueNote } from '../components/guide/ThreeCharts.tsx';
+import ThreeCharts from '../components/guide/ThreeCharts.tsx';
 import { scrollToHash } from '../components/site/router.ts';
 import { useIsArticle } from '../components/site/view.ts';
 
@@ -134,13 +134,13 @@ const GuidePage: React.FC = () => {
         lead="A higher ratio isn’t always better. Too much ink buries the data; too little leaves the reader guessing."
       >
         <ThreeCharts />
-        <Prose notes={<RelativeValueNote />}>
+        <Prose>
           <p>
-            A ratio isn’t good or bad on its own. The right range depends on who’s reading and why, the case ScienceUX made in{' '}
-            <a href={GOLDILOCKS_URL}>The Story of Goldilocks and the Three Charts</a>. So compare versions of one chart, as above,
-            instead of grading a chart by itself. Lai and Morrison call this the <em>relative value</em>.
+            A ratio isn’t good or bad without proper context. The right range depends on who’s reading and what is the key
+            relationship to be represented (for more read{' '}
+            <a href={GOLDILOCKS_URL}>The Story of Goldilocks and the Three Charts)</a>.
           </p>
-          <p>These are the design flaws that most often push a chart out of that range, in one direction or the other.</p>
+          <p>These are the design flaws that most often push a chart outside of an optimal range, in one direction or the other.</p>
         </Prose>
         <FlawSpectrum />
       </Section>
@@ -163,7 +163,7 @@ const GuidePage: React.FC = () => {
         id="checklist"
         part={partOf('checklist')}
         title={title('checklist')}
-        lead="The whole guide as a list to check any bar chart against, including what the ratio can’t measure."
+        lead="A practical checklist for your charts, including what the data-ink ratio can’t measure."
       >
         <ol className="article max-w-[38rem] space-y-5 list-none pl-0">
           {PUBLISH_CHECKS.map((check, i) => (
@@ -178,7 +178,7 @@ const GuidePage: React.FC = () => {
         </ol>
       </Section>
 
-      <Section id="this-page" part={partOf('this-page')} title={title('this-page')} lead="One last chart, of a kind.">
+      <Section id="this-page" part={partOf('this-page')} title={title('this-page')} lead="One last data visualization, of a slightly different kind.">
         <PageReveal />
       </Section>
 

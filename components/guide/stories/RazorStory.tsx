@@ -38,7 +38,7 @@ const RazorStory: React.FC = () => {
   const stats = useInkStatsList(specs);
   const start = stats[0];
   const r = (cut: number) => <Ratio>{pct(stats[cut].ratio)}</Ratio>;
-  const chartIntroduction = <p>Here is a typical bar chart containing five value. Whoever made it was happy to use the default design and style without making any changes.</p>;
+  const chartIntroduction = <p>Here is a typical bar chart containing five values. Whoever made it was happy to use the default design and style without making any changes.</p>;
 
   // The interactive story: guess first, then watch the chart lose one kind of ink per step.
   const steps = [
